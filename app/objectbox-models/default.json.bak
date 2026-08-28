@@ -316,10 +316,197 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "3:6809545495960265547",
+      "lastPropertyId": "25:423891605575528580",
+      "name": "DriverProfile",
+      "properties": [
+        {
+          "id": "1:878245382622189750",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:8211160969839271117",
+          "name": "driverId",
+          "indexId": "4:3521690818449260589",
+          "type": 6,
+          "flags": 8
+        },
+        {
+          "id": "3:2544709805017327959",
+          "name": "fetchedAt",
+          "type": 6
+        },
+        {
+          "id": "4:6274844124462228924",
+          "name": "driverName",
+          "type": 9
+        },
+        {
+          "id": "5:711136760754785802",
+          "name": "driverEmail",
+          "type": 9
+        },
+        {
+          "id": "6:9027261931881774765",
+          "name": "driverPhone",
+          "type": 9
+        },
+        {
+          "id": "7:7872519323190528489",
+          "name": "driverWhatsapp",
+          "type": 9
+        },
+        {
+          "id": "8:4283340425909293481",
+          "name": "driverNationality",
+          "type": 9
+        },
+        {
+          "id": "9:3784290864315627915",
+          "name": "driverBranch",
+          "type": 9
+        },
+        {
+          "id": "10:5479433879483931477",
+          "name": "rating",
+          "type": 8
+        },
+        {
+          "id": "11:1222781275912012708",
+          "name": "ratingCount",
+          "type": 5
+        },
+        {
+          "id": "12:8088421663763493256",
+          "name": "memberSince",
+          "type": 9
+        },
+        {
+          "id": "13:3323678838682576",
+          "name": "vehicleId",
+          "type": 6
+        },
+        {
+          "id": "14:5277526779043250000",
+          "name": "plateNumber",
+          "type": 9
+        },
+        {
+          "id": "15:1087246024168545441",
+          "name": "vehicleMake",
+          "type": 9
+        },
+        {
+          "id": "16:105743884889786784",
+          "name": "vehicleModel",
+          "type": 9
+        },
+        {
+          "id": "17:6785026298867842122",
+          "name": "fuelType",
+          "type": 9
+        },
+        {
+          "id": "18:4725229098119435473",
+          "name": "vehicleStatus",
+          "type": 9
+        },
+        {
+          "id": "19:7361852620855989000",
+          "name": "trailerPlate",
+          "type": 9
+        },
+        {
+          "id": "20:1164783089742414481",
+          "name": "totalTrips",
+          "type": 5
+        },
+        {
+          "id": "21:5629449571005702556",
+          "name": "completedTrips",
+          "type": 5
+        },
+        {
+          "id": "22:1763775863406694151",
+          "name": "pendingTrips",
+          "type": 5
+        },
+        {
+          "id": "23:9040556616202248930",
+          "name": "totalDistanceKm",
+          "type": 8
+        },
+        {
+          "id": "24:1757792398303666667",
+          "name": "hoursDriven",
+          "type": 8
+        },
+        {
+          "id": "25:423891605575528580",
+          "name": "rawJson",
+          "type": 9
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "4:134554536064916024",
+      "lastPropertyId": "8:6849473527824397293",
+      "name": "DriverTrip",
+      "properties": [
+        {
+          "id": "1:2837927233921772161",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:7220432317319897384",
+          "name": "driverId",
+          "indexId": "5:3525123303865032188",
+          "type": 6,
+          "flags": 8
+        },
+        {
+          "id": "3:2211555242606494441",
+          "name": "tripId",
+          "type": 6
+        },
+        {
+          "id": "4:7053082865648944428",
+          "name": "reference",
+          "type": 9
+        },
+        {
+          "id": "5:7216731701181490502",
+          "name": "status",
+          "type": 9
+        },
+        {
+          "id": "6:3158012110251467558",
+          "name": "origin",
+          "type": 9
+        },
+        {
+          "id": "7:8340781895807020731",
+          "name": "destination",
+          "type": 9
+        },
+        {
+          "id": "8:6849473527824397293",
+          "name": "endedAt",
+          "type": 9
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "2:3612601355210220939",
-  "lastIndexId": "3:5846100671534158444",
+  "lastEntityId": "4:134554536064916024",
+  "lastIndexId": "5:3525123303865032188",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",
   "modelVersion": 5,

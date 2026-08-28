@@ -13,6 +13,7 @@ import retrofit2.http.QueryMap;
 import rw.martinhardware.mymartin.network.dto.CategoryDto;
 import rw.martinhardware.mymartin.network.dto.LoginResponseDto;
 import rw.martinhardware.mymartin.network.dto.RiddleDto;
+import rw.martinhardware.mymartin.network.dto.SummaryDto;
 import rw.martinhardware.mymartin.network.dto.UserDto;
 
 /**
@@ -37,6 +38,13 @@ public interface RinjoraApi {
 
     @GET("auth/user")
     Call<ApiEnvelope<UserDto>> currentUser();
+
+    // ------------------------------------------------------------------
+    // Profile summary / home (plan §4.1)
+    // ------------------------------------------------------------------
+
+    @GET("me/summary")
+    Call<ApiEnvelope<SummaryDto>> summary();
 
     // ------------------------------------------------------------------
     // Riddles (plan §2, §3)

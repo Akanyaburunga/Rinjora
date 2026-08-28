@@ -11,7 +11,7 @@ import rw.martinhardware.mymartin.viewmodel.RinjoraAuthViewModel;
 
 /**
  * Host for the Rinjora (Kazinduzi) register/login flow. Launches
- * {@link RinjoraRiddlesActivity} once authenticated. Self-contained and separate
+ * {@link RinjoraHomeActivity} once authenticated. Self-contained and separate
  * from the legacy logistics auth so both can coexist during migration.
  */
 public class RinjoraAuthActivity extends BaseActivity {
@@ -27,7 +27,7 @@ public class RinjoraAuthActivity extends BaseActivity {
 
         viewModel.getAuthState().observe(this, state -> {
             if (state == RinjoraAuthViewModel.RinjoraAuthState.AUTHENTICATED) {
-                Intent intent = new Intent(RinjoraAuthActivity.this, RinjoraRiddlesActivity.class);
+                Intent intent = new Intent(RinjoraAuthActivity.this, RinjoraHomeActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
                 finish();

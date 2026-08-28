@@ -195,6 +195,29 @@ Follow the plan's combined build order; this is the same sequence against the re
     plan's example payloads and that the confidential `answer` is never exposed. All pass; build green.
   - **Deferred to Phase B**: the "debug screen pings `GET /riddles` after login" acceptance, since it
     needs the auth flow that Phase B provides. Interceptor/envelope/client are ready for it.
+- **Phase 4 — Home screen (`/me/summary`, offline-first) (committed)**: the authenticated landing
+  screen is now a Rinjora Home that renders the player summary `GET /me/summary` (§4.1) from an
+  ObjectBox snapshot (mirroring the logistics `DriverHomeRepository`/`HomeSnapshot` offline-first
+  pattern: cache-first, background refresh, staleness line).
+  - `network/dto/SummaryDto` + nested `SummaryUserDto`, `PointsDto`, `StreakDto`, `BadgesDto`,
+    `ActivityDto` — parse the §4.1 example payload (`RinjoraSummaryContractTest`).
+  - `network/RinjoraApi` — added `@GET("me/summary")`.
+  - `entities/RinjoraSummarySnapshot` (ObjectBox) — flattened summary fields + `rawJson` + `fetchedAt`,
+    one row per `userId`. This adds a new entity to the ObjectBox model.
+  - `data/RinjoraSummaryRepository` — offline-first: cache-first, fetch → save to ObjectBox, 401 →
+    auth error; API-23-compatible (no `java.time`).
+  - `rinjora/RinjoraHomeActivity` + `res/layout/activity_rinjora_home.xml` — renders from cache with a
+    60s background poll and staleness line; logout; a "Riddles API debug" button still reaches the
+    Phase 3 `/riddles` harness until later phases replace it.
+  - `RinjoraAuthActivity` now lands on `RinjoraHomeActivity` when authenticated (was `RinjoraRiddlesActivity`).
+  - **ObjectBox model reconciliation**: this commit commits the full regenerated `default.json`, which
+    includes the new `RinjoraSummarySnapshot` entity **and** reconciles a pre-existing drift where
+    `HomeSnapshot.java` had an uncommitted `hasPosition` field (it was in the committed source but never
+    in the committed model, so the model was dirty after every build). This finally syncs the model to
+    the committed source and stops the perpetual dirty-model churn.
+  - **Tests/Lint**: new `RinjoraSummaryContractTest` (1 test) passes alongside the 3 existing
+    `RinjoraApiContractTest` tests (4/4). New Phase 4 files: zero lint *errors* (only style warnings,
+    consistent with the rest of the app). The 3 pre-existing lint errors remain unchanged.
 - **Phase 3 — Auth (committed)**: added a self-contained Rinjora (Kazinduzi) register/login/logout
   flow wired to `/auth/*`, stored in `AuthTokenStore`, plus the deferred Phase A "ping `/riddles`" screen.
   - `data/RinjoraAuthRepository` — wraps register/login/logout/currentUser; persists the Bearer token
