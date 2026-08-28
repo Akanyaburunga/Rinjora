@@ -1,6 +1,7 @@
 package rw.martinhardware.mymartin.ui.home;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -12,6 +13,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
@@ -203,22 +205,50 @@ public class HomeFragment extends Fragment {
             }
         }
 
-        // Fuel
-        boolean hasFuel = s.getTankCapacity() > 0;
-        binding.cardFuel.setVisibility(hasFuel ? View.VISIBLE : View.GONE);
-        if (hasFuel) {
+        // Truck status summary
+        boolean hasTruckStatus = s.isHasPosition() || s.getTankCapacity() > 0
+                || s.getLastSeenAt() != null || s.isStale();
+        binding.cardTruckStatus.setVisibility(hasTruckStatus ? View.VISIBLE : View.GONE);
+        if (hasTruckStatus) {
             double level = Math.max(0, s.getFuelLevel());
             double capacity = s.getTankCapacity();
-            int percent = (int) Math.min(100, Math.round(level / capacity * 100.0));
+            int percent = (int) Math.min(100, Math.round(level / Math.max(1, capacity) * 100.0));
+
             binding.tvFuelValue.setText(formatLitres(level));
-            binding.progressBarFuel.setProgress(percent);
-            binding.progressBarFuel.setProgressTintList(percent < LOW_FUEL_THRESHOLD_PERCENT
-                    ? android.content.res.ColorStateList.valueOf(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.brand_error))
-                    : null);
-            StringBuilder detail = new StringBuilder(formatLitres(level) + " of " + formatLitres(capacity));
-            if (s.getFuelType() != null && !s.getFuelType().isEmpty()) detail.append(" \u00b7 ").append(s.getFuelType());
-            binding.tvFuelDetail.setText(detail.toString());
-            binding.tvFuelWarning.setVisibility(percent < LOW_FUEL_THRESHOLD_PERCENT ? View.VISIBLE : View.GONE);
+
+            boolean engineOn = s.isIgnition();
+            binding.tvEngineValue.setText(engineOn ? "On" : "Off");
+            binding.tvEngineValue.setTextColor(engineOn
+                    ? ContextCompat.getColor(requireContext(), R.color.brand_success)
+                    : ContextCompat.getColor(requireContext(), R.color.text_muted));
+            binding.imgEngine.setImageTintList(engineOn
+                    ? ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.brand_success))
+                    : ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.text_muted)));
+
+            binding.tvSpeedValue.setText(String.format(Locale.US, "%.0f km/h", s.getSpeed()));
+
+            boolean stale = s.isStale();
+            binding.tvSignalValue.setText(stale ? "Stale" : "Live");
+            int signalColor = ContextCompat.getColor(requireContext(),
+                    stale ? R.color.status_pending : R.color.brand_success);
+            binding.tvSignalValue.setTextColor(signalColor);
+            binding.tvTruckSignal.setText(stale ? "Stale" : "Live");
+            binding.tvTruckSignal.setTextColor(signalColor);
+
+            boolean showFuelBar = capacity > 0;
+            binding.progressBarFuel.setVisibility(showFuelBar ? View.VISIBLE : View.GONE);
+            binding.tvFuelDetail.setVisibility(showFuelBar ? View.VISIBLE : View.GONE);
+            if (showFuelBar) {
+                binding.progressBarFuel.setProgress(percent);
+                binding.progressBarFuel.setProgressTintList(percent < LOW_FUEL_THRESHOLD_PERCENT
+                        ? ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.brand_error))
+                        : null);
+                StringBuilder detail = new StringBuilder(formatLitres(level) + " of " + formatLitres(capacity));
+                if (s.getFuelType() != null && !s.getFuelType().isEmpty()) detail.append(" \u00b7 ").append(s.getFuelType());
+                binding.tvFuelDetail.setText(detail.toString());
+            }
+            binding.tvFuelWarning.setVisibility(showFuelBar && percent < LOW_FUEL_THRESHOLD_PERCENT
+                    ? View.VISIBLE : View.GONE);
         }
 
         // Dispatcher

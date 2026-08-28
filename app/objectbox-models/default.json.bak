@@ -1,0 +1,332 @@
+{
+  "_note1": "KEEP THIS FILE! Check it into a version control system (VCS) like git.",
+  "_note2": "ObjectBox manages crucial IDs for your object model. See docs for details.",
+  "_note3": "If you have VCS merge conflicts, you must resolve them according to ObjectBox docs.",
+  "entities": [
+    {
+      "id": "1:2051121404617231604",
+      "lastPropertyId": "12:2993030432668293765",
+      "name": "User",
+      "properties": [
+        {
+          "id": "1:218554587203589219",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:2712647465346105535",
+          "name": "uuid",
+          "indexId": "1:7403978782108489192",
+          "type": 9,
+          "flags": 2048
+        },
+        {
+          "id": "3:1118830036085819847",
+          "name": "email",
+          "indexId": "2:9103628891922443383",
+          "type": 9,
+          "flags": 2048
+        },
+        {
+          "id": "4:8099465328411021074",
+          "name": "phoneNumber",
+          "type": 9
+        },
+        {
+          "id": "5:825110727099205252",
+          "name": "whatsappNumber",
+          "type": 9
+        },
+        {
+          "id": "6:980247279238904555",
+          "name": "name",
+          "type": 9
+        },
+        {
+          "id": "7:973791296365263020",
+          "name": "token",
+          "type": 9
+        },
+        {
+          "id": "8:6276177792576342803",
+          "name": "refreshToken",
+          "type": 9
+        },
+        {
+          "id": "9:5703520669143587423",
+          "name": "tokenExpiry",
+          "type": 6
+        },
+        {
+          "id": "10:2063837752929024863",
+          "name": "createdAt",
+          "type": 6
+        },
+        {
+          "id": "11:6714332723862774337",
+          "name": "updatedAt",
+          "type": 6
+        },
+        {
+          "id": "12:2993030432668293765",
+          "name": "isActive",
+          "type": 1
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "2:3612601355210220939",
+      "lastPropertyId": "46:6443426780511094131",
+      "name": "HomeSnapshot",
+      "properties": [
+        {
+          "id": "1:6715931737633873711",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:8643465034676902641",
+          "name": "driverId",
+          "indexId": "3:5846100671534158444",
+          "type": 6,
+          "flags": 8
+        },
+        {
+          "id": "3:8206469517192015675",
+          "name": "fetchedAt",
+          "type": 6
+        },
+        {
+          "id": "4:3459007058935284763",
+          "name": "hasActiveTrip",
+          "type": 1
+        },
+        {
+          "id": "5:2586589781138817832",
+          "name": "driverName",
+          "type": 9
+        },
+        {
+          "id": "6:9097347198006775966",
+          "name": "driverEmail",
+          "type": 9
+        },
+        {
+          "id": "7:4160435340386106057",
+          "name": "driverPhone",
+          "type": 9
+        },
+        {
+          "id": "8:5915399348670568358",
+          "name": "driverWhatsapp",
+          "type": 9
+        },
+        {
+          "id": "9:1001284111355754310",
+          "name": "driverNationality",
+          "type": 9
+        },
+        {
+          "id": "10:5736216142171556282",
+          "name": "driverBranch",
+          "type": 9
+        },
+        {
+          "id": "11:8136935052748433317",
+          "name": "vehicleId",
+          "type": 6
+        },
+        {
+          "id": "12:8593698379606462371",
+          "name": "plateNumber",
+          "type": 9
+        },
+        {
+          "id": "13:242408334112473865",
+          "name": "vehicleMake",
+          "type": 9
+        },
+        {
+          "id": "14:8390385533565296261",
+          "name": "vehicleModel",
+          "type": 9
+        },
+        {
+          "id": "15:4947467976677403119",
+          "name": "fuelType",
+          "type": 9
+        },
+        {
+          "id": "16:7158075902876056219",
+          "name": "tankCapacity",
+          "type": 8
+        },
+        {
+          "id": "17:315072834309540488",
+          "name": "vehicleStatus",
+          "type": 9
+        },
+        {
+          "id": "18:154695523756401002",
+          "name": "trailerPlate",
+          "type": 9
+        },
+        {
+          "id": "19:3207560006220558467",
+          "name": "latitude",
+          "type": 8
+        },
+        {
+          "id": "20:3009775250563807736",
+          "name": "longitude",
+          "type": 8
+        },
+        {
+          "id": "21:855792041600237242",
+          "name": "speed",
+          "type": 8
+        },
+        {
+          "id": "22:8072831620389203673",
+          "name": "fuelLevel",
+          "type": 8
+        },
+        {
+          "id": "23:8949027416484561952",
+          "name": "lastSeenAt",
+          "type": 9
+        },
+        {
+          "id": "24:942762071838064881",
+          "name": "isMoving",
+          "type": 1
+        },
+        {
+          "id": "25:3565220145537446568",
+          "name": "ignition",
+          "type": 1
+        },
+        {
+          "id": "26:4120557365126159874",
+          "name": "isStale",
+          "type": 1
+        },
+        {
+          "id": "27:7238786978086741183",
+          "name": "placeId",
+          "type": 6
+        },
+        {
+          "id": "28:2285305286839675415",
+          "name": "placeName",
+          "type": 9
+        },
+        {
+          "id": "29:7096223923077354525",
+          "name": "placeType",
+          "type": 9
+        },
+        {
+          "id": "30:7300248318889671699",
+          "name": "placeCity",
+          "type": 9
+        },
+        {
+          "id": "31:4992781542126368115",
+          "name": "placeDistanceMeters",
+          "type": 5
+        },
+        {
+          "id": "32:7085910957871400418",
+          "name": "placeLat",
+          "type": 8
+        },
+        {
+          "id": "33:2137367281160818616",
+          "name": "placeLng",
+          "type": 8
+        },
+        {
+          "id": "34:3229403119225194244",
+          "name": "staffName",
+          "type": 9
+        },
+        {
+          "id": "35:4807974373990047649",
+          "name": "staffRoles",
+          "type": 9
+        },
+        {
+          "id": "36:4471446274644956391",
+          "name": "staffPhone",
+          "type": 9
+        },
+        {
+          "id": "37:3544650556103987700",
+          "name": "staffWhatsapp",
+          "type": 9
+        },
+        {
+          "id": "38:7320388982198826695",
+          "name": "tripId",
+          "type": 6
+        },
+        {
+          "id": "39:8173037478162913353",
+          "name": "tripReference",
+          "type": 9
+        },
+        {
+          "id": "40:1110921242814257774",
+          "name": "tripStatus",
+          "type": 9
+        },
+        {
+          "id": "41:682705807280235484",
+          "name": "orderReference",
+          "type": 9
+        },
+        {
+          "id": "42:3038349154528041510",
+          "name": "orderOrigin",
+          "type": 9
+        },
+        {
+          "id": "43:2623513967265284991",
+          "name": "orderDestination",
+          "type": 9
+        },
+        {
+          "id": "44:1864823207279272892",
+          "name": "routeName",
+          "type": 9
+        },
+        {
+          "id": "45:4262347185366506084",
+          "name": "routeDistanceKm",
+          "type": 8
+        },
+        {
+          "id": "46:6443426780511094131",
+          "name": "rawJson",
+          "type": 9
+        }
+      ],
+      "relations": []
+    }
+  ],
+  "lastEntityId": "2:3612601355210220939",
+  "lastIndexId": "3:5846100671534158444",
+  "lastRelationId": "0:0",
+  "lastSequenceId": "0:0",
+  "modelVersion": 5,
+  "modelVersionParserMinimum": 5,
+  "retiredEntityUids": [],
+  "retiredIndexUids": [],
+  "retiredPropertyUids": [],
+  "retiredRelationUids": [],
+  "version": 1
+}

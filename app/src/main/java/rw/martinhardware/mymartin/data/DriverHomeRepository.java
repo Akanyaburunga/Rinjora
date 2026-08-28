@@ -173,6 +173,7 @@ public class DriverHomeRepository {
         }
 
         JSONObject position = root.optJSONObject("position");
+        s.setHasPosition(position != null);
         if (position != null) {
             s.setLatitude(position.optDouble("latitude", 0));
             s.setLongitude(position.optDouble("longitude", 0));

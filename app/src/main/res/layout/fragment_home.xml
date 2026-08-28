@@ -310,9 +310,9 @@
 
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Fuel -->
+            <!-- Truck status summary -->
             <com.google.android.material.card.MaterialCardView
-                android:id="@+id/card_fuel"
+                android:id="@+id/card_truck_status"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
@@ -336,27 +336,169 @@
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:src="@drawable/ic_fuel"
+                            android:src="@drawable/ic_truck"
                             app:tint="@color/brand_primary"
-                            android:contentDescription="Fuel" />
+                            android:contentDescription="Truck status" />
 
                         <TextView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:layout_marginStart="12dp"
-                            android:text="Fuel Level"
+                            android:text="Truck Status"
                             android:textSize="16sp"
                             android:textStyle="bold"
                             android:textColor="@color/text_primary" />
 
                         <TextView
-                            android:id="@+id/tv_fuel_value"
+                            android:id="@+id/tv_truck_signal"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="20sp"
+                            android:paddingLeft="10dp"
+                            android:paddingTop="4dp"
+                            android:paddingRight="10dp"
+                            android:paddingBottom="4dp"
+                            android:background="@drawable/bg_status_chip"
+                            android:textSize="12sp"
                             android:textStyle="bold"
-                            android:textColor="@color/text_primary" />
+                            android:textColor="@color/brand_success" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center">
+
+                            <ImageView
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
+                                android:src="@drawable/ic_fuel"
+                                app:tint="@color/brand_primary"
+                                android:contentDescription="Fuel" />
+
+                            <TextView
+                                android:id="@+id/tv_fuel_value"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="6dp"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/text_primary" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Fuel"
+                                android:textSize="11sp"
+                                android:textColor="@color/text_secondary" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center">
+
+                            <ImageView
+                                android:id="@+id/img_engine"
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
+                                android:src="@drawable/ic_power"
+                                app:tint="@color/text_muted"
+                                android:contentDescription="Engine" />
+
+                            <TextView
+                                android:id="@+id/tv_engine_value"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="6dp"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/text_primary" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Engine"
+                                android:textSize="11sp"
+                                android:textColor="@color/text_secondary" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center">
+
+                            <ImageView
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
+                                android:src="@drawable/ic_speedometer"
+                                app:tint="@color/brand_primary"
+                                android:contentDescription="Speed" />
+
+                            <TextView
+                                android:id="@+id/tv_speed_value"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="6dp"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/text_primary" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Speed"
+                                android:textSize="11sp"
+                                android:textColor="@color/text_secondary" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center">
+
+                            <ImageView
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
+                                android:src="@drawable/ic_signal"
+                                app:tint="@color/brand_success"
+                                android:contentDescription="Signal" />
+
+                            <TextView
+                                android:id="@+id/tv_signal_value"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="6dp"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/brand_success" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Signal"
+                                android:textSize="11sp"
+                                android:textColor="@color/text_secondary" />
+
+                        </LinearLayout>
 
                     </LinearLayout>
 
@@ -365,10 +507,11 @@
                         style="?android:attr/progressBarStyleHorizontal"
                         android:layout_width="match_parent"
                         android:layout_height="8dp"
-                        android:layout_marginTop="14dp"
+                        android:layout_marginTop="16dp"
                         android:max="100"
                         android:progressTint="@color/brand_success"
-                        android:progressBackgroundTint="@color/brand_surface_variant" />
+                        android:progressBackgroundTint="@color/brand_surface_variant"
+                        android:visibility="gone" />
 
                     <TextView
                         android:id="@+id/tv_fuel_detail"
@@ -376,7 +519,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
                         android:textSize="12sp"
-                        android:textColor="@color/text_secondary" />
+                        android:textColor="@color/text_secondary"
+                        android:visibility="gone" />
 
                     <TextView
                         android:id="@+id/tv_fuel_warning"

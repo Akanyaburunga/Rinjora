@@ -24,6 +24,9 @@ public class HomeSnapshot {
     /** False when the endpoint returned 404 (driver idle / no active trip). */
     public boolean hasActiveTrip;
 
+    /** True when the response contained a `position` object (telemetry exists). */
+    public boolean hasPosition;
+
     // --- driver ---
     public String driverName;
     public String driverEmail;
@@ -89,6 +92,8 @@ public class HomeSnapshot {
     public void setFetchedAt(long fetchedAt) { this.fetchedAt = fetchedAt; }
     public boolean isHasActiveTrip() { return hasActiveTrip; }
     public void setHasActiveTrip(boolean hasActiveTrip) { this.hasActiveTrip = hasActiveTrip; }
+    public boolean isHasPosition() { return hasPosition; }
+    public void setHasPosition(boolean hasPosition) { this.hasPosition = hasPosition; }
 
     public String getDriverName() { return driverName; }
     public void setDriverName(String driverName) { this.driverName = driverName; }
