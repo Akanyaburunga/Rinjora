@@ -174,6 +174,24 @@ Follow the plan's combined build order; this is the same sequence against the re
 - **Stub vs full removal** of logistics `ui/` packages: remove as each replacement ships, to keep the build green.
 
 ### Phase log
+- **Phase 8 — Favorites, sharing & progress (committed)**: added save-to-favorites, a native share
+  sheet, and re-used the persisted `hints_revealed` resume point (plan Phase G, §6.1–§6.4).
+  - `network/dto/` — `ShareDto` (`share_url` + `code`) from `POST /riddles/{id}/share`.
+  - `network/RinjoraApi` — added `GET /me/favorites`, `POST /me/favorites/{riddle}`, `DELETE
+    /me/favorites/{riddle}` (§6.1), and `POST /riddles/{id}/share` (§6.2, optional `recipient_email` body).
+  - `data/RinjoraRiddleRepository` — added `setFavorite(riddleId, boolean, cb)` (add via idempotent
+    POST, remove via DELETE) and `shareRiddle(riddleId, cb)`; both handle 401 → auth error.
+  - `data/RinjoraFavoritesRepository` — `GET /me/favorites` (solved-marked riddle payloads). Offline
+    caching of the favorites list deferred to Phase K.
+  - `rinjora/RinjoraPlayRiddleActivity` + layout — added a ♥ favorite toggle and a "Share" button
+    (fires an Android `ACTION_SEND` share sheet with the short link). §6.4 resume already handled by
+    re-applying `hints_revealed` on load (from Phase 5).
+  - `rinjora/RinjoraFavoritesActivity` + layouts — lists favorites, opens a saved riddle for play,
+    and lets the user remove it (heart button → DELETE). Re-renders on resume.
+  - Entry: Home now has a "♥ Favorites" button; new activity registered in the manifest.
+  - **Tests/Lint**: new `RinjoraShareContractTest` (2 tests) verifies §6 ShareDto + favorites-list
+    parsing — now **16/16** unit tests pass. New Phase 8 files: zero lint *errors* (only style
+    warnings). The 3 pre-existing lint errors remain unchanged (none in Rinjora code).
 - **Phase 7 — Leaderboard (committed)**: added the ranked board with period filters, a highlighted
   "me" row, and pagination (plan Phase F, §5.1).
   - `network/dto/` — `LeaderboardEnvelope` (custom top-level shape with `filter`/`data`/`me`/`meta`

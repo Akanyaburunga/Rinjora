@@ -16,6 +16,7 @@ import rw.martinhardware.mymartin.network.AuthTokenStore;
 import rw.martinhardware.mymartin.network.dto.AnswerResponseDto;
 import rw.martinhardware.mymartin.network.dto.HintDto;
 import rw.martinhardware.mymartin.network.dto.RevealDto;
+import rw.martinhardware.mymartin.network.dto.ShareDto;
 
 /**
  * Rinjora single-riddle play screen (plan Phase D §2.2/§2.8/§2.9): shows the
@@ -59,9 +60,73 @@ public class RinjoraPlayRiddleActivity extends AppCompatActivity {
         binding.btnHint.setOnClickListener(v -> revealHint());
         binding.btnAnswer.setOnClickListener(v -> submitAnswer());
         binding.btnReveal.setOnClickListener(v -> revealAnswer());
+        binding.btnFavorite.setOnClickListener(v -> toggleFavorite());
+        binding.btnShare.setOnClickListener(v -> shareRiddle());
 
         renderCached();
         refresh();
+    }
+
+    private boolean favorite;
+
+    private void toggleFavorite() {
+        final boolean makeFavorite = !favorite;
+        binding.btnFavorite.setEnabled(false);
+        repository.setFavorite(riddleId, makeFavorite, new RinjoraRiddleRepository.Callback<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                binding.btnFavorite.setEnabled(true);
+                favorite = makeFavorite;
+                binding.btnFavorite.setText(makeFavorite ? "♥ Saved" : "♥ Save");
+                Toast.makeText(RinjoraPlayRiddleActivity.this,
+                        makeFavorite ? "Added to favorites." : "Removed from favorites.",
+                        Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onAuthError() {
+                binding.btnFavorite.setEnabled(true);
+                goToAuth();
+            }
+
+            @Override
+            public void onError(String message) {
+                binding.btnFavorite.setEnabled(true);
+                Toast.makeText(RinjoraPlayRiddleActivity.this, message, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void shareRiddle() {
+        binding.progressBar.setVisibility(View.VISIBLE);
+        repository.shareRiddle(riddleId, new RinjoraRiddleRepository.Callback<ShareDto>() {
+            @Override
+            public void onSuccess(ShareDto share) {
+                binding.progressBar.setVisibility(View.GONE);
+                String url = share.getShareUrl();
+                if (url == null || url.isEmpty()) {
+                    Toast.makeText(RinjoraPlayRiddleActivity.this, "No share link returned.",
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                Intent send = new Intent(Intent.ACTION_SEND);
+                send.setType("text/plain");
+                send.putExtra(Intent.EXTRA_TEXT, "Riddle on Kazinduzi: " + url);
+                startActivity(Intent.createChooser(send, "Share this riddle"));
+            }
+
+            @Override
+            public void onAuthError() {
+                binding.progressBar.setVisibility(View.GONE);
+                goToAuth();
+            }
+
+            @Override
+            public void onError(String message) {
+                binding.progressBar.setVisibility(View.GONE);
+                Toast.makeText(RinjoraPlayRiddleActivity.this, message, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private boolean hasCache() {

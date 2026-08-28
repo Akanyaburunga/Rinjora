@@ -23,6 +23,7 @@ import rw.martinhardware.mymartin.network.dto.AnswerResponseDto;
 import rw.martinhardware.mymartin.network.dto.HintDto;
 import rw.martinhardware.mymartin.network.dto.RevealDto;
 import rw.martinhardware.mymartin.network.dto.RiddleDto;
+import rw.martinhardware.mymartin.network.dto.ShareDto;
 
 /**
  * Offline-first repository for the Rinjora play loop (plan §2.2, §2.8–§2.9):
@@ -195,6 +196,59 @@ public class RinjoraRiddleRepository {
                 if (callback != null) callback.onError(msg(t));
             }
         });
+    }
+
+    /** POST/DELETE /me/favorites/{riddle} (plan §6.1). Favorite or unfavorite a riddle. */
+    public void setFavorite(final long riddleId, final boolean favorite, final Callback<Void> callback) {
+        retrofit2.Call<ApiEnvelope<Void>> call =
+                favorite ? api.addFavorite(riddleId) : api.removeFavorite(riddleId);
+        call.enqueue(new retrofit2.Callback<ApiEnvelope<Void>>() {
+            @Override
+            public void onResponse(@NonNull retrofit2.Call<ApiEnvelope<Void>> call,
+                                   @NonNull retrofit2.Response<ApiEnvelope<Void>> response) {
+                ApiEnvelope<Void> envelope = response.body();
+                if (response.isSuccessful() && envelope != null && envelope.isSuccess()) {
+                    if (callback != null) callback.onSuccess(null);
+                } else if (response.code() == 401) {
+                    if (callback != null) callback.onAuthError();
+                } else {
+                    if (callback != null) callback.onError(extractError(response, envelope));
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull retrofit2.Call<ApiEnvelope<Void>> call, @NonNull Throwable t) {
+                Log.e(TAG, "setFavorite failed", t);
+                if (callback != null) callback.onError(msg(t));
+            }
+        });
+    }
+
+    /** POST /riddles/{id}/share (plan §6.2) — returns a short share URL/code. */
+    public void shareRiddle(final long riddleId, final Callback<ShareDto> callback) {
+        api.share(riddleId, new java.util.HashMap<String, Object>()).enqueue(
+                new retrofit2.Callback<ApiEnvelope<ShareDto>>() {
+                    @Override
+                    public void onResponse(@NonNull retrofit2.Call<ApiEnvelope<ShareDto>> call,
+                                           @NonNull retrofit2.Response<ApiEnvelope<ShareDto>> response) {
+                        ApiEnvelope<ShareDto> envelope = response.body();
+                        if (response.isSuccessful() && envelope != null && envelope.isSuccess()
+                                && envelope.getData() != null) {
+                            if (callback != null) callback.onSuccess(envelope.getData());
+                        } else if (response.code() == 401) {
+                            if (callback != null) callback.onAuthError();
+                        } else {
+                            if (callback != null) callback.onError(extractError(response, envelope));
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull retrofit2.Call<ApiEnvelope<ShareDto>> call,
+                                          @NonNull Throwable t) {
+                        Log.e(TAG, "share failed", t);
+                        if (callback != null) callback.onError(msg(t));
+                    }
+                });
     }
 
     private void maybeMarkSolved(long riddleId, AnswerResponseDto result) {

@@ -5,6 +5,7 @@ import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
@@ -22,6 +23,7 @@ import rw.martinhardware.mymartin.network.dto.LeaderboardEnvelope;
 import rw.martinhardware.mymartin.network.dto.LoginResponseDto;
 import rw.martinhardware.mymartin.network.dto.RevealDto;
 import rw.martinhardware.mymartin.network.dto.RiddleDto;
+import rw.martinhardware.mymartin.network.dto.ShareDto;
 import rw.martinhardware.mymartin.network.dto.SummaryDto;
 import rw.martinhardware.mymartin.network.dto.UserDto;
 
@@ -92,6 +94,22 @@ public interface RinjoraApi {
 
     @GET("riddles/history/stats")
     Call<ApiEnvelope<HistoryStatsDto>> historyStats();
+
+    // ------------------------------------------------------------------
+    // Favorites & sharing (plan §6.1–§6.2)
+    // ------------------------------------------------------------------
+
+    @GET("me/favorites")
+    Call<ApiEnvelope<List<RiddleDto>>> favorites();
+
+    @POST("me/favorites/{riddle}")
+    Call<ApiEnvelope<Void>> addFavorite(@Path("riddle") long riddleId);
+
+    @DELETE("me/favorites/{riddle}")
+    Call<ApiEnvelope<Void>> removeFavorite(@Path("riddle") long riddleId);
+
+    @POST("riddles/{id}/share")
+    Call<ApiEnvelope<ShareDto>> share(@Path("id") long id, @Body Map<String, Object> body);
 
     // ------------------------------------------------------------------
     // Daily riddle & streak (plan §2.4–§2.6, §2.12)
