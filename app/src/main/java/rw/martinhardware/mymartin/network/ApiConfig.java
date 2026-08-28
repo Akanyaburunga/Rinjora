@@ -5,12 +5,29 @@ import android.net.Uri;
 import rw.martinhardware.mymartin.BuildConfig;
 
 public class ApiConfig {
-    // Environment URLs
+    // ------------------------------------------------------------------
+    // Legacy logistics backend (MyMartin/Volley) — kept for compatibility
+    // ------------------------------------------------------------------
     private static final String DEV_BASE_URL = "http://192.168.100.156:8000/api";
     private static final String PROD_BASE_URL = "https://martin-logistics.nova.bi/api";
 
     // Automatically select base URL based on build type
     public static final String BASE_URL = BuildConfig.DEBUG ? DEV_BASE_URL : PROD_BASE_URL;
+
+    // ------------------------------------------------------------------
+    // Rinjora (Kazinduzi) game backend — new Retrofit layer
+    // ------------------------------------------------------------------
+    // TODO: point at the real Kazinduzi API host once provisioned.
+    // Dev commonly uses a Laravel Valet/Herd `.test` domain or a LAN IP
+    // with `php artisan serve`. The path suffix is the API root (`.../api`).
+    private static final String KAZINDUZI_DEV_BASE_URL = "http://10.0.2.2:8000/api";
+    private static final String KAZINDUZI_PROD_BASE_URL = "https://api.kazinduzi.bi/api";
+
+    /**
+     * Base URL for the Rinjora (Kazinduzi) game API, selected by build type.
+     * Retrofit requires the URL to end in '/'.
+     */
+    public static final String KAZINDUZI_BASE_URL = (BuildConfig.DEBUG ? KAZINDUZI_DEV_BASE_URL : KAZINDUZI_PROD_BASE_URL) + "/";
 
     // Auth endpoints
     public static final String AUTH_REQUEST_WHATSAPP_OTP = BASE_URL + "/mobile/auth/request-whatsapp-otp";

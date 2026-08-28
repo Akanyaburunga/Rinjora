@@ -58,6 +58,16 @@ dependencies {
     // Volley for API calls
     implementation libs.volley
 
+    // Retrofit + OkHttp + Gson (Rinjora networking layer)
+    implementation libs.retrofit
+    implementation libs.retrofit.gson
+    implementation libs.okhttp
+    implementation libs.okhttp.logging
+    implementation libs.gson
+
+    // EncryptedSharedPreferences for secure token storage
+    implementation libs.security.crypto
+
     // Firebase Analytics + Crashlytics
     implementation platform(libs.firebase.bom)
     implementation libs.firebase.analytics

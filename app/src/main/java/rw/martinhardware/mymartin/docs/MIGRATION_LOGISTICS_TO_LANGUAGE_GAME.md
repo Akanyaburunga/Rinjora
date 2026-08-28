@@ -177,6 +177,24 @@ Follow the plan's combined build order; this is the same sequence against the re
 - **Phase 1 — Identity & scaffolding (committed)**: renamed app to Rinjora, set `applicationId` to
   `org.kazinduzi.rinjora`, renamed theme to `Theme.Rinjora`, applied the deep green + golden amber
   palette. Shell (MainActivity, bottom nav, nav graph) unchanged. Build green. Java package untouched.
+- **Phase 2 — Networking layer (committed)**: added a new Retrofit + OkHttp + Gson layer for the
+  Rinjora game API, alongside the legacy Volley layer (logistics features still intact).
+  - New deps in the version catalog: Retrofit 2.9.0, OkHttp 4.12.0, Gson 2.10.1,
+    androidx.security:security-crypto for EncryptedSharedPreferences.
+  - `network/ApiConfig` — added `KAZINDUZI_BASE_URL` (build-type aware, ends in `/`),
+    pointing at `api.kazinduzi.bi` (prod) / `10.0.2.2:8000` (dev emulator) — TODO provision real host.
+  - `network/AuthTokenStore` — EncryptedSharedPreferences (Bearer token, expiry, stable `device_name`).
+  - `network/AuthInterceptor` — attaches `Authorization: Bearer <token>`.
+  - `network/RinjoraApiClient` — central Retrofit singleton (debug-only logging, 30s timeouts).
+  - `network/ApiEnvelope<T>` — `{ success, data, message }` envelope; **RiddleDto deliberately has no
+    `answer` field** (secret never bound from list payloads).
+  - `network/RinjoraApi` — Retrofit interface: `/auth/{register,login,logout,user}`, `/riddles`,
+    `/riddles/categories`, `/riddles/{id}`, `/riddles/next`.
+  - `network/dto/` — RiddleDto, CategoryDto, UserDto, LoginResponseDto.
+  - Unit tests (`app/src/test/.../RinjoraApiContractTest`) verify envelope + DTO parsing against the
+    plan's example payloads and that the confidential `answer` is never exposed. All pass; build green.
+  - **Deferred to Phase B**: the "debug screen pings `GET /riddles` after login" acceptance, since it
+    needs the auth flow that Phase B provides. Interceptor/envelope/client are ready for it.
 
 ---
 
