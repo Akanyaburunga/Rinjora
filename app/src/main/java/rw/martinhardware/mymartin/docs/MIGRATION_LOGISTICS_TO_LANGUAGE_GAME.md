@@ -174,7 +174,24 @@ Follow the plan's combined build order; this is the same sequence against the re
 - **Stub vs full removal** of logistics `ui/` packages: remove as each replacement ships, to keep the build green.
 
 ### Phase log
-- **Phase 11 — User submissions & curation (committed)**: added the "Contribute a riddle" form
+- **Phase 12 — Offline, caching & polish (committed)**: added offline-first riddle catalog caching plus
+  pull-to-refresh everywhere and 429 rate-limit retry with exponential backoff (plan Phase K).
+  - `entities/RinjoraCatalogSnapshot` — offline cache row (kind = `riddles` | `categories`, key, fetchedAt,
+    rawJson). Like the other snapshots, the confidential `answer` is never persisted.
+  - `data/RinjoraCatalogRepository` — offline-first: `getCachedRiddles()`/`getCachedCategories()` render
+    instantly from ObjectBox, `fetchRiddles()`/`fetchCategories()` (and `refresh()`) write the cache then
+    notify; ObjectBox’s lack of a String `equal` is worked around by matching the tiny row set in memory.
+  - `network/RetryInterceptor` — retries idempotent GET/HEAD on HTTP 429 (honouring `Retry-After`) and 5xx
+    with exponential backoff up to 3 attempts; registered first in `RinjoraApiClient` so it wraps auth.
+  - `gradle/libs.versions.toml` + `app/build.gradle` — added `androidx.swiperefreshlayout:1.1.0`.
+  - `rinjora/RinjoraPlayActivity` + layout — now cache-first (renders cached list on open, falls back to a
+    local difficulty filter when offline) and pull-to-refresh via `SwipeRefreshLayout`.
+  - Pull-to-refresh wrapped around the lists on `RinjoraHistoryActivity`, `RinjoraLeaderboardActivity`,
+    `RinjoraFavoritesActivity`, `RinjoraAchievementsActivity`, `RinjoraDuelsActivity`,
+    `RinjoraSubmissionsActivity` (each stops the spinner when load completes).
+  - Build/test/lint: `assembleDebug` OK, `testDebugUnitTest` **20/20** pass, lint has only the 3 pre-existing
+    errors (AuthActivity onBackPressed, WorkshopTasksFragment List#sort API24, local.properties PropertyEscape).
+  - **Phase 11 — User submissions & curation (committed)**: added the "Contribute a riddle" form
   (plan Phase J, §8.1) and a "My submissions" list (§8.2).
   - `network/dto/` — `SubmissionDto` (id/question/status/rejection_reason/difficulty/riddle_type/
     hint/hint2/source/created_at; `answer` intentionally not bound for the list).

@@ -65,6 +65,8 @@ public class RinjoraLeaderboardActivity extends AppCompatActivity {
 
         binding.btnRefresh.setOnClickListener(v -> load(filter, 1));
         binding.btnLoadMore.setOnClickListener(v -> load(filter, lastPage + 1));
+        binding.swipeRefresh.setOnRefreshListener(() -> load(filter, 1));
+        binding.swipeRefresh.setColorSchemeResources(R.color.brand_primary, R.color.brand_secondary);
 
         buildFilters();
         renderCached();
@@ -114,6 +116,7 @@ public class RinjoraLeaderboardActivity extends AppCompatActivity {
             public void onSuccess(LeaderboardEnvelope envelope) {
                 if (binding == null) return;
                 binding.progressBar.setVisibility(View.GONE);
+                binding.swipeRefresh.setRefreshing(false);
                 renderBoard(envelope, page > 1);
             }
 
@@ -121,6 +124,7 @@ public class RinjoraLeaderboardActivity extends AppCompatActivity {
             public void onAuthError() {
                 if (binding == null) return;
                 binding.progressBar.setVisibility(View.GONE);
+                binding.swipeRefresh.setRefreshing(false);
                 goToAuth();
             }
 
@@ -128,6 +132,7 @@ public class RinjoraLeaderboardActivity extends AppCompatActivity {
             public void onError(String message) {
                 if (binding == null) return;
                 binding.progressBar.setVisibility(View.GONE);
+                binding.swipeRefresh.setRefreshing(false);
                 if (!adapter.hasItems()) {
                     binding.tvEmpty.setText("Couldn’t load leaderboard: " + message);
                     binding.tvEmpty.setVisibility(View.VISIBLE);

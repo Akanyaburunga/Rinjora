@@ -54,6 +54,8 @@ public class RinjoraSubmissionsActivity extends AppCompatActivity {
         binding.recyclerSubmissions.setLayoutManager(new LinearLayoutManager(this));
         binding.recyclerSubmissions.setAdapter(adapter);
         binding.btnRefresh.setOnClickListener(v -> load());
+        binding.swipeRefresh.setOnRefreshListener(this::load);
+        binding.swipeRefresh.setColorSchemeResources(R.color.brand_primary, R.color.brand_secondary);
         binding.btnContribute.setOnClickListener(v ->
                 startActivity(new Intent(this, RinjoraContributeActivity.class)));
 
@@ -77,6 +79,7 @@ public class RinjoraSubmissionsActivity extends AppCompatActivity {
             public void onSuccess(List<SubmissionDto> submissions) {
                 loading = false;
                 binding.progressBar.setVisibility(View.GONE);
+                binding.swipeRefresh.setRefreshing(false);
                 items.clear();
                 if (submissions != null) items.addAll(submissions);
                 adapter.notifyDataSetChanged();
@@ -88,6 +91,7 @@ public class RinjoraSubmissionsActivity extends AppCompatActivity {
             public void onAuthError() {
                 loading = false;
                 binding.progressBar.setVisibility(View.GONE);
+                binding.swipeRefresh.setRefreshing(false);
                 goToAuth();
             }
 
@@ -95,6 +99,7 @@ public class RinjoraSubmissionsActivity extends AppCompatActivity {
             public void onError(String message) {
                 loading = false;
                 binding.progressBar.setVisibility(View.GONE);
+                binding.swipeRefresh.setRefreshing(false);
                 Toast.makeText(RinjoraSubmissionsActivity.this, message, Toast.LENGTH_SHORT).show();
             }
         });

@@ -20,11 +20,9 @@ import java.util.List;
 import rw.martinhardware.mymartin.R;
 import rw.martinhardware.mymartin.databinding.ActivityRinjoraPlayBinding;
 import rw.martinhardware.mymartin.databinding.ItemRinjoraRiddleBinding;
-import rw.martinhardware.mymartin.network.ApiEnvelope;
 import rw.martinhardware.mymartin.network.AuthTokenStore;
-import rw.martinhardware.mymartin.network.RinjoraApi;
-import rw.martinhardware.mymartin.network.RinjoraApiClient;
 import rw.martinhardware.mymartin.network.dto.RiddleDto;
+import rw.martinhardware.mymartin.data.RinjoraCatalogRepository;
 
 /**
  * Rinjora play list screen (plan Phase D): lists {@code GET /riddles} with
@@ -36,10 +34,9 @@ public class RinjoraPlayActivity extends AppCompatActivity {
     private static final String[] FILTERS = {"all", "easy", "medium", "hard"};
 
     private ActivityRinjoraPlayBinding binding;
-    private RinjoraApi api;
     private RiddleAdapter adapter;
     private String difficulty = "all";
-    private String type = "all";
+    private RinjoraCatalogRepository catalog;
 
     private final List<MaterialButton> filterButtons = new ArrayList<>();
 
@@ -48,7 +45,7 @@ public class RinjoraPlayActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityRinjoraPlayBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        api = RinjoraApiClient.get(this).api();
+        catalog = new RinjoraCatalogRepository(this);
 
         if (!AuthTokenStore.get(this).hasValidToken()) {
             goToAuth();
@@ -63,7 +60,42 @@ public class RinjoraPlayActivity extends AppCompatActivity {
         binding.btnHistory.setOnClickListener(v ->
                 startActivity(new Intent(this, RinjoraHistoryActivity.class)));
 
+        binding.swipeRefresh.setOnRefreshListener(this::refreshFromNetwork);
+        binding.swipeRefresh.setColorSchemeResources(R.color.brand_primary, R.color.brand_secondary);
+
         buildFilters();
+
+        // Offline-first: render whatever is cached instantly, then refresh.
+        if (!catalog.getCachedRiddles().isEmpty() || !catalog.getCachedCategories().isEmpty()) {
+            renderCachedScreen();
+        }
+        refreshFromNetwork();
+    }
+
+    private void renderCachedScreen() {
+        java.util.List<RiddleDto> cached = filterLocally(catalog.getCachedRiddles());
+        if (cached.isEmpty()) {
+            binding.recyclerRiddles.setVisibility(View.VISIBLE);
+            binding.tvEmpty.setText("No riddles match this filter.");
+            binding.tvEmpty.setVisibility(View.VISIBLE);
+            return;
+        }
+        adapter.clear();
+        adapter.submit(new ArrayList<>(cached));
+        binding.tvEmpty.setVisibility(View.GONE);
+    }
+
+    private java.util.List<RiddleDto> filterLocally(java.util.List<RiddleDto> riddles) {
+        java.util.List<RiddleDto> out = new ArrayList<>();
+        String d = "all".equals(difficulty) ? null : difficulty;
+        for (RiddleDto r : riddles) {
+            if (d != null && !d.equalsIgnoreCase(r.getDifficulty())) continue;
+            out.add(r);
+        }
+        return out;
+    }
+
+    private void refreshFromNetwork() {
         loadRiddles();
     }
 
@@ -82,7 +114,8 @@ public class RinjoraPlayActivity extends AppCompatActivity {
                     b.setBackgroundResource(b == v ? R.drawable.bg_chip_active : R.drawable.bg_chip);
                     b.setTextColor(getColor(b == v ? R.color.brand_on_primary : R.color.text_secondary));
                 }
-                loadRiddles();
+                renderCachedScreen();
+                refreshFromNetwork();
             });
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -96,42 +129,54 @@ public class RinjoraPlayActivity extends AppCompatActivity {
     }
 
     private void loadRiddles() {
-        adapter.clear();
         binding.tvEmpty.setVisibility(View.GONE);
         binding.progressBar.setVisibility(View.VISIBLE);
 
-        java.util.Map<String, String> filters = new java.util.HashMap<>();
-        if (!"all".equals(difficulty)) filters.put("difficulty", difficulty);
-        if (!"all".equals(type)) filters.put("type", type);
-
-        api.riddles(filters).enqueue(new retrofit2.Callback<ApiEnvelope<List<RiddleDto>>>() {
+        // Populate the catalog cache every refresh so the list is available offline.
+        catalog.fetchRiddles(new RinjoraCatalogRepository.Callback() {
             @Override
-            public void onResponse(@NonNull retrofit2.Call<ApiEnvelope<List<RiddleDto>>> call,
-                                   @NonNull retrofit2.Response<ApiEnvelope<List<RiddleDto>>> response) {
+            public void onSuccess() {
                 binding.progressBar.setVisibility(View.GONE);
-                ApiEnvelope<List<RiddleDto>> envelope = response.body();
-                if (response.isSuccessful() && envelope != null && envelope.isSuccess()) {
-                    List<RiddleDto> riddles = envelope.getData();
-                    if (riddles == null || riddles.isEmpty()) {
-                        binding.tvEmpty.setText("No riddles match this filter.");
-                        binding.tvEmpty.setVisibility(View.VISIBLE);
-                    } else {
-                        adapter.submit(riddles);
-                    }
-                } else if (response.code() == 401) {
-                    goToAuth();
-                } else {
-                    binding.tvEmpty.setText("Couldn’t load riddles: " + envelopeMessage(envelope));
-                    binding.tvEmpty.setVisibility(View.VISIBLE);
-                }
+                binding.swipeRefresh.setRefreshing(false);
+                renderCachedScreen();
             }
 
             @Override
-            public void onFailure(@NonNull retrofit2.Call<ApiEnvelope<List<RiddleDto>>> call,
-                                  @NonNull Throwable t) {
+            public void onAuthError() {
                 binding.progressBar.setVisibility(View.GONE);
-                binding.tvEmpty.setText("Network error: " + t.getMessage());
-                binding.tvEmpty.setVisibility(View.VISIBLE);
+                binding.swipeRefresh.setRefreshing(false);
+                goToAuth();
+            }
+
+            @Override
+            public void onError(String message) {
+                binding.progressBar.setVisibility(View.GONE);
+                binding.swipeRefresh.setRefreshing(false);
+                // Offline fallback: reuse the cached list, filtered locally.
+                java.util.List<RiddleDto> cached = filterLocally(catalog.getCachedRiddles());
+                if (!cached.isEmpty()) {
+                    adapter.clear();
+                    adapter.submit(new ArrayList<>(cached));
+                    binding.tvEmpty.setVisibility(View.GONE);
+                } else {
+                    binding.tvEmpty.setText("Offline — no cached riddles yet.\n" + message);
+                    binding.tvEmpty.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
+        // Also warm the category cache so the play screen works fully offline.
+        catalog.fetchCategories(new RinjoraCatalogRepository.Callback() {
+            @Override
+            public void onSuccess() {
+            }
+
+            @Override
+            public void onAuthError() {
+            }
+
+            @Override
+            public void onError(String message) {
             }
         });
     }
@@ -211,10 +256,6 @@ public class RinjoraPlayActivity extends AppCompatActivity {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
-    }
-
-    private String envelopeMessage(ApiEnvelope<?> envelope) {
-        return envelope != null && envelope.getMessage() != null ? envelope.getMessage() : "Unknown error";
     }
 
     private String cap(String s) {

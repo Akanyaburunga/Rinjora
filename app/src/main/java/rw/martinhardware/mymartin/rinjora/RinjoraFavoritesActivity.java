@@ -20,6 +20,7 @@ import rw.martinhardware.mymartin.databinding.ItemRinjoraFavoritesBinding;
 import rw.martinhardware.mymartin.data.RinjoraFavoritesRepository;
 import rw.martinhardware.mymartin.data.RinjoraRiddleRepository;
 import rw.martinhardware.mymartin.network.AuthTokenStore;
+import rw.martinhardware.mymartin.R;
 import rw.martinhardware.mymartin.network.dto.RiddleDto;
 
 /**
@@ -53,6 +54,8 @@ public class RinjoraFavoritesActivity extends AppCompatActivity {
         binding.recyclerFavorites.setLayoutManager(new LinearLayoutManager(this));
         binding.recyclerFavorites.setAdapter(adapter);
         binding.btnRefresh.setOnClickListener(v -> load());
+        binding.swipeRefresh.setOnRefreshListener(this::load);
+        binding.swipeRefresh.setColorSchemeResources(R.color.brand_primary, R.color.brand_secondary);
 
         load();
     }
@@ -74,6 +77,7 @@ public class RinjoraFavoritesActivity extends AppCompatActivity {
             public void onSuccess(List<RiddleDto> favorites) {
                 loading = false;
                 binding.progressBar.setVisibility(View.GONE);
+                binding.swipeRefresh.setRefreshing(false);
                 items.clear();
                 if (favorites != null) items.addAll(favorites);
                 adapter.notifyDataSetChanged();
@@ -85,6 +89,7 @@ public class RinjoraFavoritesActivity extends AppCompatActivity {
             public void onAuthError() {
                 loading = false;
                 binding.progressBar.setVisibility(View.GONE);
+                binding.swipeRefresh.setRefreshing(false);
                 goToAuth();
             }
 
@@ -92,6 +97,7 @@ public class RinjoraFavoritesActivity extends AppCompatActivity {
             public void onError(String message) {
                 loading = false;
                 binding.progressBar.setVisibility(View.GONE);
+                binding.swipeRefresh.setRefreshing(false);
                 Toast.makeText(RinjoraFavoritesActivity.this, message, Toast.LENGTH_SHORT).show();
             }
         });

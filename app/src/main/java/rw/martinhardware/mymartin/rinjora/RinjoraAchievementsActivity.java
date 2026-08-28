@@ -57,6 +57,8 @@ public class RinjoraAchievementsActivity extends AppCompatActivity {
         binding.recyclerAchievements.setLayoutManager(new LinearLayoutManager(this));
         binding.recyclerAchievements.setAdapter(adapter);
         binding.btnRefresh.setOnClickListener(v -> load());
+        binding.swipeRefresh.setOnRefreshListener(this::load);
+        binding.swipeRefresh.setColorSchemeResources(R.color.brand_primary, R.color.brand_secondary);
 
         load();
     }
@@ -78,6 +80,7 @@ public class RinjoraAchievementsActivity extends AppCompatActivity {
             public void onSuccess(AchievementLibraryDto library) {
                 loading = false;
                 binding.progressBar.setVisibility(View.GONE);
+                binding.swipeRefresh.setRefreshing(false);
                 items.clear();
                 if (library != null && library.getAchievements() != null) {
                     items.addAll(library.getAchievements());
@@ -95,6 +98,7 @@ public class RinjoraAchievementsActivity extends AppCompatActivity {
             public void onAuthError() {
                 loading = false;
                 binding.progressBar.setVisibility(View.GONE);
+                binding.swipeRefresh.setRefreshing(false);
                 goToAuth();
             }
 
@@ -102,6 +106,7 @@ public class RinjoraAchievementsActivity extends AppCompatActivity {
             public void onError(String message) {
                 loading = false;
                 binding.progressBar.setVisibility(View.GONE);
+                binding.swipeRefresh.setRefreshing(false);
                 Toast.makeText(RinjoraAchievementsActivity.this, message, Toast.LENGTH_SHORT).show();
             }
         });

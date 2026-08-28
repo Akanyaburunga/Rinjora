@@ -56,6 +56,8 @@ public class RinjoraDuelsActivity extends AppCompatActivity {
         binding.recyclerDuels.setLayoutManager(new LinearLayoutManager(this));
         binding.recyclerDuels.setAdapter(adapter);
         binding.btnRefresh.setOnClickListener(v -> load());
+        binding.swipeRefresh.setOnRefreshListener(this::load);
+        binding.swipeRefresh.setColorSchemeResources(R.color.brand_primary, R.color.brand_secondary);
         binding.btnNew.setOnClickListener(v ->
                 startActivity(new Intent(this, RinjoraDuelCreateActivity.class)));
 
@@ -79,6 +81,7 @@ public class RinjoraDuelsActivity extends AppCompatActivity {
             public void onSuccess(List<DuelDto> duels) {
                 loading = false;
                 binding.progressBar.setVisibility(View.GONE);
+                binding.swipeRefresh.setRefreshing(false);
                 items.clear();
                 if (duels != null) items.addAll(duels);
                 adapter.notifyDataSetChanged();
@@ -90,6 +93,7 @@ public class RinjoraDuelsActivity extends AppCompatActivity {
             public void onAuthError() {
                 loading = false;
                 binding.progressBar.setVisibility(View.GONE);
+                binding.swipeRefresh.setRefreshing(false);
                 goToAuth();
             }
 
@@ -97,6 +101,7 @@ public class RinjoraDuelsActivity extends AppCompatActivity {
             public void onError(String message) {
                 loading = false;
                 binding.progressBar.setVisibility(View.GONE);
+                binding.swipeRefresh.setRefreshing(false);
                 Toast.makeText(RinjoraDuelsActivity.this, message, Toast.LENGTH_SHORT).show();
             }
         });

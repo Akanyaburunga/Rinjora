@@ -34,6 +34,7 @@ public final class RinjoraApiClient {
         }
 
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .addInterceptor(new RetryInterceptor())
                 .addInterceptor(new AuthInterceptor(context))
                 .addInterceptor(logging)
                 .connectTimeout(30, TimeUnit.SECONDS)

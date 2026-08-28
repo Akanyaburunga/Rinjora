@@ -742,9 +742,83 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "8:3102495635429984928",
+      "lastPropertyId": "13:3589150183236113875",
+      "name": "RinjoraLeaderboardSnapshot",
+      "properties": [
+        {
+          "id": "1:1428503232680948238",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:7159228846859277224",
+          "name": "filter",
+          "type": 9
+        },
+        {
+          "id": "3:4511777333346515315",
+          "name": "fetchedAt",
+          "type": 6
+        },
+        {
+          "id": "4:8678465740781028248",
+          "name": "currentPage",
+          "type": 5
+        },
+        {
+          "id": "5:8652767420070391616",
+          "name": "lastPage",
+          "type": 5
+        },
+        {
+          "id": "6:7766920804482140596",
+          "name": "total",
+          "type": 5
+        },
+        {
+          "id": "7:607080578647542078",
+          "name": "hasMe",
+          "type": 1
+        },
+        {
+          "id": "8:6024408542592593230",
+          "name": "meName",
+          "type": 9
+        },
+        {
+          "id": "9:260925231886461312",
+          "name": "meRank",
+          "type": 5
+        },
+        {
+          "id": "10:8076456850756823393",
+          "name": "mePoints",
+          "type": 5
+        },
+        {
+          "id": "11:1752909765317703643",
+          "name": "meTotalPlayers",
+          "type": 5
+        },
+        {
+          "id": "12:4131462512288818274",
+          "name": "mePercentile",
+          "type": 8
+        },
+        {
+          "id": "13:3589150183236113875",
+          "name": "rawJson",
+          "type": 9
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "7:4203186376551216453",
+  "lastEntityId": "8:3102495635429984928",
   "lastIndexId": "6:4233748742514960884",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",

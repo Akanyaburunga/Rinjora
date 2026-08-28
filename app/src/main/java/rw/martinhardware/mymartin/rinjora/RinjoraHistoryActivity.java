@@ -50,6 +50,8 @@ public class RinjoraHistoryActivity extends AppCompatActivity {
         binding.recyclerHistory.setLayoutManager(new LinearLayoutManager(this));
         binding.recyclerHistory.setAdapter(adapter);
         binding.btnRefresh.setOnClickListener(v -> load());
+        binding.swipeRefresh.setOnRefreshListener(this::load);
+        binding.swipeRefresh.setColorSchemeResources(R.color.brand_primary, R.color.brand_secondary);
 
         load();
     }
@@ -83,6 +85,7 @@ public class RinjoraHistoryActivity extends AppCompatActivity {
             public void onResponse(@NonNull retrofit2.Call<ApiEnvelope<List<HistoryEntryDto>>> call,
                                    @NonNull retrofit2.Response<ApiEnvelope<List<HistoryEntryDto>>> response) {
                 binding.progressBar.setVisibility(View.GONE);
+                binding.swipeRefresh.setRefreshing(false);
                 ApiEnvelope<List<HistoryEntryDto>> envelope = response.body();
                 if (response.isSuccessful() && envelope != null && envelope.isSuccess()) {
                     List<HistoryEntryDto> entries = envelope.getData();
@@ -105,6 +108,7 @@ public class RinjoraHistoryActivity extends AppCompatActivity {
             public void onFailure(@NonNull retrofit2.Call<ApiEnvelope<List<HistoryEntryDto>>> call,
                                   @NonNull Throwable t) {
                 binding.progressBar.setVisibility(View.GONE);
+                binding.swipeRefresh.setRefreshing(false);
                 binding.tvEmpty.setText("Network error: " + t.getMessage());
                 binding.tvEmpty.setVisibility(View.VISIBLE);
             }
