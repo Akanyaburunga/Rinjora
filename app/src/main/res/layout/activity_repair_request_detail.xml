@@ -15,7 +15,7 @@
         app:navigationIcon="@drawable/ic_arrow_back"
         app:navigationIconTint="@color/brand_on_primary"
         app:title="Repair Request"
-        app:titleTextAppearance="@style/TextAppearance.MyMartin.Toolbar" />
+        app:titleTextAppearance="@style/TextAppearance.Rinjora.Toolbar" />
 
     <ProgressBar
         android:id="@+id/progress_bar"

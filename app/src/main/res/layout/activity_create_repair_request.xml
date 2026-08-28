@@ -15,7 +15,7 @@
         app:navigationIcon="@drawable/ic_arrow_back"
         app:navigationIconTint="@color/brand_on_primary"
         app:title="New Repair Request"
-        app:titleTextAppearance="@style/TextAppearance.MyMartin.Toolbar" />
+        app:titleTextAppearance="@style/TextAppearance.Rinjora.Toolbar" />
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"

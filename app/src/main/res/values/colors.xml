@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Brand -->
-    <color name="brand_primary">#1E40AF</color>
-    <color name="brand_primary_dark">#1E3A8A</color>
+    <!-- Brand: Deep green + golden amber -->
+    <color name="brand_primary">#1B5E20</color>
+    <color name="brand_primary_dark">#0D3310</color>
     <color name="brand_on_primary">#FFFFFF</color>
-    <color name="brand_on_primary_muted">#C9D6E8</color>
-    <color name="brand_primary_container">#DBEAFE</color>
-    <color name="brand_on_primary_container">#1E3A8A</color>
+    <color name="brand_on_primary_muted">#C8E6C9</color>
+    <color name="brand_primary_container">#C8E6C9</color>
+    <color name="brand_on_primary_container">#0D3310</color>
 
-    <color name="brand_secondary">#F59E0B</color>
+    <color name="brand_secondary">#E8A33D</color>
     <color name="brand_on_secondary">#1F2937</color>
-    <color name="brand_secondary_container">#FEF3C7</color>
-    <color name="brand_on_secondary_container">#92400E</color>
+    <color name="brand_secondary_container">#FBE9C9</color>
+    <color name="brand_on_secondary_container">#6B4A00</color>
 
     <color name="brand_success">#10B981</color>
     <color name="brand_on_success">#FFFFFF</color>

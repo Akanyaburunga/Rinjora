@@ -19,12 +19,12 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:usesCleartextTraffic="true"
-        android:theme="@style/Theme.MyMartin">
+        android:theme="@style/Theme.Rinjora">
 
         <activity
             android:name=".auth.AuthActivity"
             android:exported="true"
-            android:theme="@style/Theme.MyMartin"
+            android:theme="@style/Theme.Rinjora"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -41,14 +41,14 @@
             android:name=".ui.support.TicketDetailActivity"
             android:exported="false"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/Theme.MyMartin.NoActionBar">
+            android:theme="@style/Theme.Rinjora.NoActionBar">
         </activity>
 
         <activity
             android:name=".ui.repairs.CreateRepairRequestActivity"
             android:exported="false"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/Theme.MyMartin.NoActionBar"
+            android:theme="@style/Theme.Rinjora.NoActionBar"
             android:windowSoftInputMode="adjustResize">
         </activity>
 
@@ -56,14 +56,14 @@
             android:name=".ui.repairs.RepairRequestDetailActivity"
             android:exported="false"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/Theme.MyMartin.NoActionBar">
+            android:theme="@style/Theme.Rinjora.NoActionBar">
         </activity>
 
         <activity
             android:name=".ui.workshop.WorkshopTaskDetailActivity"
             android:exported="false"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/Theme.MyMartin.NoActionBar">
+            android:theme="@style/Theme.Rinjora.NoActionBar">
         </activity>
 
         <provider

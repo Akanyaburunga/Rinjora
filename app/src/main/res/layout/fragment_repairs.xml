@@ -18,7 +18,7 @@
         app:tabRippleColor="@color/brand_primary_container"
         app:tabSelectedTextColor="@color/brand_primary"
         app:tabTextColor="@color/text_secondary"
-        app:tabTextAppearance="@style/TextAppearance.MyMartin.Tab" />
+        app:tabTextAppearance="@style/TextAppearance.Rinjora.Tab" />
 
     <FrameLayout
         android:id="@+id/tab_container"

@@ -10,7 +10,7 @@ android {
     compileSdk 36
 
     defaultConfig {
-        applicationId "rw.martinhardware.mymartin"
+        applicationId "org.kazinduzi.rinjora"
         minSdk 23
         targetSdk 36
         versionCode 1
