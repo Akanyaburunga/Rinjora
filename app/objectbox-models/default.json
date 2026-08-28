@@ -678,9 +678,73 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "7:4203186376551216453",
+      "lastPropertyId": "11:1058318131730230546",
+      "name": "RinjoraDailySnapshot",
+      "properties": [
+        {
+          "id": "1:6461301755985906562",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:4318461658084085517",
+          "name": "fetchedAt",
+          "type": 6
+        },
+        {
+          "id": "3:1635760678649891477",
+          "name": "dailyAvailable",
+          "type": 1
+        },
+        {
+          "id": "4:5125809863300804119",
+          "name": "streakAtRisk",
+          "type": 1
+        },
+        {
+          "id": "5:9051048514395054495",
+          "name": "pendingChallenges",
+          "type": 5
+        },
+        {
+          "id": "6:9201119332087622801",
+          "name": "currentStreak",
+          "type": 5
+        },
+        {
+          "id": "7:3315316239117081449",
+          "name": "longestStreak",
+          "type": 5
+        },
+        {
+          "id": "8:3427705649194122298",
+          "name": "dailyRiddleId",
+          "type": 6
+        },
+        {
+          "id": "9:8345431041380323364",
+          "name": "dailyQuestion",
+          "type": 9
+        },
+        {
+          "id": "10:175677516238614286",
+          "name": "dailySolved",
+          "type": 1
+        },
+        {
+          "id": "11:1058318131730230546",
+          "name": "rawJson",
+          "type": 9
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "6:3313685375859047979",
+  "lastEntityId": "7:4203186376551216453",
   "lastIndexId": "6:4233748742514960884",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",

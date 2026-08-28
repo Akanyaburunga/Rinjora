@@ -56,6 +56,8 @@ public class RinjoraHomeActivity extends BaseActivity {
         binding.btnLogout.setOnClickListener(v -> logout());
         binding.btnRiddlesDebug.setOnClickListener(v ->
                 startActivity(new Intent(this, RinjoraPlayActivity.class)));
+        binding.btnDaily.setOnClickListener(v ->
+                startActivity(new Intent(this, RinjoraDailyActivity.class)));
 
         renderCached();
         refresh(!hasCache());

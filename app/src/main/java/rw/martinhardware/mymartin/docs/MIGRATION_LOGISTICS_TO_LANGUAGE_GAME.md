@@ -174,6 +174,26 @@ Follow the plan's combined build order; this is the same sequence against the re
 - **Stub vs full removal** of logistics `ui/` packages: remove as each replacement ships, to keep the build green.
 
 ### Phase log
+- **Phase 6 — Daily riddle & streak experience (committed)**: added the daily one-riddle-per-day
+  loop with streak-at-risk warnings and streak-freeze spend (plan Phase E §2.4–§2.6, §2.12).
+  - `network/dto/` — `DailyRiddleDto` (reuses `StreakDto` + `RiddleDto`), `DailyStatusDto`,
+    `FreezeResponseDto`.
+  - `network/RinjoraApi` — added `GET /riddles/daily`, `GET /riddles/daily/history`, 
+    `GET /riddles/daily/status`, `POST /riddles/streak/freeze`.
+  - `entities/RinjoraDailySnapshot` (ObjectBox) — caches the latest daily status + a lightweight
+    copy of today's riddle; daily is deliberately <b>not</b> cached as a single "today" — the server
+    stays authoritative for date-driven determinism and clocks.
+  - `data/RinjoraDailyRepository` — offline-first: merges daily + status into one snapshot (cache-first,
+    background refresh, 401 → auth error, 60s re-poll); `freeze()` spends a freeze (422 surfaced as error).
+  - `rinjora/RinjoraDailyActivity` + `res/layout/activity_rinjora_daily.xml` — hub showing current/longest
+    streak + solved-by count, a streak-at-risk warning card with a "Spend a streak freeze" action,
+    a pending-challenges badge, and today's daily riddle. "Solve today" (gated by `daily_available`)
+    opens the Phase 5 play screen to answer; returning refreshes state.
+  - Entry points: Home now has a "Daily riddle" button (plus the existing "Play riddles"); new activity
+    registered in the manifest.
+  - **Tests/Lint**: new `RinjoraDailyContractTest` (3 tests) verifies §2.4–§2.6 + §2.12 payload parsing —
+    now **13/13** unit tests pass. New Phase 6 files: zero lint *errors* (only style warnings). The
+    3 pre-existing lint errors remain unchanged (none in Rinjora code).
 - **Phase 5 — Core game loop: play riddles (committed)**: replaced the Phase 3 `/riddles` ping
   harness (which only ever poked the API) with the real play screens (plan Phase D):
   - `network/dto/` — `AnswerResponseDto` (+ nested `AchievementDto`), `RevealDto`, `HintDto`,

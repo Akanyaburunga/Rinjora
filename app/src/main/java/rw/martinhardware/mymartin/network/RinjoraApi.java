@@ -12,6 +12,9 @@ import retrofit2.http.Query;
 import retrofit2.http.QueryMap;
 import rw.martinhardware.mymartin.network.dto.AnswerResponseDto;
 import rw.martinhardware.mymartin.network.dto.CategoryDto;
+import rw.martinhardware.mymartin.network.dto.DailyRiddleDto;
+import rw.martinhardware.mymartin.network.dto.DailyStatusDto;
+import rw.martinhardware.mymartin.network.dto.FreezeResponseDto;
 import rw.martinhardware.mymartin.network.dto.HintDto;
 import rw.martinhardware.mymartin.network.dto.HistoryEntryDto;
 import rw.martinhardware.mymartin.network.dto.HistoryStatsDto;
@@ -88,4 +91,20 @@ public interface RinjoraApi {
 
     @GET("riddles/history/stats")
     Call<ApiEnvelope<HistoryStatsDto>> historyStats();
+
+    // ------------------------------------------------------------------
+    // Daily riddle & streak (plan §2.4–§2.6, §2.12)
+    // ------------------------------------------------------------------
+
+    @GET("riddles/daily")
+    Call<ApiEnvelope<DailyRiddleDto>> dailyRiddle();
+
+    @GET("riddles/daily/history")
+    Call<ApiEnvelope<DailyRiddleDto>> dailyHistory(@Query("date") String date);
+
+    @GET("riddles/daily/status")
+    Call<ApiEnvelope<DailyStatusDto>> dailyStatus();
+
+    @POST("riddles/streak/freeze")
+    Call<ApiEnvelope<FreezeResponseDto>> freezeStreak();
 }
