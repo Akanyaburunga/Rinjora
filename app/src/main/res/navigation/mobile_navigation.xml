@@ -7,31 +7,31 @@
 
     <fragment
         android:id="@+id/navigation_home"
-        android:name="rw.martinhardware.mymartin.ui.home.HomeFragment"
+        android:name="org.kazinduzi.rinjora.ui.home.HomeFragment"
         android:label="Home"
         tools:layout="@layout/fragment_home" />
 
     <fragment
         android:id="@+id/navigation_repairs"
-        android:name="rw.martinhardware.mymartin.ui.repairs.RepairsFragment"
+        android:name="org.kazinduzi.rinjora.ui.repairs.RepairsFragment"
         android:label="Repairs"
         tools:layout="@layout/fragment_repairs" />
 
     <fragment
         android:id="@+id/navigation_notifications"
-        android:name="rw.martinhardware.mymartin.ui.notifications.NotificationsFragment"
+        android:name="org.kazinduzi.rinjora.ui.notifications.NotificationsFragment"
         android:label="Notifications"
         tools:layout="@layout/fragment_notifications" />
 
     <fragment
         android:id="@+id/navigation_profile"
-        android:name="rw.martinhardware.mymartin.ui.profile.ProfileFragment"
+        android:name="org.kazinduzi.rinjora.ui.profile.ProfileFragment"
         android:label="Profile"
         tools:layout="@layout/fragment_profile" />
 
     <fragment
         android:id="@+id/navigation_support"
-        android:name="rw.martinhardware.mymartin.ui.support.SupportFragment"
+        android:name="org.kazinduzi.rinjora.ui.support.SupportFragment"
         android:label="Support"
         tools:layout="@layout/fragment_support" />
 

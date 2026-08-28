@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace 'rw.martinhardware.mymartin'
+    namespace 'org.kazinduzi.rinjora'
     compileSdk 36
 
     defaultConfig {
