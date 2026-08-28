@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment;
 
 import rw.martinhardware.mymartin.R;
 import rw.martinhardware.mymartin.databinding.FragmentAuthSelectionBinding;
+import rw.martinhardware.mymartin.rinjora.RinjoraAuthActivity;
 
 public class AuthSelectionFragment extends Fragment {
 
@@ -41,6 +42,11 @@ public class AuthSelectionFragment extends Fragment {
         // Phone login button
         binding.btnPhoneLogin.setOnClickListener(v -> {
             navigateToFragment(new PhoneLoginFragment());
+        });
+
+        // Rinjora (Kazinduzi) games — separate, self-contained flow
+        binding.btnRinjoraLogin.setOnClickListener(v -> {
+            startActivity(new android.content.Intent(requireContext(), RinjoraAuthActivity.class));
         });
     }
 

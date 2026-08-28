@@ -195,6 +195,22 @@ Follow the plan's combined build order; this is the same sequence against the re
     plan's example payloads and that the confidential `answer` is never exposed. All pass; build green.
   - **Deferred to Phase B**: the "debug screen pings `GET /riddles` after login" acceptance, since it
     needs the auth flow that Phase B provides. Interceptor/envelope/client are ready for it.
+- **Phase 3 — Auth (committed)**: added a self-contained Rinjora (Kazinduzi) register/login/logout
+  flow wired to `/auth/*`, stored in `AuthTokenStore`, plus the deferred Phase A "ping `/riddles`" screen.
+  - `data/RinjoraAuthRepository` — wraps register/login/logout/currentUser; persists the Bearer token
+    + stable `device_name`; API-23-compatible expiry parsing (`SimpleDateFormat`, not `java.time`).
+  - `viewmodel/RinjoraAuthViewModel` — LiveData state/loading/error mirroring the legacy auth VM.
+  - `rinjora/RinjoraAuthActivity` + `RinjoraLoginFragment` + `RinjoraRegisterFragment` (Material 3
+    TextInput forms, validation, client-side login/register).
+  - `rinjora/RinjoraRiddlesActivity` — **Phase A acceptance**: after login, pings `GET /riddles`
+    with the Bearer token and prints the JSON; refresh + logout. Acts as a temporary harness.
+  - Entry point: a "Rinjora (Kazinduzi)" card on the existing auth-selection screen launches
+    `RinjoraAuthActivity`. The logistics login flow is untouched and still drives `MainActivity`.
+  - New activities added to the manifest (`Theme.Rinjora`). New `ic_riddle` icon.
+  - Register returns no token (plan §1.1) so it returns to login; the user logs in to get a session.
+  - **Lint**: my Phase 3 files are clean. The 3 remaining repo lint errors are pre-existing
+    (`AuthActivity.onBackPressed`, `WorkshopTasksFragment.List#sort`) + the local `local.properties`
+    file, none introduced here.
 
 ---
 

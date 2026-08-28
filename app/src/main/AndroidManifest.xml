@@ -38,6 +38,19 @@
         </activity>
 
         <activity
+            android:name=".rinjora.RinjoraAuthActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Rinjora"
+            android:windowSoftInputMode="adjustResize">
+        </activity>
+
+        <activity
+            android:name=".rinjora.RinjoraRiddlesActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Rinjora.NoActionBar">
+        </activity>
+
+        <activity
             android:name=".ui.support.TicketDetailActivity"
             android:exported="false"
             android:parentActivityName=".MainActivity"
