@@ -18,6 +18,7 @@ import rw.martinhardware.mymartin.network.dto.FreezeResponseDto;
 import rw.martinhardware.mymartin.network.dto.HintDto;
 import rw.martinhardware.mymartin.network.dto.HistoryEntryDto;
 import rw.martinhardware.mymartin.network.dto.HistoryStatsDto;
+import rw.martinhardware.mymartin.network.dto.LeaderboardEnvelope;
 import rw.martinhardware.mymartin.network.dto.LoginResponseDto;
 import rw.martinhardware.mymartin.network.dto.RevealDto;
 import rw.martinhardware.mymartin.network.dto.RiddleDto;
@@ -107,4 +108,15 @@ public interface RinjoraApi {
 
     @POST("riddles/streak/freeze")
     Call<ApiEnvelope<FreezeResponseDto>> freezeStreak();
+
+    // ------------------------------------------------------------------
+    // Leaderboard (plan §5.1)
+    // ------------------------------------------------------------------
+
+    // Returns the custom LeaderboardEnvelope (has top-level `me`/`meta`/`filter`,
+    // so it does not fit the generic ApiEnvelope wrapper).
+    @GET("leaderboard")
+    Call<LeaderboardEnvelope> leaderboard(@Query("filter") String filter,
+                                          @Query("page") int page,
+                                          @Query("per_page") int perPage);
 }

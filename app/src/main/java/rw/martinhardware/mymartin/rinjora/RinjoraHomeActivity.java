@@ -58,6 +58,8 @@ public class RinjoraHomeActivity extends BaseActivity {
                 startActivity(new Intent(this, RinjoraPlayActivity.class)));
         binding.btnDaily.setOnClickListener(v ->
                 startActivity(new Intent(this, RinjoraDailyActivity.class)));
+        binding.btnLeaderboard.setOnClickListener(v ->
+                startActivity(new Intent(this, RinjoraLeaderboardActivity.class)));
 
         renderCached();
         refresh(!hasCache());

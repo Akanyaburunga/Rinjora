@@ -174,6 +174,25 @@ Follow the plan's combined build order; this is the same sequence against the re
 - **Stub vs full removal** of logistics `ui/` packages: remove as each replacement ships, to keep the build green.
 
 ### Phase log
+- **Phase 7 — Leaderboard (committed)**: added the ranked board with period filters, a highlighted
+  "me" row, and pagination (plan Phase F, §5.1).
+  - `network/dto/` — `LeaderboardEnvelope` (custom top-level shape with `filter`/`data`/`me`/`meta`
+    alongside `success`), `LeaderboardEntryDto`, `LeaderboardMeDto`, `LeaderboardMetaDto`.
+  - `network/RinjoraApi` — `GET /leaderboard?filter=&page=&per_page=` returning the custom envelope
+    (it does not fit the generic `ApiEnvelope`), not the wrapped form.
+  - `entities/RinjoraLeaderboardSnapshot` (ObjectBox) — caches the latest envelope per period filter
+    (metadata + raw JSON) for offline render.
+  - `data/RinjoraLeaderboardRepository` — offline-first fetch + cache per filter, re-parses cached JSON,
+    401 → auth error. (String property queried in-memory since ObjectBox has no string `equal`.)
+  - `rinjora/RinjoraLeaderboardActivity` + layouts — period filter chips (today/this_week/this_month/
+    this_year/all_time, default all_time), a highlighted "me" card (rank, percentile, total players),
+    a ranked `RecyclerView` with per-row words/meanings contributions and a highlight on the current
+    user's row, a "Load more" button gated by `meta.last_page`, and offline render from cache.
+  - Entry: Home now has a "Leaderboard" button; activity registered in the manifest.
+  - Pull-to-refresh deferred to Phase K (swiperefreshlayout not currently a dependency); Refresh button provided.
+  - **Tests/Lint**: new `RinjoraLeaderboardContractTest` (1 test) verifies §5.1 parsing — now **14/14**
+    unit tests pass. New Phase 7 files: zero lint *errors* (only style warnings). The 3 pre-existing
+    lint errors remain unchanged (none in Rinjora code).
 - **Phase 6 — Daily riddle & streak experience (committed)**: added the daily one-riddle-per-day
   loop with streak-at-risk warnings and streak-freeze spend (plan Phase E §2.4–§2.6, §2.12).
   - `network/dto/` — `DailyRiddleDto` (reuses `StreakDto` + `RiddleDto`), `DailyStatusDto`,

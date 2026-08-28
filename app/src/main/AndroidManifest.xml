@@ -70,6 +70,12 @@
         </activity>
 
         <activity
+            android:name=".rinjora.RinjoraLeaderboardActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Rinjora.NoActionBar">
+        </activity>
+
+        <activity
             android:name=".rinjora.RinjoraHomeActivity"
             android:exported="false"
             android:theme="@style/Theme.Rinjora.NoActionBar">
