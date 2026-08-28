@@ -277,6 +277,14 @@
             android:layout_marginTop="8dp"
             android:text="Achievements" />
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_duels"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Duels" />
+
         <ProgressBar
             android:id="@+id/progress_bar"
             android:layout_width="wrap_content"

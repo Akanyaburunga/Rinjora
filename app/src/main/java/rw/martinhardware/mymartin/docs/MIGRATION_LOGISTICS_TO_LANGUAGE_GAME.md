@@ -174,6 +174,27 @@ Follow the plan's combined build order; this is the same sequence against the re
 - **Stub vs full removal** of logistics `ui/` packages: remove as each replacement ships, to keep the build green.
 
 ### Phase log
+- **Phase 10 — Duels (PvP) (committed)**: added the full wager-duel lifecycle (plan Phase I, §7.1–§7.6).
+  - `network/dto/` — `DuelDto` (id/status/wager/direction/accepted_at/resolved_at/riddle/initiator/
+    opponent/winner_id/created_at; `riddle.answer` absent until solved — anti-cheat), `DuelUserDto`
+    (id/name/reputation), `DuelSolveResponseDto` (correct/resolved/answer/message).
+  - `network/RinjoraApi` — added `GET /duels`, `GET /duels/{id}`, `POST /duels`, `POST /duels/{id}/accept`,
+    `POST /duels/{id}/decline`, `POST /duels/{id}/solve`.
+  - `data/RinjoraDuelRepository` — generic callback repo covering list/detail/create/accept/decline/solve;
+    business `422`s (wager beyond reputation, duplicated pending duel) surfaced as messages; 401 → auth.
+  - `rinjora/RinjoraDuelsActivity` + layout — list with §7.7 lifecycle UI: pending-incoming → Accept/Decline,
+    pending-outgoing → "Waiting for opponent", accepted → Open, completed → winner banner (+rep delta),
+    declined/expired → inactive row. Status-colored chips. "New duel" launcher.
+  - `rinjora/RinjoraDuelDetailActivity` + layout — live status via `GET /duels/{id}`, accepted player submits
+    a single answer (`POST /duels/{id}/solve`), then hides the input and polls every 5s until resolution;
+    winner banner + reputation delta. Opponent's answer never shown (anti-cheat).
+  - `rinjora/RinjoraDuelCreateActivity` + layout — `POST /duels` with manual opponent user-id + riddle-id +
+    wager (default 20). NB: no opponent-search endpoint exists in the plan, so IDs are entered manually
+    (a friend-opponent picker is a possible polish item later).
+  - Entry: Home now has a "Duels" button; three new activities registered in the manifest.
+  - **Tests/Lint**: new `RinjoraDuelContractTest` (2 tests) verifies §7.1 list + §7.6 solve parsing — now
+    **19/19** unit tests pass. New Phase 10 files: zero lint *errors* (only style warnings). The 3
+    pre-existing lint errors remain unchanged (none in Rinjora code).
 - **Phase 9 — Badges & achievements library (committed)**: added the achievements/badges library
   screen from `GET /me/achievements` (plan Phase H, §4.4), no new ObjectBox entity.
   - `network/dto/` — `BadgeDto` (id/slug/name/description/category/icon/threshold/metric/earned/

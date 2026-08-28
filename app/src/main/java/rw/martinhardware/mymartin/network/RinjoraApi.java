@@ -16,6 +16,8 @@ import rw.martinhardware.mymartin.network.dto.AnswerResponseDto;
 import rw.martinhardware.mymartin.network.dto.CategoryDto;
 import rw.martinhardware.mymartin.network.dto.DailyRiddleDto;
 import rw.martinhardware.mymartin.network.dto.DailyStatusDto;
+import rw.martinhardware.mymartin.network.dto.DuelDto;
+import rw.martinhardware.mymartin.network.dto.DuelSolveResponseDto;
 import rw.martinhardware.mymartin.network.dto.FreezeResponseDto;
 import rw.martinhardware.mymartin.network.dto.HintDto;
 import rw.martinhardware.mymartin.network.dto.HistoryEntryDto;
@@ -118,6 +120,28 @@ public interface RinjoraApi {
 
     @GET("me/achievements")
     Call<ApiEnvelope<AchievementLibraryDto>> achievements();
+
+    // ------------------------------------------------------------------
+    // Duels (PvP) (plan §7.1–§7.6)
+    // ------------------------------------------------------------------
+
+    @GET("duels")
+    Call<ApiEnvelope<List<DuelDto>>> duels();
+
+    @GET("duels/{id}")
+    Call<ApiEnvelope<DuelDto>> duel(@Path("id") long id);
+
+    @POST("duels")
+    Call<ApiEnvelope<DuelDto>> createDuel(@Body Map<String, Object> body);
+
+    @POST("duels/{id}/accept")
+    Call<ApiEnvelope<DuelDto>> acceptDuel(@Path("id") long id);
+
+    @POST("duels/{id}/decline")
+    Call<ApiEnvelope<DuelDto>> declineDuel(@Path("id") long id);
+
+    @POST("duels/{id}/solve")
+    Call<ApiEnvelope<DuelSolveResponseDto>> solveDuel(@Path("id") long id, @Body Map<String, Object> body);
 
     // ------------------------------------------------------------------
     // Daily riddle & streak (plan §2.4–§2.6, §2.12)
