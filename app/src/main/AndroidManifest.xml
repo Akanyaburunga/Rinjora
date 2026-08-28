@@ -106,6 +106,18 @@
         </activity>
 
         <activity
+            android:name=".rinjora.RinjoraContributeActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Rinjora.NoActionBar">
+        </activity>
+
+        <activity
+            android:name=".rinjora.RinjoraSubmissionsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Rinjora.NoActionBar">
+        </activity>
+
+        <activity
             android:name=".rinjora.RinjoraHomeActivity"
             android:exported="false"
             android:theme="@style/Theme.Rinjora.NoActionBar">

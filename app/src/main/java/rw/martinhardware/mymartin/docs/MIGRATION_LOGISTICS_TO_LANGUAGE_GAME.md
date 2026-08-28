@@ -174,6 +174,24 @@ Follow the plan's combined build order; this is the same sequence against the re
 - **Stub vs full removal** of logistics `ui/` packages: remove as each replacement ships, to keep the build green.
 
 ### Phase log
+- **Phase 11 — User submissions & curation (committed)**: added the "Contribute a riddle" form
+  (plan Phase J, §8.1) and a "My submissions" list (§8.2).
+  - `network/dto/` — `SubmissionDto` (id/question/status/rejection_reason/difficulty/riddle_type/
+    hint/hint2/source/created_at; `answer` intentionally not bound for the list).
+  - `network/RinjoraApi` — `POST /submissions/riddles` (create) and `GET /submissions/riddles` (list).
+  - `data/RinjoraSubmissionRepository` — `create(...)` builds the §8.1 body (question/answer/difficulty/
+    riddle_type/optional hints + required `source`; a `422` "answer already exists" surfaces as an error),
+    `list(...)` for §8.2; both handle 401 → auth.
+  - `rinjora/RinjoraContributeActivity` + layout — the in-app contribute form: question, answer,
+    difficulty, riddle type, optional hints and a required source; on success routes to My submissions.
+  - `rinjora/RinjoraSubmissionsActivity` + layout — my submissions list with a colored status chip
+    (pending/approved/rejected), difficulty·type·date meta, and the rejection reason shown on rejected
+    rows; "Contribute" shortcut. Re-renders on resume.
+  - Entry: Home now has "Contribute a riddle" and "My submissions" buttons; two new activities
+    registered in the manifest.
+  - **Tests/Lint**: new `RinjoraSubmissionContractTest` (1 test) verifies §8.2 parsing — now **20/20**
+    unit tests pass. New Phase 11 files: zero lint *errors* (only style warnings). The 3 pre-existing
+    lint errors remain unchanged (none in Rinjora code).
 - **Phase 10 — Duels (PvP) (committed)**: added the full wager-duel lifecycle (plan Phase I, §7.1–§7.6).
   - `network/dto/` — `DuelDto` (id/status/wager/direction/accepted_at/resolved_at/riddle/initiator/
     opponent/winner_id/created_at; `riddle.answer` absent until solved — anti-cheat), `DuelUserDto`

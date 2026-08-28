@@ -66,6 +66,10 @@ public class RinjoraHomeActivity extends BaseActivity {
                 startActivity(new Intent(this, RinjoraAchievementsActivity.class)));
         binding.btnDuels.setOnClickListener(v ->
                 startActivity(new Intent(this, RinjoraDuelsActivity.class)));
+        binding.btnContribute.setOnClickListener(v ->
+                startActivity(new Intent(this, RinjoraContributeActivity.class)));
+        binding.btnSubmissions.setOnClickListener(v ->
+                startActivity(new Intent(this, RinjoraSubmissionsActivity.class)));
 
         renderCached();
         refresh(!hasCache());

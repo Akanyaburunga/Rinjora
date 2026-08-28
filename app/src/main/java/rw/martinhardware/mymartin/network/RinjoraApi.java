@@ -27,6 +27,7 @@ import rw.martinhardware.mymartin.network.dto.LoginResponseDto;
 import rw.martinhardware.mymartin.network.dto.RevealDto;
 import rw.martinhardware.mymartin.network.dto.RiddleDto;
 import rw.martinhardware.mymartin.network.dto.ShareDto;
+import rw.martinhardware.mymartin.network.dto.SubmissionDto;
 import rw.martinhardware.mymartin.network.dto.SummaryDto;
 import rw.martinhardware.mymartin.network.dto.UserDto;
 
@@ -142,6 +143,16 @@ public interface RinjoraApi {
 
     @POST("duels/{id}/solve")
     Call<ApiEnvelope<DuelSolveResponseDto>> solveDuel(@Path("id") long id, @Body Map<String, Object> body);
+
+    // ------------------------------------------------------------------
+    // User submissions / curation (plan §8.1–§8.2)
+    // ------------------------------------------------------------------
+
+    @POST("submissions/riddles")
+    Call<ApiEnvelope<SubmissionDto>> submitRiddle(@Body Map<String, Object> body);
+
+    @GET("submissions/riddles")
+    Call<ApiEnvelope<List<SubmissionDto>>> submissions();
 
     // ------------------------------------------------------------------
     // Daily riddle & streak (plan §2.4–§2.6, §2.12)
