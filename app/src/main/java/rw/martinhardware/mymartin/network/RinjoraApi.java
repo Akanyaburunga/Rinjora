@@ -11,6 +11,7 @@ import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 import retrofit2.http.QueryMap;
+import rw.martinhardware.mymartin.network.dto.AchievementLibraryDto;
 import rw.martinhardware.mymartin.network.dto.AnswerResponseDto;
 import rw.martinhardware.mymartin.network.dto.CategoryDto;
 import rw.martinhardware.mymartin.network.dto.DailyRiddleDto;
@@ -110,6 +111,13 @@ public interface RinjoraApi {
 
     @POST("riddles/{id}/share")
     Call<ApiEnvelope<ShareDto>> share(@Path("id") long id, @Body Map<String, Object> body);
+
+    // ------------------------------------------------------------------
+    // Achievements / badges (plan §4.4)
+    // ------------------------------------------------------------------
+
+    @GET("me/achievements")
+    Call<ApiEnvelope<AchievementLibraryDto>> achievements();
 
     // ------------------------------------------------------------------
     // Daily riddle & streak (plan §2.4–§2.6, §2.12)

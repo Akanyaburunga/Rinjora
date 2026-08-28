@@ -174,6 +174,23 @@ Follow the plan's combined build order; this is the same sequence against the re
 - **Stub vs full removal** of logistics `ui/` packages: remove as each replacement ships, to keep the build green.
 
 ### Phase log
+- **Phase 9 — Badges & achievements library (committed)**: added the achievements/badges library
+  screen from `GET /me/achievements` (plan Phase H, §4.4), no new ObjectBox entity.
+  - `network/dto/` — `BadgeDto` (id/slug/name/description/category/icon/threshold/metric/earned/
+    earned_at/progress/goal), `AchievementLibraryDto` (`earned_count`, `total`, `achievements[]`).
+  - `network/RinjoraApi` — `GET /me/achievements` (generic `ApiEnvelope`).
+  - `data/RinjoraAchievementsRepository` — fetch with 401 → auth error; error-message extraction.
+    Offline caching of the library deferred to Phase K.
+  - `rinjora/RinjoraAchievementsActivity` + layouts — the badge library: earned badges listed first
+    and highlighted (green dot + "EARNED"), locked ones greyed, each with a per-badge horizontal
+    progress bar and "progress / goal" text, grouped-ish by category label; a "earned_count of total"
+    header. Re-renders on resume.
+  - Unlock toasts surfaced at answer time from Phase 5 (`new_achievements[]`); this screen is the
+    persistent library view.
+  - Entry: Home now has an "Achievements" button; new activity registered in the manifest.
+  - **Tests/Lint**: new `RinjoraAchievementsContractTest` (1 test) verifies §4.4 parsing — now
+    **17/17** unit tests pass. New Phase 9 files: zero lint *errors* (only style warnings). The
+    3 pre-existing lint errors remain unchanged (none in Rinjora code).
 - **Phase 8 — Favorites, sharing & progress (committed)**: added save-to-favorites, a native share
   sheet, and re-used the persisted `hints_revealed` resume point (plan Phase G, §6.1–§6.4).
   - `network/dto/` — `ShareDto` (`share_url` + `code`) from `POST /riddles/{id}/share`.
