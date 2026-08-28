@@ -110,6 +110,27 @@ public class RinjoraDailyRepository {
         }
     }
 
+    /**
+     * Latest cached snapshot <b>only if it was fetched on the current local
+     * calendar date</b>, else null (plan §11). Guards against rendering a stale
+     * previous-day's daily riddle as "today" when the cache crosses midnight —
+     * the daily riddle is deterministic per user/date, so the server is always
+     * fresh-authoritative.
+     */
+    public RinjoraDailySnapshot getCachedForToday() {
+        RinjoraDailySnapshot snap = getCached();
+        if (snap == null) return null;
+        java.util.Calendar now = java.util.Calendar.getInstance();
+        java.util.Calendar fetched = java.util.Calendar.getInstance();
+        fetched.setTimeInMillis(snap.getFetchedAt());
+        return sameLocalDate(now, fetched) ? snap : null;
+    }
+
+    private static boolean sameLocalDate(java.util.Calendar a, java.util.Calendar b) {
+        return a.get(java.util.Calendar.YEAR) == b.get(java.util.Calendar.YEAR)
+                && a.get(java.util.Calendar.DAY_OF_YEAR) == b.get(java.util.Calendar.DAY_OF_YEAR);
+    }
+
     /** Spend one freeze to protect today's streak (plan §2.12). */
     public void freeze(final Callback<FreezeResponseDto> callback) {
         api.freezeStreak().enqueue(new retrofit2.Callback<ApiEnvelope<FreezeResponseDto>>() {

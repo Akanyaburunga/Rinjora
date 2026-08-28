@@ -5,7 +5,6 @@ import android.content.Context;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
-import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import rw.martinhardware.mymartin.BuildConfig;
@@ -14,8 +13,10 @@ import rw.martinhardware.mymartin.BuildConfig;
  * Central Retrofit singleton for the Rinjora (Kazinduzi) game API.
  *
  * - Adds the {@link AuthInterceptor} to attach the Bearer token.
- * - Logs HTTP bodies in debug builds only (never leaks the confidential
- *   {@code answer} field in release).
+ * - Adds {@link RetryInterceptor} for 429/5xx backoff.
+ * - Logs HTTP bodies in debug builds only via {@link RedactingLoggingInterceptor},
+ *   which redacts the confidential {@code answer} field so it is never logged
+ *   (plan §11).
  * - Uses {@link ApiConfig#KAZINDUZI_BASE_URL}, a build-type aware base URL.
  *
  * Usage: {@code RinjoraApiClient.get(context).api()}
@@ -26,17 +27,10 @@ public final class RinjoraApiClient {
     private final RinjoraApi api;
 
     private RinjoraApiClient(Context context) {
-        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-        if (BuildConfig.DEBUG) {
-            logging.setLevel(HttpLoggingInterceptor.Level.BODY);
-        } else {
-            logging.setLevel(HttpLoggingInterceptor.Level.NONE);
-        }
-
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .addInterceptor(new RetryInterceptor())
                 .addInterceptor(new AuthInterceptor(context))
-                .addInterceptor(logging)
+                .addInterceptor(new RedactingLoggingInterceptor(BuildConfig.DEBUG))
                 .connectTimeout(30, TimeUnit.SECONDS)
                 .readTimeout(30, TimeUnit.SECONDS)
                 .writeTimeout(30, TimeUnit.SECONDS)

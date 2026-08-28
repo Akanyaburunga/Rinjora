@@ -85,7 +85,7 @@ public class RinjoraDailyActivity extends AppCompatActivity {
 
     private void renderCached() {
         binding.tvDate.setText(DateFormat.getDateInstance().format(new Date()));
-        RinjoraDailySnapshot s = repository.getCached();
+        RinjoraDailySnapshot s = repository.getCachedForToday();
         if (s == null) {
             binding.tvStreakValue.setText("0");
             binding.tvBestStreak.setText("longest 0");
@@ -156,7 +156,7 @@ public class RinjoraDailyActivity extends AppCompatActivity {
     }
 
     private void openTodayRiddle() {
-        RinjoraDailySnapshot s = repository.getCached();
+        RinjoraDailySnapshot s = repository.getCachedForToday();
         if (s == null || s.getDailyRiddleId() <= 0) {
             Toast.makeText(this, "Daily riddle isn't available yet.", Toast.LENGTH_SHORT).show();
             return;

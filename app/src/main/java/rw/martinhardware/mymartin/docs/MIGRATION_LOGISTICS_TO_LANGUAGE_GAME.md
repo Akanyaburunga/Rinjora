@@ -174,7 +174,20 @@ Follow the plan's combined build order; this is the same sequence against the re
 - **Stub vs full removal** of logistics `ui/` packages: remove as each replacement ships, to keep the build green.
 
 ### Phase log
-- **Phase 12 — Offline, caching & polish (committed)**: added offline-first riddle catalog caching plus
+- **Phase 13 — §11 gotcha hardening (committed)**: fixed the two code-review caveats found in the §11
+  (Conventions & Gotchas) audit: debug-log redaction of the confidential `answer` and the daily-riddle
+  date guard.
+  - `network/RedactingLoggingInterceptor` — replaces `HttpLoggingInterceptor` in `RinjoraApiClient`.
+    Debug-only; logs request line and redacts `"answer"`/`"submitted_answer"` string values in response
+    bodies (so a revealed answer is never written to logcat) while handing the app the original body;
+    request bodies are not logged at all, so a submitted answer can't leak either.
+  - `data/RinjoraDailyRepository.getCachedForToday()` — returns the cached daily snapshot only if it was
+    fetched on the current local calendar date; falls back to null otherwise (server stays
+    fresh-authoritative). `RinjoraDailyActivity.renderCached()` and `openTodayRiddle()` now use it, so a
+    stale previous-day riddle is never rendered as / opened as "today's".
+  - Build/test/lint: `assembleDebug` OK, `testDebugUnitTest` **20/20** pass, lint still only the 3
+    pre-existing errors (no new ones).
+  - **Phase 12 — Offline, caching & polish (committed)**: added offline-first riddle catalog caching plus
   pull-to-refresh everywhere and 429 rate-limit retry with exponential backoff (plan Phase K).
   - `entities/RinjoraCatalogSnapshot` — offline cache row (kind = `riddles` | `categories`, key, fetchedAt,
     rawJson). Like the other snapshots, the confidential `answer` is never persisted.
