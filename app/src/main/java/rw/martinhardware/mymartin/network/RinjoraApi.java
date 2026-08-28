@@ -10,8 +10,13 @@ import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 import retrofit2.http.QueryMap;
+import rw.martinhardware.mymartin.network.dto.AnswerResponseDto;
 import rw.martinhardware.mymartin.network.dto.CategoryDto;
+import rw.martinhardware.mymartin.network.dto.HintDto;
+import rw.martinhardware.mymartin.network.dto.HistoryEntryDto;
+import rw.martinhardware.mymartin.network.dto.HistoryStatsDto;
 import rw.martinhardware.mymartin.network.dto.LoginResponseDto;
+import rw.martinhardware.mymartin.network.dto.RevealDto;
 import rw.martinhardware.mymartin.network.dto.RiddleDto;
 import rw.martinhardware.mymartin.network.dto.SummaryDto;
 import rw.martinhardware.mymartin.network.dto.UserDto;
@@ -64,4 +69,23 @@ public interface RinjoraApi {
 
     @GET("riddles/next")
     Call<ApiEnvelope<RiddleDto>> nextRiddle(@Query("difficulty") String difficulty);
+
+    // ------------------------------------------------------------------
+    // Play loop (plan §2.8–§2.11)
+    // ------------------------------------------------------------------
+
+    @GET("riddles/{id}/hint")
+    Call<ApiEnvelope<HintDto>> hint(@Path("id") long id);
+
+    @POST("riddles/{id}/answer")
+    Call<ApiEnvelope<AnswerResponseDto>> answer(@Path("id") long id, @Body Map<String, Object> body);
+
+    @POST("riddles/{id}/reveal")
+    Call<ApiEnvelope<RevealDto>> reveal(@Path("id") long id);
+
+    @GET("riddles/history")
+    Call<ApiEnvelope<List<HistoryEntryDto>>> history(@Query("per_page") int perPage);
+
+    @GET("riddles/history/stats")
+    Call<ApiEnvelope<HistoryStatsDto>> historyStats();
 }

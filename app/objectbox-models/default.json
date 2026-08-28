@@ -614,9 +614,73 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "6:3313685375859047979",
+      "lastPropertyId": "11:8972403934272473565",
+      "name": "RinjoraRiddleSnapshot",
+      "properties": [
+        {
+          "id": "1:7225235673218159601",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:3848730801648918014",
+          "name": "riddleId",
+          "type": 6
+        },
+        {
+          "id": "3:4399193232516536613",
+          "name": "fetchedAt",
+          "type": 6
+        },
+        {
+          "id": "4:3362591321272774348",
+          "name": "categoryId",
+          "type": 6
+        },
+        {
+          "id": "5:8853977335319610426",
+          "name": "categoryName",
+          "type": 9
+        },
+        {
+          "id": "6:2541030880804296147",
+          "name": "question",
+          "type": 9
+        },
+        {
+          "id": "7:572289724433726020",
+          "name": "difficulty",
+          "type": 9
+        },
+        {
+          "id": "8:8367650295011342475",
+          "name": "riddleType",
+          "type": 9
+        },
+        {
+          "id": "9:1499260628392459316",
+          "name": "hintsRevealed",
+          "type": 5
+        },
+        {
+          "id": "10:5854409091078308796",
+          "name": "solved",
+          "type": 1
+        },
+        {
+          "id": "11:8972403934272473565",
+          "name": "rawJson",
+          "type": 9
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "5:3570977432895854452",
+  "lastEntityId": "6:3313685375859047979",
   "lastIndexId": "6:4233748742514960884",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",

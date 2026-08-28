@@ -78,7 +78,7 @@
     },
     {
       "id": "2:3612601355210220939",
-      "lastPropertyId": "46:6443426780511094131",
+      "lastPropertyId": "47:6837290940781625147",
       "name": "HomeSnapshot",
       "properties": [
         {
@@ -313,6 +313,11 @@
           "id": "46:6443426780511094131",
           "name": "rawJson",
           "type": 9
+        },
+        {
+          "id": "47:6837290940781625147",
+          "name": "hasPosition",
+          "type": 1
         }
       ],
       "relations": []
@@ -503,10 +508,116 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "5:3570977432895854452",
+      "lastPropertyId": "19:945812573303973851",
+      "name": "RinjoraSummarySnapshot",
+      "properties": [
+        {
+          "id": "1:656623460977170867",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:3447355965886882299",
+          "name": "userId",
+          "indexId": "6:4233748742514960884",
+          "type": 6,
+          "flags": 8
+        },
+        {
+          "id": "3:4287261995550957945",
+          "name": "fetchedAt",
+          "type": 6
+        },
+        {
+          "id": "4:4022582459864947901",
+          "name": "name",
+          "type": 9
+        },
+        {
+          "id": "5:1491006486493518842",
+          "name": "profilePictureUrl",
+          "type": 9
+        },
+        {
+          "id": "6:6410970434032338874",
+          "name": "reputation",
+          "type": 5
+        },
+        {
+          "id": "7:313557597683416159",
+          "name": "level",
+          "type": 5
+        },
+        {
+          "id": "8:9109050956996652954",
+          "name": "currentStreak",
+          "type": 5
+        },
+        {
+          "id": "9:8104464475485229584",
+          "name": "longestStreak",
+          "type": 5
+        },
+        {
+          "id": "10:4600499886492221967",
+          "name": "earnedBadges",
+          "type": 5
+        },
+        {
+          "id": "11:3598474689389569307",
+          "name": "totalBadges",
+          "type": 5
+        },
+        {
+          "id": "12:4790442864608756480",
+          "name": "favoritesCount",
+          "type": 5
+        },
+        {
+          "id": "13:1613086840691427640",
+          "name": "totalAttempts",
+          "type": 5
+        },
+        {
+          "id": "14:6807068235150011574",
+          "name": "riddlesSolved",
+          "type": 5
+        },
+        {
+          "id": "15:8555793002784653954",
+          "name": "accuracy",
+          "type": 8
+        },
+        {
+          "id": "16:4755022735968490625",
+          "name": "uniqueRiddles",
+          "type": 5
+        },
+        {
+          "id": "17:6350050125654977879",
+          "name": "submissionsCount",
+          "type": 5
+        },
+        {
+          "id": "18:6873551375192163842",
+          "name": "sharesCount",
+          "type": 5
+        },
+        {
+          "id": "19:945812573303973851",
+          "name": "rawJson",
+          "type": 9
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "4:134554536064916024",
-  "lastIndexId": "5:3525123303865032188",
+  "lastEntityId": "5:3570977432895854452",
+  "lastIndexId": "6:4233748742514960884",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",
   "modelVersion": 5,

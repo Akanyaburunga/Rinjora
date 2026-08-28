@@ -174,6 +174,28 @@ Follow the plan's combined build order; this is the same sequence against the re
 - **Stub vs full removal** of logistics `ui/` packages: remove as each replacement ships, to keep the build green.
 
 ### Phase log
+- **Phase 5 — Core game loop: play riddles (committed)**: replaced the Phase 3 `/riddles` ping
+  harness (which only ever poked the API) with the real play screens (plan Phase D):
+  - `network/dto/` — `AnswerResponseDto` (+ nested `AchievementDto`), `RevealDto`, `HintDto`,
+    `HistoryEntryDto`, `HistoryStatsDto` (+ `CategoryStatDto`) for §2.8–§2.11.
+  - `network/RinjoraApi` — added `GET /riddles/{id}/hint`, `POST /riddles/{id}/answer`,
+    `POST /riddles/{id}/reveal`, `GET /riddles/history`, `GET /riddles/history/stats`.
+  - `entities/RinjoraRiddleSnapshot` (ObjectBox) — offline cache of the riddle being played;
+    the confidential `answer` is **never** persisted (only shown after a correct solve or reveal).
+  - `data/RinjoraRiddleRepository` — offline-first: fetch/cache a riddle, progressive hints,
+    answer submission, reveal; 401 → auth error. API-23-compatible (no `java.time`).
+  - `rinjora/RinjoraPlayActivity` — riddle **list** (`GET /riddles`) with difficulty/type filter
+    chips, `solved` markers, opens a riddle.
+  - `rinjora/RinjoraPlayRiddleActivity` — single-riddle **play**: progressive hint reveal
+    (`/hint`), answer input → `/answer` (correct/points/capped/new-achievements banner, input
+    locked once solved), and a no-reward learn/reveal mode (`/reveal`).
+  - `rinjora/RinjoraHistoryActivity` — attempt **history** list (`/riddles/history`) + **stats**
+    header (`/riddles/history/stats`) with per-row correct/incorrect markers.
+  - Home's "Play riddles" button now opens the list; the old `RinjoraRiddlesActivity` debug
+    harness and its layout were **removed** (manifest entry cleaned up).
+  - **Tests/Lint**: new `RinjoraPlayContractTest` (6 tests) verifies §2.8–§2.11 payload parsing —
+    now 10/10 unit tests pass. New Phase 5 files: zero lint *errors* (only style warnings,
+    consistent with the app). The 3 pre-existing lint errors remain unchanged (none in Rinjora code).
 - **Phase 1 — Identity & scaffolding (committed)**: renamed app to Rinjora, set `applicationId` to
   `org.kazinduzi.rinjora`, renamed theme to `Theme.Rinjora`, applied the deep green + golden amber
   palette. Shell (MainActivity, bottom nav, nav graph) unchanged. Build green. Java package untouched.

@@ -22,8 +22,8 @@ import rw.martinhardware.mymartin.network.AuthTokenStore;
  * offline-first pattern: render from cache instantly, then refresh in the background,
  * and show a staleness line.
  *
- * This is the authenticated landing screen. The riddles ping harness stays reachable
- * via the "Riddles API debug" button until later phases replace it.
+ * This is the authenticated landing screen. "Play riddles" opens the core game loop
+ * in {@link RinjoraPlayActivity}.
  */
 public class RinjoraHomeActivity extends BaseActivity {
 
@@ -55,7 +55,7 @@ public class RinjoraHomeActivity extends BaseActivity {
 
         binding.btnLogout.setOnClickListener(v -> logout());
         binding.btnRiddlesDebug.setOnClickListener(v ->
-                startActivity(new Intent(this, RinjoraRiddlesActivity.class)));
+                startActivity(new Intent(this, RinjoraPlayActivity.class)));
 
         renderCached();
         refresh(!hasCache());

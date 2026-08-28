@@ -45,7 +45,20 @@
         </activity>
 
         <activity
-            android:name=".rinjora.RinjoraRiddlesActivity"
+            android:name=".rinjora.RinjoraPlayActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Rinjora.NoActionBar">
+        </activity>
+
+        <activity
+            android:name=".rinjora.RinjoraPlayRiddleActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Rinjora.NoActionBar"
+            android:windowSoftInputMode="adjustResize">
+        </activity>
+
+        <activity
+            android:name=".rinjora.RinjoraHistoryActivity"
             android:exported="false"
             android:theme="@style/Theme.Rinjora.NoActionBar">
         </activity>
