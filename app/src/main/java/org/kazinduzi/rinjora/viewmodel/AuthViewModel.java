@@ -157,7 +157,7 @@ public class AuthViewModel extends AndroidViewModel {
         } catch (JSONException e) {}
 
         JsonObjectRequest request = new JsonObjectRequest(
-                Request.Method.POST, ApiConfig.BASE_URL + "/mobile/auth/login", body,
+                Request.Method.POST, ApiConfig.BASE_URL + "/auth/login", body,
                 response -> {
                     isLoading.setValue(false);
                     saveUserFromResponse(response, null);

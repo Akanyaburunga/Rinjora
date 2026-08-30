@@ -20,7 +20,7 @@ public class ApiConfig {
     // TODO: point at the real Kazinduzi API host once provisioned.
     // Dev commonly uses a Laravel Valet/Herd `.test` domain or a LAN IP
     // with `php artisan serve`. The path suffix is the API root (`.../api`).
-    private static final String KAZINDUZI_DEV_BASE_URL = "http://10.0.2.2:8000/api";
+    private static final String KAZINDUZI_DEV_BASE_URL = "http://192.168.100.156:8000/api";
     private static final String KAZINDUZI_PROD_BASE_URL = "https://api.kazinduzi.bi/api";
 
     /**
@@ -30,28 +30,28 @@ public class ApiConfig {
     public static final String KAZINDUZI_BASE_URL = (BuildConfig.DEBUG ? KAZINDUZI_DEV_BASE_URL : KAZINDUZI_PROD_BASE_URL) + "/";
 
     // Auth endpoints
-    public static final String AUTH_REQUEST_WHATSAPP_OTP = BASE_URL + "/mobile/auth/request-whatsapp-otp";
-    public static final String AUTH_VERIFY_WHATSAPP_OTP = BASE_URL + "/mobile/auth/verify-whatsapp-otp";
-    public static final String AUTH_VERIFY_FIREBASE_PHONE = BASE_URL + "/mobile/auth/verify-firebase-phone";
-    public static final String AUTH_LOGOUT = BASE_URL + "/mobile/auth/logout";
+    public static final String AUTH_REQUEST_WHATSAPP_OTP = BASE_URL + "/auth/request-whatsapp-otp";
+    public static final String AUTH_VERIFY_WHATSAPP_OTP = BASE_URL + "/auth/verify-whatsapp-otp";
+    public static final String AUTH_VERIFY_FIREBASE_PHONE = BASE_URL + "/auth/verify-firebase-phone";
+    public static final String AUTH_LOGOUT = BASE_URL + "/auth/logout";
 
     // Support endpoints
-    public static final String SUPPORT_TICKETS = BASE_URL + "/mobile/support/tickets";
-    public static final String SUPPORT_CATEGORIES = BASE_URL + "/mobile/support/categories";
+    public static final String SUPPORT_TICKETS = BASE_URL + "/support/tickets";
+    public static final String SUPPORT_CATEGORIES = BASE_URL + "/support/categories";
 
     public static String supportTicketDetail(int ticketId) {
-        return BASE_URL + "/mobile/support/tickets/" + ticketId;
+        return BASE_URL + "/support/tickets/" + ticketId;
     }
 
     public static String supportTicketMessages(int ticketId) {
-        return BASE_URL + "/mobile/support/tickets/" + ticketId + "/messages";
+        return BASE_URL + "/support/tickets/" + ticketId + "/messages";
     }
 
     // Driver home (trips) endpoints
-    public static final String TRIP_CURRENT = BASE_URL + "/mobile/trips/current";
+    public static final String TRIP_CURRENT = BASE_URL + "/trips/current";
 
     // Driver profile endpoint
-    public static final String PROFILE = BASE_URL + "/mobile/profile";
+    public static final String PROFILE = BASE_URL + "/profile";
 
     // Repair request endpoints (driver side)
     public static final String REPAIR_REQUESTS = BASE_URL + "/mobile/repair-requests";
