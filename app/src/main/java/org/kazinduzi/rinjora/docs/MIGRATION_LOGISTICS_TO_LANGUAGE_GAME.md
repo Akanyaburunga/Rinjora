@@ -190,6 +190,29 @@ Follow the plan's combined build order; this is the same sequence against the re
   - Build/test/lint: `assembleDebug` OK, `testDebugUnitTest` **20/20** pass, lint still only the 3
     pre-existing errors (AuthActivity.onBackPressed, WorkshopTasksFragment List#sort API24, local.properties
     PropertyEscape) — no new ones. This reverses the earlier "keep the package" decision (see §7 Decisions).
+- **Phase 15 — Guest play + 4-game-tab shell (committed)**: restructured `MainActivity` so guests can play
+  without an account, storing progress locally in ObjectBox for later sync on account creation (plan §12
+  offline-first, §7 Decisions "skeleton + guest model first"). Launcher icon (`67b7c00`) and endpoint/UI
+  edits (`f1cb4b3`) predate this phase entry.
+  - `entities/GuestPlayer` — aggregate guest stats (totalPoints, riddlesSolved, currentStreak, bestStreak,
+    lastPlayedAt, syncedToAccount).
+  - `entities/GuestProgress` — granular dirty rows (kind = RIDDLE_ATTEMPT | DAILY_ATTEMPT | HERAHEZA |
+    DUEL, refId, points, correct, happenedAt, dirty) for batch upload later.
+  - `data/GuestProgressRepository` — getOrCreatePlayer, isLoggedIn (via `AuthTokenStore`), pending count,
+    `record()`, and a `syncPending()` scaffold that clears dirty flags/marks synced (real per-kind upload +
+    account-merge still TODO).
+  - Replaced the legacy 5-tab bottom nav with 4 game tabs — `game/SokweFragment` (Play riddles hub →
+    RinjoraPlayActivity/RinjoraDailyActivity), `game/HerahezaFragment` (new fill-blank game, placeholder),
+    `game/TujajureFragment` (jokes & duels → RinjoraDuelsActivity), `game/JeweFragment` (profile: guest
+    stats + sync prompt). Guests can now open the shell without a token; the Rinjora* activities themselves
+    still gate on `AuthTokenStore.hasValidToken()` (unlocked in a later phase).
+  - Icons `ic_sokwe`/`ic_heraheza`/`ic_tujajure`/`ic_jewe`; new `fragment_{sokwe,heraheza,tujajure,jewe}.xml`
+    layouts; `bottom_nav_menu.xml` + `mobile_navigation.xml` reduced to 4 destinations (start = sokwe).
+    Removed the two dead nav handlers from the now-orphaned `ui/home/HomeFragment.java`.
+  - ObjectBox `default.json` (+ `.bak`) gained only `GuestPlayer` (id 10) and `GuestProgress` (id 11) plus
+    their indexes; existing entities untouched.
+  - Build/test/lint: `assembleDebug` OK, `testDebugUnitTest` **20/20** pass, lint still only the 3
+    pre-existing errors (no new ones).
 - **Phase 13 — §11 gotcha hardening (committed)**: fixed the two code-review caveats found in the §11
   (Conventions & Gotchas) audit: debug-log redaction of the confidential `answer` and the daily-riddle
   date guard.

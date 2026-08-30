@@ -2,28 +2,23 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/navigation_home"
-        android:icon="@drawable/ic_home_black_24dp"
-        android:title="Home" />
+        android:id="@+id/navigation_sokwe"
+        android:icon="@drawable/ic_sokwe"
+        android:title="Sokwe" />
 
     <item
-        android:id="@+id/navigation_repairs"
-        android:icon="@drawable/ic_repair"
-        android:title="Repairs" />
+        android:id="@+id/navigation_heraheza"
+        android:icon="@drawable/ic_heraheza"
+        android:title="Heraheza" />
 
     <item
-        android:id="@+id/navigation_notifications"
-        android:icon="@drawable/ic_notifications_black_24dp"
-        android:title="Notifications" />
+        android:id="@+id/navigation_tujajure"
+        android:icon="@drawable/ic_tujajure"
+        android:title="Tujajure" />
 
     <item
-        android:id="@+id/navigation_profile"
-        android:icon="@drawable/ic_person_black_24dp"
-        android:title="Profile" />
-
-    <item
-        android:id="@+id/navigation_support"
-        android:icon="@drawable/ic_support"
-        android:title="Support" />
+        android:id="@+id/navigation_jewe"
+        android:icon="@drawable/ic_jewe"
+        android:title="Jewe" />
 
 </menu>

@@ -3,36 +3,30 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@id/navigation_home">
+    app:startDestination="@id/navigation_sokwe">
 
     <fragment
-        android:id="@+id/navigation_home"
-        android:name="org.kazinduzi.rinjora.ui.home.HomeFragment"
-        android:label="Home"
-        tools:layout="@layout/fragment_home" />
+        android:id="@+id/navigation_sokwe"
+        android:name="org.kazinduzi.rinjora.game.SokweFragment"
+        android:label="Sokwe"
+        tools:layout="@layout/fragment_sokwe" />
 
     <fragment
-        android:id="@+id/navigation_repairs"
-        android:name="org.kazinduzi.rinjora.ui.repairs.RepairsFragment"
-        android:label="Repairs"
-        tools:layout="@layout/fragment_repairs" />
+        android:id="@+id/navigation_heraheza"
+        android:name="org.kazinduzi.rinjora.game.HerahezaFragment"
+        android:label="Heraheza"
+        tools:layout="@layout/fragment_heraheza" />
 
     <fragment
-        android:id="@+id/navigation_notifications"
-        android:name="org.kazinduzi.rinjora.ui.notifications.NotificationsFragment"
-        android:label="Notifications"
-        tools:layout="@layout/fragment_notifications" />
+        android:id="@+id/navigation_tujajure"
+        android:name="org.kazinduzi.rinjora.game.TujajureFragment"
+        android:label="Tujajure"
+        tools:layout="@layout/fragment_tujajure" />
 
     <fragment
-        android:id="@+id/navigation_profile"
-        android:name="org.kazinduzi.rinjora.ui.profile.ProfileFragment"
-        android:label="Profile"
-        tools:layout="@layout/fragment_profile" />
-
-    <fragment
-        android:id="@+id/navigation_support"
-        android:name="org.kazinduzi.rinjora.ui.support.SupportFragment"
-        android:label="Support"
-        tools:layout="@layout/fragment_support" />
+        android:id="@+id/navigation_jewe"
+        android:name="org.kazinduzi.rinjora.game.JeweFragment"
+        android:label="Jewe"
+        tools:layout="@layout/fragment_jewe" />
 
 </navigation>

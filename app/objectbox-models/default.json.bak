@@ -816,9 +816,43 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "9:5019939780291179515",
+      "lastPropertyId": "5:5473728003832827109",
+      "name": "RinjoraCatalogSnapshot",
+      "properties": [
+        {
+          "id": "1:2882731962920078372",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:2330377274647236619",
+          "name": "kind",
+          "type": 9
+        },
+        {
+          "id": "3:2722145401304145050",
+          "name": "key",
+          "type": 9
+        },
+        {
+          "id": "4:3948437611868845181",
+          "name": "fetchedAt",
+          "type": 6
+        },
+        {
+          "id": "5:5473728003832827109",
+          "name": "rawJson",
+          "type": 9
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "8:3102495635429984928",
+  "lastEntityId": "9:5019939780291179515",
   "lastIndexId": "6:4233748742514960884",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",

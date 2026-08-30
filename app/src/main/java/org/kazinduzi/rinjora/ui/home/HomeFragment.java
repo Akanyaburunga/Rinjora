@@ -72,11 +72,6 @@ public class HomeFragment extends Fragment {
         binding.btnCallStaff.setOnClickListener(v -> callStaff());
         binding.btnWhatsappStaff.setOnClickListener(v -> whatsappStaff());
 
-        binding.cardSupport.setOnClickListener(v ->
-                Navigation.findNavController(requireView()).navigate(R.id.navigation_support));
-        binding.cardProfile.setOnClickListener(v ->
-                Navigation.findNavController(requireView()).navigate(R.id.navigation_profile));
-
         boolean hasCache = repository.getCached(requireContext()) != null;
         renderCached();
         fetch(!hasCache);

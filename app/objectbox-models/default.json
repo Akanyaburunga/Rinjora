@@ -850,10 +850,102 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "10:6017551843832786601",
+      "lastPropertyId": "7:2418713102400754637",
+      "name": "GuestPlayer",
+      "properties": [
+        {
+          "id": "1:3181005954834654086",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:7726448920913420861",
+          "name": "totalPoints",
+          "type": 6
+        },
+        {
+          "id": "3:6934714872322119377",
+          "name": "riddlesSolved",
+          "type": 6
+        },
+        {
+          "id": "4:3118093684156978465",
+          "name": "currentStreak",
+          "type": 6
+        },
+        {
+          "id": "5:2550841185281660822",
+          "name": "bestStreak",
+          "type": 6
+        },
+        {
+          "id": "6:5367266401623031454",
+          "name": "lastPlayedAt",
+          "type": 6
+        },
+        {
+          "id": "7:2418713102400754637",
+          "name": "syncedToAccount",
+          "type": 1
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "11:3825670635399243199",
+      "lastPropertyId": "7:7869673598929200987",
+      "name": "GuestProgress",
+      "properties": [
+        {
+          "id": "1:5052338194740490062",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:3160540564482650417",
+          "name": "kind",
+          "indexId": "7:5018023593583330749",
+          "type": 9,
+          "flags": 2048
+        },
+        {
+          "id": "3:9208677273574666212",
+          "name": "refId",
+          "indexId": "8:1883383744318938604",
+          "type": 9,
+          "flags": 2048
+        },
+        {
+          "id": "4:4762760552009971349",
+          "name": "points",
+          "type": 6
+        },
+        {
+          "id": "5:5870970506406958827",
+          "name": "correct",
+          "type": 1
+        },
+        {
+          "id": "6:5565974192047510226",
+          "name": "happenedAt",
+          "type": 6
+        },
+        {
+          "id": "7:7869673598929200987",
+          "name": "dirty",
+          "type": 1
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "9:5019939780291179515",
-  "lastIndexId": "6:4233748742514960884",
+  "lastEntityId": "11:3825670635399243199",
+  "lastIndexId": "8:1883383744318938604",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",
   "modelVersion": 5,
