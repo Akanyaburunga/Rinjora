@@ -64,11 +64,20 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <TextView
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_play"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:text="Uyu mukino uraza vuba — this game mode is coming soon. Play a short Kirundi expression and fill the gaps, as a guest, then sync your best runs later."
+            android:text="Play a proverb"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Complete the missing words of Kirundi proverbs and short expressions. Progress syncs to your account automatically."
             android:textSize="13sp"
             android:textColor="@color/text_muted"
             android:lineSpacingExtra="2dp" />

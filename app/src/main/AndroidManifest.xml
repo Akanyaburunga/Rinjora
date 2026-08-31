@@ -125,6 +125,19 @@
         </activity>
 
         <activity
+            android:name=".rinjora.RinjoraProverbsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Rinjora.NoActionBar">
+        </activity>
+
+        <activity
+            android:name=".rinjora.RinjoraProverbDetailActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Rinjora.NoActionBar"
+            android:windowSoftInputMode="adjustResize">
+        </activity>
+
+        <activity
             android:name=".ui.support.TicketDetailActivity"
             android:exported="false"
             android:parentActivityName=".MainActivity"

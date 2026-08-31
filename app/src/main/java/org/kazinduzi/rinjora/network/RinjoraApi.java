@@ -24,6 +24,7 @@ import org.kazinduzi.rinjora.network.dto.HistoryEntryDto;
 import org.kazinduzi.rinjora.network.dto.HistoryStatsDto;
 import org.kazinduzi.rinjora.network.dto.LeaderboardEnvelope;
 import org.kazinduzi.rinjora.network.dto.LoginResponseDto;
+import org.kazinduzi.rinjora.network.dto.ProverbDto;
 import org.kazinduzi.rinjora.network.dto.RevealDto;
 import org.kazinduzi.rinjora.network.dto.RiddleDto;
 import org.kazinduzi.rinjora.network.dto.ShareDto;
@@ -98,6 +99,28 @@ public interface RinjoraApi {
 
     @GET("riddles/history/stats")
     Call<ApiEnvelope<HistoryStatsDto>> historyStats();
+
+    // ------------------------------------------------------------------
+    // Proverbs / Heraheza (parity plan §2)
+    // ------------------------------------------------------------------
+
+    @GET("proverbs")
+    Call<ApiEnvelope<List<ProverbDto>>> proverbs(@QueryMap Map<String, String> filters);
+
+    @GET("proverbs")
+    Call<ApiEnvelope<List<ProverbDto>>> allProverbs();
+
+    @GET("proverbs/{id}")
+    Call<ApiEnvelope<ProverbDto>> proverb(@Path("id") long id);
+
+    @GET("proverbs/next")
+    Call<ApiEnvelope<ProverbDto>> nextProverb(@Query("difficulty") String difficulty);
+
+    @POST("proverbs/{id}/answer")
+    Call<ApiEnvelope<AnswerResponseDto>> answerProverb(@Path("id") long id, @Body Map<String, Object> body);
+
+    @POST("proverbs/{id}/reveal")
+    Call<ApiEnvelope<RevealDto>> revealProverb(@Path("id") long id);
 
     // ------------------------------------------------------------------
     // Favorites & sharing (plan §6.1–§6.2)

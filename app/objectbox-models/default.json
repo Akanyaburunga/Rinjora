@@ -942,9 +942,68 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "12:6804112617769351734",
+      "lastPropertyId": "10:5449848703245915843",
+      "name": "RinjoraProverbSnapshot",
+      "properties": [
+        {
+          "id": "1:4890813654112566773",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:5161596654847593939",
+          "name": "proverbId",
+          "type": 6
+        },
+        {
+          "id": "3:7505214730296175191",
+          "name": "fetchedAt",
+          "type": 6
+        },
+        {
+          "id": "4:8399687480307755010",
+          "name": "categoryId",
+          "type": 6
+        },
+        {
+          "id": "5:8846264120529100277",
+          "name": "categoryName",
+          "type": 9
+        },
+        {
+          "id": "6:9085100271874692984",
+          "name": "question",
+          "type": 9
+        },
+        {
+          "id": "7:5267311241397053594",
+          "name": "difficulty",
+          "type": 9
+        },
+        {
+          "id": "8:7811507640921728822",
+          "name": "source",
+          "type": 9
+        },
+        {
+          "id": "9:1195136751129144166",
+          "name": "solved",
+          "type": 1
+        },
+        {
+          "id": "10:5449848703245915843",
+          "name": "rawJson",
+          "type": 9
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "11:3825670635399243199",
+  "lastEntityId": "12:6804112617769351734",
   "lastIndexId": "8:1883383744318938604",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",
