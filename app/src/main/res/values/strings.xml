@@ -4,4 +4,46 @@
     <string name="title_notifications">Notifications</string>
     <string name="title_profile">Profile</string>
     <string name="title_support">Support</string>
+
+    <!-- ===== Sokwe (riddles) ===== -->
+    <string name="sokwe_title">Sokwe ! 🐇</string>
+    <string name="sokwe_subtitle">Ibisokozo — socora, ucekure, uronke amanota.</string>
+    <string name="sokwe_status_idle">Wireze, turakunanira igisokozo…</string>
+    <string name="sokwe_start">Tangura Sokwe !</string>
+    <string name="sokwe_hints">Intwero :</string>
+    <string name="sokwe_hint_btn">Ronesha intwero</string>
+    <string name="sokwe_next">Ikindi kisokozo ›</string>
+    <string name="sokwe_daily">Igisokozo co kino kigihe</string>
+    <string name="sokwe_loading">Urahanneze gato…</string>
+    <string name="sokwe_none">Nta kindi gisokozo gisigaye. Sokora vyose ! 🎉</string>
+
+    <!-- ===== Heraheza (proverbs) ===== -->
+    <string name="hera_title">Heraheza !</string>
+    <string name="hera_subtitle">Heraheza amaweza — uzuza ijambo ribura mu migani.</string>
+    <string name="hera_status_idle">Wireze, turakunanira umwibutsa…</string>
+    <string name="hera_start">Tangura Heraheza !</string>
+    <string name="hera_next">Ikindi ›</string>
+    <string name="hera_none">Nta mwibutsa usigaye. Wabitoye vyose ! 🎉</string>
+
+    <!-- ===== Tujajure (jokes) ===== -->
+    <string name="tuja_title">Tujajure ! 😆</string>
+    <string name="tuja_subtitle">Utujajuro — ihitiragaca, utwenge, uronke amanota.</string>
+    <string name="tuja_status_idle">Wireze, turakunanira akajajuro…</string>
+    <string name="tuja_start">Tangura Tujajure !</string>
+    <string name="tuja_think">Iyumvire inyishu, uhitemwo 🤔</string>
+    <string name="tuja_next">Akandi kajajuro ›</string>
+    <string name="tuja_reveal">Raba inyishu</string>
+    <string name="tuja_duels">Duels (PvP)</string>
+
+    <!-- ===== Jewe (profile) ===== -->
+    <string name="jewe_title">Jewe</string>
+    <string name="jewe_subtitle">Ijewe — amanota yawe na profile.</string>
+    <string name="jewe_guest">Ukinna nka umushitsi. Ico ukora kibwa kuri ico kiraya.</string>
+    <string name="jewe_reputation">Amanota y\'izina</string>
+    <string name="jewe_level">Urugero</string>
+    <string name="jewe_solved">Ibisokozo wabitoye</string>
+    <string name="jewe_attempts">Incuro wagerageje</string>
+    <string name="jewe_streak">Urukurikirane</string>
+    <string name="jewe_accuracy">Ubunyambevu</string>
+    <string name="jewe_sync">Sunkuza</string>
 </resources>

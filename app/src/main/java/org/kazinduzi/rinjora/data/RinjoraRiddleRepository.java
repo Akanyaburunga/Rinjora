@@ -97,6 +97,39 @@ public class RinjoraRiddleRepository {
         });
     }
 
+    /** GET /riddles/next — the next unsolved riddle to play (404 → none left). */
+    public void fetchNext(final Callback<RiddleBundle> callback) {
+        api.nextRiddle(null).enqueue(new retrofit2.Callback<ApiEnvelope<RiddleDto>>() {
+            @Override
+            public void onResponse(@NonNull Call<ApiEnvelope<RiddleDto>> call,
+                                   @NonNull Response<ApiEnvelope<RiddleDto>> response) {
+                ApiEnvelope<RiddleDto> envelope = response.body();
+                if (response.isSuccessful() && envelope != null && envelope.isSuccess()
+                        && envelope.getData() != null) {
+                    RiddleDto dto = envelope.getData();
+                    RinjoraRiddleSnapshot snapshot = toEntity(dto);
+                    snapshot.setFetchedAt(System.currentTimeMillis());
+                    save(snapshot);
+                    if (callback != null) {
+                        callback.onSuccess(new RiddleBundle(snapshot, dto.getHint(), dto.getHint2()));
+                    }
+                } else if (response.code() == 404) {
+                    if (callback != null) callback.onError("Nta kindi kisokozo gisigaye. Nibire !");
+                } else if (response.code() == 401) {
+                    if (callback != null) callback.onAuthError();
+                } else {
+                    if (callback != null) callback.onError(extractError(response, envelope));
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ApiEnvelope<RiddleDto>> call, @NonNull Throwable t) {
+                Log.e(TAG, "fetchNext failed", t);
+                if (callback != null) callback.onError(msg(t));
+            }
+        });
+    }
+
     /** Cached snapshot for a riddle id, or null. */
     public RinjoraRiddleSnapshot getCached(long riddleId) {
         try {

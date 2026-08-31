@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    android:background="@color/brand_background"
+    android:background="@color/proto_ivory"
     tools:context=".game.HerahezaFragment">
 
     <LinearLayout
@@ -17,27 +17,35 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Heraheza"
+            android:text="@string/hera_title"
             android:textSize="26sp"
             android:textStyle="bold"
-            android:textColor="@color/text_primary" />
+            android:textColor="@color/proto_ink" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Uzuza ijambo ribura — complete the missing words in Kirundi expressions."
+            android:text="@string/hera_subtitle"
             android:textSize="14sp"
-            android:textColor="@color/text_secondary" />
+            android:textColor="@color/proto_ink_soft" />
+
+        <TextView
+            android:id="@+id/tv_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/hera_status_idle"
+            android:textSize="13sp"
+            android:textColor="@color/proto_ink_soft" />
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="8dp"
             app:cardCornerRadius="20dp"
             app:cardElevation="0dp"
-            app:cardBackgroundColor="@color/brand_surface"
-            android:visibility="gone">
+            app:cardBackgroundColor="@color/proto_sand_soft">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -45,42 +53,71 @@
                 android:orientation="vertical"
                 android:padding="20dp">
 
-                <TextView
-                    android:id="@+id/tv_expression"
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_first"
+                    style="@style/Widget.Material3.Button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Imenya ___ akamenya ___"
-                    android:textSize="20sp"
+                    android:text="@string/hera_start"
+                    android:textSize="16sp"
                     android:textStyle="bold"
-                    android:textColor="@color/text_primary" />
+                    app:backgroundTint="@color/proto_green" />
 
-                <com.google.android.material.textfield.TextInputEditText
+                <LinearLayout
+                    android:id="@+id/game_container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:hint="missing word" />
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/tv_category"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/proto_choco" />
+
+                    <TextView
+                        android:id="@+id/tv_question"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/proto_ink"
+                        android:lineSpacingExtra="2dp" />
+
+                    <TextView
+                        android:id="@+id/tv_source"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:textSize="12sp"
+                        android:textColor="@color/proto_ochre" />
+
+                    <org.kazinduzi.rinjora.view.AnswerView
+                        android:id="@+id/answer_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_next"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="@string/hera_next"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
+
+                </LinearLayout>
 
             </LinearLayout>
 
         </com.google.android.material.card.MaterialCardView>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_play"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="Play a proverb"
-            android:textSize="16sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Complete the missing words of Kirundi proverbs and short expressions. Progress syncs to your account automatically."
-            android:textSize="13sp"
-            android:textColor="@color/text_muted"
-            android:lineSpacingExtra="2dp" />
 
     </LinearLayout>
 
