@@ -157,6 +157,17 @@ public class RinjoraProverbRepository {
         }
     }
 
+    /** Local fallback total of solved proverbs cached on device (parity plan §4.1). */
+    public int countLocalSolved() {
+        try {
+            Box<RinjoraProverbSnapshot> box =
+                    ((MyApp) context.getApplicationContext()).getBoxStore().boxFor(RinjoraProverbSnapshot.class);
+            return (int) box.query().equal(RinjoraProverbSnapshot_.solved, true).build().count();
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
     /** POST /proverbs/{id}/answer — returns the grading result (lenient UX). */
     public void submitAnswer(final long proverbId, String answer, final Callback<AnswerResponseDto> callback) {
         java.util.Map<String, Object> body = new java.util.HashMap<>();

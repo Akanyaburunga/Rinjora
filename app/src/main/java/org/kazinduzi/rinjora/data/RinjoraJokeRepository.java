@@ -201,6 +201,17 @@ public class RinjoraJokeRepository {
         }
     }
 
+    /** Local fallback total of solved jokes cached on device (parity plan §4.1). */
+    public int countLocalSolved() {
+        try {
+            Box<RinjoraJokeSnapshot> box =
+                    ((MyApp) context.getApplicationContext()).getBoxStore().boxFor(RinjoraJokeSnapshot.class);
+            return (int) box.query().equal(RinjoraJokeSnapshot_.solved, true).build().count();
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
     /** Deserialise the options list from an entity's JSON (server order). */
     public List<String> optionsOf(RinjoraJokeSnapshot snapshot) {
         if (snapshot == null || snapshot.getOptionsJson() == null || snapshot.getOptionsJson().isEmpty()) {

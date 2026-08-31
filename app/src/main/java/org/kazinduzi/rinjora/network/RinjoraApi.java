@@ -23,8 +23,12 @@ import org.kazinduzi.rinjora.network.dto.HintDto;
 import org.kazinduzi.rinjora.network.dto.HistoryEntryDto;
 import org.kazinduzi.rinjora.network.dto.HistoryStatsDto;
 import org.kazinduzi.rinjora.network.dto.JokeAnswerResponseDto;
+import org.kazinduzi.rinjora.network.dto.JokeHistoryEntryDto;
+import org.kazinduzi.rinjora.network.dto.JokeHistoryStatsDto;
 import org.kazinduzi.rinjora.network.dto.JokeRoundDto;
 import org.kazinduzi.rinjora.network.dto.LeaderboardEnvelope;
+import org.kazinduzi.rinjora.network.dto.ProverbHistoryEntryDto;
+import org.kazinduzi.rinjora.network.dto.ProverbHistoryStatsDto;
 import org.kazinduzi.rinjora.network.dto.LoginResponseDto;
 import org.kazinduzi.rinjora.network.dto.ProverbDto;
 import org.kazinduzi.rinjora.network.dto.RevealDto;
@@ -139,6 +143,22 @@ public interface RinjoraApi {
 
     @POST("jokes/{id}/reveal")
     Call<ApiEnvelope<RevealDto>> revealJoke(@Path("id") long id);
+
+    // ------------------------------------------------------------------
+    // Per-mode history & stats (parity plan §4)
+    // ------------------------------------------------------------------
+
+    @GET("proverbs/history")
+    Call<ApiEnvelope<List<ProverbHistoryEntryDto>>> proverbsHistory(@Query("per_page") int perPage);
+
+    @GET("proverbs/history/stats")
+    Call<ApiEnvelope<ProverbHistoryStatsDto>> proverbsHistoryStats();
+
+    @GET("jokes/history")
+    Call<ApiEnvelope<List<JokeHistoryEntryDto>>> jokesHistory(@Query("per_page") int perPage);
+
+    @GET("jokes/history/stats")
+    Call<ApiEnvelope<JokeHistoryStatsDto>> jokesHistoryStats();
 
     // ------------------------------------------------------------------
     // Favorites & sharing (plan §6.1–§6.2)
