@@ -58,10 +58,21 @@ public class RinjoraPlayRiddleActivity extends AppCompatActivity {
         binding.btnLogout.setOnClickListener(v -> logout());
         binding.btnBackToList.setOnClickListener(v -> finish());
         binding.btnHint.setOnClickListener(v -> revealHint());
-        binding.btnAnswer.setOnClickListener(v -> submitAnswer());
-        binding.btnReveal.setOnClickListener(v -> revealAnswer());
         binding.btnFavorite.setOnClickListener(v -> toggleFavorite());
         binding.btnShare.setOnClickListener(v -> shareRiddle());
+
+        binding.answerView.setConcedeHintVisible(true);
+        binding.answerView.setListener(new org.kazinduzi.rinjora.view.AnswerView.Listener() {
+            @Override
+            public void onSubmit(@NonNull String rawAnswer) {
+                submitAnswer(rawAnswer);
+            }
+
+            @Override
+            public void onReveal() {
+                revealAnswer();
+            }
+        });
 
         renderCached();
         refresh();
@@ -196,9 +207,7 @@ public class RinjoraPlayRiddleActivity extends AppCompatActivity {
         renderHints();
         setLocked(solved);
         if (solved) {
-            binding.tvResultTitle.setText("Solved");
-            binding.tvResultBody.setText("You already solved this riddle.");
-            binding.resultCard.setVisibility(View.VISIBLE);
+            binding.answerView.showMessage("Solved", "You already solved this riddle.");
         }
     }
 
@@ -252,108 +261,59 @@ public class RinjoraPlayRiddleActivity extends AppCompatActivity {
         });
     }
 
-    private void submitAnswer() {
-        String answer = binding.etAnswer.getText().toString().trim();
-        if (answer.isEmpty()) {
-            Toast.makeText(this, "Type an answer first.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        binding.progressBar.setVisibility(View.VISIBLE);
-        binding.btnAnswer.setEnabled(false);
-        repository.submitAnswer(riddleId, answer, hint1, hint2,
+    private void submitAnswer(String rawAnswer) {
+        binding.answerView.setBusy(true);
+        repository.submitAnswer(riddleId, rawAnswer, hint1, hint2,
                 new RinjoraRiddleRepository.Callback<AnswerResponseDto>() {
                     @Override
                     public void onSuccess(AnswerResponseDto result) {
-                        binding.progressBar.setVisibility(View.GONE);
-                        binding.btnAnswer.setEnabled(true);
-                        showAnswerResult(result);
+                        binding.answerView.setBusy(false);
+                        if (result.isCorrect()) {
+                            solved = true;
+                            binding.answerView.setLocked(true);
+                        }
+                        binding.answerView.showResult(result);
                     }
 
                     @Override
                     public void onAuthError() {
-                        binding.progressBar.setVisibility(View.GONE);
-                        binding.btnAnswer.setEnabled(true);
+                        binding.answerView.setBusy(false);
                         goToAuth();
                     }
 
                     @Override
                     public void onError(String message) {
-                        binding.progressBar.setVisibility(View.GONE);
-                        binding.btnAnswer.setEnabled(true);
+                        binding.answerView.setBusy(false);
                         Toast.makeText(RinjoraPlayRiddleActivity.this, message, Toast.LENGTH_SHORT).show();
                     }
                 });
     }
 
-    private void showAnswerResult(AnswerResponseDto result) {
-        binding.resultCard.setVisibility(View.VISIBLE);
-        if (result.isCorrect()) {
-            solved = true;
-            setLocked(true);
-            binding.tvResultTitle.setText("Correct!");
-            StringBuilder body = new StringBuilder();
-            String msg = result.getMessage();
-            if (msg != null && !msg.isEmpty()) {
-                body.append(msg);
-            } else if (result.isRewarded()) {
-                body.append("You earned ").append(result.getPoints()).append(" points.");
-            }
-            if (result.isRewarded() && !result.isCapped()) {
-                body.append("\n\n+").append(result.getPoints()).append(" reputation added.");
-            } else if (result.isRewarded() && result.isCapped()) {
-                body.append("\n\nPoints capped for today.");
-            }
-            if (!result.getNewAchievements().isEmpty()) {
-                body.append("\n\nNew achievement unlocked!");
-                for (org.kazinduzi.rinjora.network.dto.AchievementDto a : result.getNewAchievements()) {
-                    body.append("\n🏅 ").append(a.getName());
-                }
-            }
-            binding.tvResultBody.setText(body.toString());
-        } else {
-            binding.tvResultTitle.setText("Not quite");
-            binding.tvResultBody.setText(result.getMessage() != null
-                    ? result.getMessage()
-                    : "Try again — no points this time.");
-        }
-    }
-
     private void revealAnswer() {
         binding.progressBar.setVisibility(View.VISIBLE);
-        binding.btnReveal.setEnabled(false);
         repository.reveal(riddleId, new RinjoraRiddleRepository.Callback<RevealDto>() {
             @Override
             public void onSuccess(RevealDto reveal) {
                 binding.progressBar.setVisibility(View.GONE);
-                binding.btnReveal.setEnabled(true);
-                binding.resultCard.setVisibility(View.VISIBLE);
-                binding.tvResultTitle.setText("Answer (learning mode)");
-                binding.tvResultBody.setText("The answer is:\n\n“" + reveal.getAnswer()
-                        + "”\n\nNo points awarded in reveal mode.");
+                binding.answerView.showRevealed(reveal.getAnswer() == null ? "" : reveal.getAnswer());
             }
 
             @Override
             public void onAuthError() {
                 binding.progressBar.setVisibility(View.GONE);
-                binding.btnReveal.setEnabled(true);
                 goToAuth();
             }
 
             @Override
             public void onError(String message) {
                 binding.progressBar.setVisibility(View.GONE);
-                binding.btnReveal.setEnabled(true);
                 Toast.makeText(RinjoraPlayRiddleActivity.this, message, Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     private void setLocked(boolean locked) {
-        binding.etAnswer.setEnabled(!locked);
-        binding.btnAnswer.setEnabled(!locked);
-        if (locked) {
-            binding.etAnswer.setText("");
-        }
+        binding.answerView.setLocked(locked);
     }
 
     private void logout() {
