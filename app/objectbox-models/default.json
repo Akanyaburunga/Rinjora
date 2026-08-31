@@ -1001,9 +1001,53 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "13:1481253831867506053",
+      "lastPropertyId": "7:3348578010337705909",
+      "name": "RinjoraJokeSnapshot",
+      "properties": [
+        {
+          "id": "1:8278974745381305886",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:8124095688697184958",
+          "name": "jokeId",
+          "type": 6
+        },
+        {
+          "id": "3:6489905695825445653",
+          "name": "fetchedAt",
+          "type": 6
+        },
+        {
+          "id": "4:6403704777359750554",
+          "name": "setup",
+          "type": 9
+        },
+        {
+          "id": "5:5270222584875120802",
+          "name": "optionsJson",
+          "type": 9
+        },
+        {
+          "id": "6:5240344880094697823",
+          "name": "solved",
+          "type": 1
+        },
+        {
+          "id": "7:3348578010337705909",
+          "name": "rawJson",
+          "type": 9
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "12:6804112617769351734",
+  "lastEntityId": "13:1481253831867506053",
   "lastIndexId": "8:1883383744318938604",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",

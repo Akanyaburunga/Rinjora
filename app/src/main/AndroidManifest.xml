@@ -138,6 +138,12 @@
         </activity>
 
         <activity
+            android:name=".rinjora.RinjoraJokeRoundActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Rinjora.NoActionBar">
+        </activity>
+
+        <activity
             android:name=".ui.support.TicketDetailActivity"
             android:exported="false"
             android:parentActivityName=".MainActivity"

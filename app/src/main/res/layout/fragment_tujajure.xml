@@ -31,18 +31,26 @@
             android:textColor="@color/text_secondary" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_duels"
+            android:id="@+id/btn_jokes"
             style="@style/Widget.Material3.Button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
+            android:text="Play jokes (utuntu)" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_duels"
+            style="@style/Widget.Material3.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
             android:text="Duels (PvP)" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:text="Coming next: a feed of clean Kirundi jokes (utuntu) and lighthearted challenges. Everything stays playable as a guest and syncs once you create an account."
+            android:text="Clean Kirundi jokes (utuntu) and lighthearted challenges. Pick the punchline from four options — everything stays playable as a guest and syncs once you create an account."
             android:textSize="13sp"
             android:textColor="@color/text_muted"
             android:lineSpacingExtra="2dp" />

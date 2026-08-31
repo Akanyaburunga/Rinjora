@@ -22,6 +22,8 @@ import org.kazinduzi.rinjora.network.dto.FreezeResponseDto;
 import org.kazinduzi.rinjora.network.dto.HintDto;
 import org.kazinduzi.rinjora.network.dto.HistoryEntryDto;
 import org.kazinduzi.rinjora.network.dto.HistoryStatsDto;
+import org.kazinduzi.rinjora.network.dto.JokeAnswerResponseDto;
+import org.kazinduzi.rinjora.network.dto.JokeRoundDto;
 import org.kazinduzi.rinjora.network.dto.LeaderboardEnvelope;
 import org.kazinduzi.rinjora.network.dto.LoginResponseDto;
 import org.kazinduzi.rinjora.network.dto.ProverbDto;
@@ -121,6 +123,22 @@ public interface RinjoraApi {
 
     @POST("proverbs/{id}/reveal")
     Call<ApiEnvelope<RevealDto>> revealProverb(@Path("id") long id);
+
+    // ------------------------------------------------------------------
+    // Jokes / Tujajure (parity plan §3)
+    // ------------------------------------------------------------------
+
+    @GET("jokes/round")
+    Call<ApiEnvelope<JokeRoundDto>> jokeRound();
+
+    @GET("jokes/next")
+    Call<ApiEnvelope<JokeRoundDto>> nextJoke();
+
+    @POST("jokes/{id}/answer")
+    Call<ApiEnvelope<JokeAnswerResponseDto>> answerJoke(@Path("id") long id, @Body Map<String, Object> body);
+
+    @POST("jokes/{id}/reveal")
+    Call<ApiEnvelope<RevealDto>> revealJoke(@Path("id") long id);
 
     // ------------------------------------------------------------------
     // Favorites & sharing (plan §6.1–§6.2)

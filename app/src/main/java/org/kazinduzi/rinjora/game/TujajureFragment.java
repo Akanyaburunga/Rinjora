@@ -12,11 +12,11 @@ import androidx.fragment.app.Fragment;
 
 import org.kazinduzi.rinjora.databinding.FragmentTujajureBinding;
 import org.kazinduzi.rinjora.rinjora.RinjoraDuelsActivity;
+import org.kazinduzi.rinjora.rinjora.RinjoraJokeRoundActivity;
 
 /**
  * Tujajure — "let's enjoy some good joking". The fun/social side of the app: jokes
- * (to be added) and duels between friends. Skeleton now; the joke feed is a later
- * phase, and duels already have a working flow to enter.
+ * (pick the punchline from four options) and duels between friends.
  */
 public class TujajureFragment extends Fragment {
 
@@ -33,6 +33,8 @@ public class TujajureFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        binding.btnJokes.setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), RinjoraJokeRoundActivity.class)));
         binding.btnDuels.setOnClickListener(v ->
                 startActivity(new Intent(requireContext(), RinjoraDuelsActivity.class)));
     }
