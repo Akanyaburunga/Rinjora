@@ -14,7 +14,7 @@
             android:id="@+id/tv_answer_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Your answer"
+            android:text="Inyishu yawe"
             android:textStyle="bold"
             android:textSize="14sp"
             android:textColor="@color/text_primary" />
@@ -24,7 +24,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:hint="Type your answer…"
+            android:hint="Andika inyishu yawe."
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -97,7 +97,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Check answer"
+                android:text="Raba ko wabitoye"
                 app:cornerRadius="12dp" />
 
             <com.google.android.material.button.MaterialButton
@@ -106,7 +106,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Reveal (learn)"
+                android:text="Raba inyishu"
                 android:textColor="@color/brand_secondary" />
 
         </LinearLayout>

@@ -21,6 +21,7 @@ import java.util.Locale;
 
 import org.kazinduzi.rinjora.R;
 import org.kazinduzi.rinjora.network.dto.AnswerResponseDto;
+import org.kazinduzi.rinjora.util.KirundiUi;
 import org.kazinduzi.rinjora.util.TextUtil;
 
 /**
@@ -86,6 +87,7 @@ public class AnswerView extends LinearLayout {
 
         // Live concede hint: light up the "Ndaguhaye !" button as soon as the player
         // types something that normalises to the concede word.
+        tvConcedeHint.setText(KirundiUi.CONCEDE_MSG);
         etAnswer.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int a, int b, int c) { }
             @Override public void onTextChanged(CharSequence s, int a, int b, int c) { }
@@ -134,34 +136,34 @@ public class AnswerView extends LinearLayout {
     public void showResult(@NonNull AnswerResponseDto result) {
         resultCard.setVisibility(View.VISIBLE);
         if (result.isCorrect()) {
-            tvResultTitle.setText("Correct!");
+            tvResultTitle.setText(KirundiUi.goodMessage());
             StringBuilder body = new StringBuilder();
             String msg = result.getMessage();
             if (msg != null && !msg.isEmpty()) {
                 body.append(msg);
             } else if (result.isRewarded()) {
-                body.append("You earned ").append(result.getPoints()).append(" points.");
+                body.append("Wironkeye ").append(result.getPoints()).append(" points.");
             }
             if (result.isRewarded() && !result.isCapped()) {
-                body.append("\n\n+").append(result.getPoints()).append(" reputation added.");
+                body.append("\n\n+").append(result.getPoints()).append(" amanota y'izina.");
             } else if (result.isRewarded()) {
-                body.append("\n\nPoints capped for today.");
+                body.append("\n\nVyagereranije iki kino gihe.");
             }
             if (result.getNewAchievements() != null && !result.getNewAchievements().isEmpty()) {
-                body.append("\n\nNew achievement unlocked!");
+                body.append("\n\nUfise intsinzi !");
                 for (org.kazinduzi.rinjora.network.dto.AchievementDto a : result.getNewAchievements()) {
                     body.append("\n🏅 ").append(a.getName());
                 }
             }
             tvResultBody.setText(body.toString());
         } else {
-            tvResultTitle.setText("Not quite");
+            tvResultTitle.setText("Ntivyabaye");
             String body = result.getMessage() != null
                     ? result.getMessage()
-                    : "Try again — no points this time.";
+                    : "Subira igerageze — nta manota iki gihe.";
             String accepted = TextUtil.normalize(getInputText());
             if (!accepted.isEmpty() && !TextUtil.isConcede(accepted)) {
-                body += String.format(Locale.getDefault(), "\n\n(We read: “%s”)", accepted);
+                body += String.format(Locale.getDefault(), "\n\n(Twabonye: “%s”)", accepted);
             }
             tvResultBody.setText(body);
         }
@@ -170,8 +172,8 @@ public class AnswerView extends LinearLayout {
     /** Render a no-reward, learning-mode reveal. */
     public void showRevealed(@NonNull String answer) {
         resultCard.setVisibility(View.VISIBLE);
-        tvResultTitle.setText("Answer (learning mode)");
-        tvResultBody.setText("The answer is:\n\n“" + answer + "”\n\nNo points awarded in reveal mode.");
+        tvResultTitle.setText("Inyishu (ubwiza bwo kwiga)");
+        tvResultBody.setText("Inyishu ni:\n\n“" + answer + "”\n\nNta manota muri ubu buryo.");
     }
 
     /** Render an arbitrary host-driven message in the result card. */
@@ -191,7 +193,7 @@ public class AnswerView extends LinearLayout {
     private void submit() {
         String raw = getInputText().trim();
         if (raw.isEmpty()) {
-            Toast.makeText(getContext(), "Type an answer first.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Andika inyishu mbere.", Toast.LENGTH_SHORT).show();
             return;
         }
         if (listener != null) {
@@ -209,9 +211,9 @@ public class AnswerView extends LinearLayout {
         boolean isConcede = TextUtil.isConcede(getInputText());
         btnConcede.setVisibility(isConcede ? View.GONE : View.VISIBLE);
         if (isConcede) {
-            btnReveal.setText("Concede");
+            btnReveal.setText("Ndaguhaye");
         } else {
-            btnReveal.setText("Reveal (learn)");
+            btnReveal.setText("Raba inyishu");
         }
     }
 }
