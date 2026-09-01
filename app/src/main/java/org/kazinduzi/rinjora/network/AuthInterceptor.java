@@ -22,6 +22,12 @@ public class AuthInterceptor implements Interceptor {
     @Override
     public Response intercept(Chain chain) throws IOException {
         okhttp3.Request request = chain.request();
+        // Laravel returns 401 JSON only when the request "expects JSON". Without this
+        // header it redirects unauthenticated/unverified API calls to the HTML /login
+        // page, which OkHttp follows and Gson then fails to parse (MalformedJsonException).
+        request = request.newBuilder()
+                .header("Accept", "application/json")
+                .build();
         String token = AuthTokenStore.get(context).getToken();
         if (token != null && !token.isEmpty()) {
             request = request.newBuilder()
