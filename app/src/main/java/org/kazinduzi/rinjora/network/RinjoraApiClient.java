@@ -7,16 +7,17 @@ import java.util.concurrent.TimeUnit;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-import org.kazinduzi.rinjora.BuildConfig;
 
 /**
  * Central Retrofit singleton for the Rinjora (Kazinduzi) game API.
  *
  * - Adds the {@link AuthInterceptor} to attach the Bearer token.
  * - Adds {@link RetryInterceptor} for 429/5xx backoff.
- * - Logs HTTP bodies in debug builds only via {@link RedactingLoggingInterceptor},
- *   which redacts the confidential {@code answer} field so it is never logged
- *   (plan §11).
+ * - Logs HTTP request + response bodies via {@link RedactingLoggingInterceptor},
+ *   which redacts the confidential {@code answer} / {@code submitted_answer} fields
+ *   so they are never logged (plan §11). Logging runs in both debug and release so a
+ *   malformed-JSON failure (e.g. "Use JsonReader.setLenient(true)") can be diagnosed
+ *   against the exact body the server returned.
  * - Uses {@link ApiConfig#KAZINDUZI_BASE_URL}, a build-type aware base URL.
  *
  * Usage: {@code RinjoraApiClient.get(context).api()}
@@ -30,7 +31,7 @@ public final class RinjoraApiClient {
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .addInterceptor(new RetryInterceptor())
                 .addInterceptor(new AuthInterceptor(context))
-                .addInterceptor(new RedactingLoggingInterceptor(BuildConfig.DEBUG))
+                .addInterceptor(new RedactingLoggingInterceptor())
                 .connectTimeout(30, TimeUnit.SECONDS)
                 .readTimeout(30, TimeUnit.SECONDS)
                 .writeTimeout(30, TimeUnit.SECONDS)
