@@ -34,7 +34,7 @@ public class RiddleDto {
     private String riddleType;
 
     @SerializedName("tags")
-    private List<String> tags;
+    private List<TagDto> tags;
 
     @SerializedName("hint")
     private String hint;
@@ -73,7 +73,7 @@ public class RiddleDto {
         return riddleType;
     }
 
-    public List<String> getTags() {
+    public List<TagDto> getTags() {
         return tags;
     }
 
