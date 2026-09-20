@@ -29,6 +29,9 @@ public final class KirundiUi {
             + "Cashizwe mu ngiro na Akanyaburunga na Gisabo Tours";
 
     // ----- Quiz labels -----
+    public static final String START_SOKWE = "Tangura ukino !";
+    public static final String START_HERA = "Tangura ukino !";
+    public static final String START_TUJA = "Tangura !";
     public static final String LAB_SOKWE = "Sokwe !";
     public static final String LAB_HERA = "Heraheza !";
     public static final String SCORE_LAB = "Amanota uronse";
@@ -40,6 +43,7 @@ public final class KirundiUi {
     public static final String GIVE = "Ndaguhaye ! 🤲";
     public static final String NEXT = "Bandanya";
     public static final String QUIT = "Subira ku ntango";
+    public static final String QUIT_ASK = "Ufise ikigikorwa kirarimo. Ushaka kukiheza nyabaki ?";
     public static final String ANSWER_INTRO = "Inyishu yari";
     public static final String HERA_INTRO = "Umugani wose ni";
     public static final String LEVEL = "Urugero";

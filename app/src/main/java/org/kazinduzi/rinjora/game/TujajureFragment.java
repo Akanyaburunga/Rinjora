@@ -16,35 +16,52 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import org.kazinduzi.rinjora.R;
 import org.kazinduzi.rinjora.databinding.FragmentTujajureBinding;
-import org.kazinduzi.rinjora.data.RinjoraJokeRepository;
-import org.kazinduzi.rinjora.entities.RinjoraJokeSnapshot;
+import org.kazinduzi.rinjora.data.RinjoraRoundRepository;
 import org.kazinduzi.rinjora.network.AuthTokenStore;
-import org.kazinduzi.rinjora.network.dto.JokeAnswerResponseDto;
-import org.kazinduzi.rinjora.network.dto.RevealDto;
+import org.kazinduzi.rinjora.network.dto.RoundAnswerDto;
+import org.kazinduzi.rinjora.network.dto.RoundCompleteDto;
+import org.kazinduzi.rinjora.network.dto.RoundDto;
+import org.kazinduzi.rinjora.network.dto.RoundItemDto;
+import org.kazinduzi.rinjora.network.dto.RoundStartDto;
 import org.kazinduzi.rinjora.rinjora.RinjoraAuthActivity;
-import org.kazinduzi.rinjora.rinjora.RinjoraDuelsActivity;
 import org.kazinduzi.rinjora.util.KirundiUi;
 
 /**
- * Tujajure — the fun tab. Hosts the multiple-choice joke round directly:
- * setup + 4 server-order options, pick the punchline, then the next one.
- * Keeps the duels entry.
+ * Tujajure — the fun tab (parity plan §4.4). Jokes are flat by design: no tiers, no
+ * level-up. A round of jokes walks the same {@code POST games/tuja/rounds} → item →
+ * option answer → feedback → next → complete loop; tapping an option is the single
+ * attempt, wrong picks reveal the punchline (feedback {@code CONCEDE_MSG}).
  */
 public class TujajureFragment extends Fragment {
 
     private FragmentTujajureBinding binding;
-    private RinjoraJokeRepository repository;
+    private RinjoraRoundRepository repository;
 
-    private long jokeId;
-    private final List<MaterialButton> optionButtons = new ArrayList<>();
-    private boolean solved;
+    private Long roundId;
+    private int itemCount;
+    private int score;
+    private int currentStreak;
+    private RoundItemDto item;
+    private int currentPosition;
     private boolean inFlight;
+    private boolean ended;
+
+    /** Positions settled this session: position → answered correctly. */
+    private final Map<Integer, Boolean> settled = new HashMap<>();
+    private final List<MaterialButton> optionButtons = new ArrayList<>();
+    private List<String> options = new ArrayList<>();
+    private String currentAnswer;
+    private String currentChoice;
 
     @Nullable
     @Override
@@ -57,13 +74,29 @@ public class TujajureFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        repository = new RinjoraJokeRepository(requireContext());
+        repository = new RinjoraRoundRepository(requireContext());
 
-        binding.btnFirst.setOnClickListener(v -> startGame());
-        binding.btnReveal.setOnClickListener(v -> revealAnswer());
-        binding.btnNext.setOnClickListener(v -> nextRound());
-        binding.btnDuels.setOnClickListener(v ->
-                startActivity(new Intent(requireContext(), RinjoraDuelsActivity.class)));
+        binding.tvStartName.setText(KirundiUi.N_TUJA);
+        binding.tvStartDesc.setText(KirundiUi.D_TUJA);
+        binding.btnStart.setText(KirundiUi.START_TUJA);
+        binding.tvLab.setText(KirundiUi.N_TUJA);
+        binding.tvThink.setText(KirundiUi.J_THINK);
+        binding.btnNext.setText(KirundiUi.NEXT);
+        binding.btnQuit.setText(KirundiUi.QUIT);
+        binding.tvEndTitle.setText(KirundiUi.END_TITLE);
+        binding.tvEndLab.setText(KirundiUi.J_SCORE_LAB);
+        binding.btnReplay.setText(KirundiUi.REPLAY);
+        binding.btnShare.setText(KirundiUi.SHARE);
+        binding.btnHome.setText(KirundiUi.HOME);
+
+        binding.btnStart.setOnClickListener(v -> startGame());
+        binding.btnNext.setOnClickListener(v -> next());
+        binding.btnQuit.setOnClickListener(v -> confirmQuit());
+        binding.btnReplay.setOnClickListener(v -> replay());
+        binding.btnShare.setOnClickListener(v -> share());
+        binding.btnHome.setOnClickListener(v -> showStart());
+
+        showStart();
     }
 
     @Override
@@ -77,27 +110,36 @@ public class TujajureFragment extends Fragment {
         }
     }
 
+    // ------------------------------------------------------------------
+    // Round lifecycle
+    // ------------------------------------------------------------------
+
     private void startGame() {
         if (!AuthTokenStore.get(requireContext()).hasValidToken()) {
             goToAuth();
             return;
         }
-        binding.btnFirst.setVisibility(View.GONE);
-        binding.gameContainer.setVisibility(View.VISIBLE);
-        loadRound();
-    }
-
-    private void loadRound() {
+        settled.clear();
+        ended = false;
         inFlight = true;
-        binding.tvStatus.setText(R.string.tuja_status_idle);
-        repository.getRound(new RinjoraJokeRepository.Callback<RinjoraJokeRepository.JokeBundle>() {
+        setBusy(true);
+        repository.start("tuja", null, new RinjoraRoundRepository.Callback<RoundStartDto>() {
             @Override
-            public void onSuccess(RinjoraJokeRepository.JokeBundle bundle) {
+            public void onSuccess(RoundStartDto start) {
                 if (binding == null) return;
                 inFlight = false;
-                binding.tvStatus.setText("");
-                apply(bundle.snapshot.getJokeId(), bundle.snapshot.getSetup(),
-                        bundle.options, bundle.snapshot.isSolved());
+                setBusy(false);
+                if (start.getRound() == null || start.getItem() == null) {
+                    onSoftError("Umukino uriko ubivako. Subira igerageze.");
+                    return;
+                }
+                applyRound(start.getRound());
+                item = start.getItem();
+                currentPosition = Math.max(1, item.getPosition());
+                currentAnswer = null;
+                currentChoice = null;
+                showGame();
+                applyItem();
             }
 
             @Override
@@ -111,21 +153,227 @@ public class TujajureFragment extends Fragment {
             public void onError(String message) {
                 if (binding == null) return;
                 inFlight = false;
-                binding.tvStatus.setText(R.string.tuja_status_idle);
-                binding.tvSetup.setText(message);
-                Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+                setBusy(false);
+                onSoftError(message);
             }
         });
     }
 
-    private void apply(long id, String setup, List<String> options, boolean alreadySolved) {
-        jokeId = id;
-        solved = alreadySolved;
-        binding.tvSetup.setText(setup != null ? setup : "");
-        binding.resultCard.setVisibility(View.GONE);
-        binding.btnNext.setVisibility(View.GONE);
-        binding.optionContainer.removeAllViews();
+    private void pick(final String option) {
+        if (inFlight || roundId == null || item == null || settled.containsKey(currentPosition)) {
+            return;
+        }
+        inFlight = true;
+        setBusy(true);
+        repository.answerOption("tuja", roundId, currentPosition, option,
+                new RinjoraRoundRepository.Callback<RoundAnswerDto>() {
+                    @Override
+                    public void onSuccess(RoundAnswerDto result) {
+                        if (binding == null) return;
+                        inFlight = false;
+                        setBusy(false);
+                        applyGrade(result, option);
+                    }
+
+                    @Override
+                    public void onAuthError() {
+                        if (binding == null) return;
+                        inFlight = false;
+                        setBusy(false);
+                        goToAuth();
+                    }
+
+                    @Override
+                    public void onError(String message) {
+                        if (binding == null) return;
+                        inFlight = false;
+                        setBusy(false);
+                        onSoftError(message);
+                    }
+                });
+    }
+
+    private void applyGrade(RoundAnswerDto result, String chosen) {
+        if (result.getRound() != null) {
+            applyRound(result.getRound());
+        }
+        currentChoice = chosen;
+        currentAnswer = result.getAnswer();
+        boolean correct = result.isCorrect();
+        settled.put(currentPosition, correct);
+        renderOptions();
+        if (correct) {
+            binding.fbCard.setCardBackgroundColor(ContextCompat.getColor(requireContext(),
+                    R.color.proto_green_soft));
+            binding.tvFmsg.setText(KirundiUi.goodMessage());
+            binding.confetti.play();
+        } else {
+            binding.fbCard.setCardBackgroundColor(ContextCompat.getColor(requireContext(),
+                    R.color.proto_red_soft));
+            binding.tvFmsg.setText(KirundiUi.CONCEDE_MSG);
+        }
+        String reveal = currentAnswer == null || currentAnswer.isEmpty()
+                ? null : (KirundiUi.ANSWER_INTRO + " : " + currentAnswer);
+        binding.tvFans.setText(reveal);
+        binding.tvFans.setVisibility(reveal == null ? View.GONE : View.VISIBLE);
+        binding.fbCard.setVisibility(View.VISIBLE);
+        binding.btnNext.setVisibility(View.VISIBLE);
+    }
+
+    private void next() {
+        if (inFlight || roundId == null || item == null) {
+            return;
+        }
+        if (!settled.containsKey(currentPosition) && !item.isAnswered()) {
+            return;
+        }
+        if (currentPosition >= itemCount) {
+            complete();
+            return;
+        }
+        final int ahead = currentPosition + 1;
+        inFlight = true;
+        setBusy(true);
+        repository.item("tuja", roundId, ahead, new RinjoraRoundRepository.Callback<RoundItemDto>() {
+            @Override
+            public void onSuccess(RoundItemDto it) {
+                if (binding == null) return;
+                inFlight = false;
+                setBusy(false);
+                item = it;
+                currentPosition = Math.max(1, it.getPosition());
+                currentAnswer = it.getRevealedAnswer();
+                currentChoice = null;
+                applyItem();
+            }
+
+            @Override
+            public void onAuthError() {
+                if (binding == null) return;
+                inFlight = false;
+                setBusy(false);
+                goToAuth();
+            }
+
+            @Override
+            public void onError(String message) {
+                if (binding == null) return;
+                inFlight = false;
+                setBusy(false);
+                onSoftError(message);
+            }
+        });
+    }
+
+    private void complete() {
+        inFlight = true;
+        setBusy(true);
+        repository.complete("tuja", roundId, new RinjoraRoundRepository.Callback<RoundCompleteDto>() {
+            @Override
+            public void onSuccess(RoundCompleteDto result) {
+                if (binding == null) return;
+                inFlight = false;
+                setBusy(false);
+                if (result.getRound() != null) {
+                    applyRound(result.getRound());
+                }
+                ended = true;
+                showEnd(result.getPerformance());
+            }
+
+            @Override
+            public void onAuthError() {
+                if (binding == null) return;
+                inFlight = false;
+                goToAuth();
+            }
+
+            @Override
+            public void onError(String message) {
+                if (binding == null) return;
+                inFlight = false;
+                setBusy(false);
+                onSoftError(message);
+            }
+        });
+    }
+
+    // ------------------------------------------------------------------
+    // Rendering
+    // ------------------------------------------------------------------
+
+    private void applyRound(RoundDto dto) {
+        roundId = dto.getId();
+        itemCount = dto.getItemCount();
+        score = dto.getScore();
+        currentStreak = dto.getCurrentStreak();
+    }
+
+    private void showGame() {
+        binding.startContainer.setVisibility(View.GONE);
+        binding.endContainer.setVisibility(View.GONE);
+        binding.gameContainer.setVisibility(View.VISIBLE);
+    }
+
+    private void showStart() {
+        inFlight = false;
+        ended = false;
+        settled.clear();
+        roundId = null;
+        item = null;
+        currentPosition = 0;
+        binding.gameContainer.setVisibility(View.GONE);
+        binding.endContainer.setVisibility(View.GONE);
+        binding.startContainer.setVisibility(View.VISIBLE);
+    }
+
+    private void applyItem() {
+        if (roundId == null || item == null) {
+            return;
+        }
+        int pos = currentPosition;
+        Boolean settledCorrect = settled.get(pos);
+        boolean answered = settledCorrect != null || item.isAnswered();
+
+        // topbar
+        binding.pillScore.setText("\u2B50 " + score);
+        binding.pillFire.setVisibility(currentStreak > 0 ? View.VISIBLE : View.GONE);
+        binding.pillFire.setText("\uD83D\uDD25 " + currentStreak);
+        setProgress((int) ((pos - 1) * 100f / Math.max(1, itemCount)));
+        binding.tvCount.setText(KirundiUi.motNombre(pos) + " / " + KirundiUi.motNombre(itemCount));
+
+        binding.tvSetup.setText(item.getText());
+
+        options = item.getOptions();
+        renderOptions();
+
+        if (answered) {
+            boolean correct = settledCorrect != null ? settledCorrect : item.isAnsweredCorrect();
+            currentAnswer = currentAnswer != null ? currentAnswer : item.getRevealedAnswer();
+            binding.fbCard.setCardBackgroundColor(ContextCompat.getColor(requireContext(),
+                    correct ? R.color.proto_green_soft : R.color.proto_red_soft));
+            binding.tvFmsg.setText(correct ? KirundiUi.goodMessage() : KirundiUi.CONCEDE_MSG);
+            String reveal = currentAnswer == null || currentAnswer.isEmpty()
+                    ? null : (KirundiUi.ANSWER_INTRO + " : " + currentAnswer);
+            binding.tvFans.setText(reveal);
+            binding.tvFans.setVisibility(reveal == null ? View.GONE : View.VISIBLE);
+            binding.fbCard.setVisibility(View.VISIBLE);
+            binding.btnNext.setVisibility(View.VISIBLE);
+        } else {
+            currentAnswer = null;
+            currentChoice = null;
+            binding.fbCard.setVisibility(View.GONE);
+            binding.btnNext.setVisibility(View.GONE);
+        }
+    }
+
+    private void renderOptions() {
+        binding.optContainer.removeAllViews();
         optionButtons.clear();
+        boolean answered = settled.containsKey(currentPosition) || item.isAnswered();
+        Boolean correct = settled.get(currentPosition);
+        boolean answeredCorrect = correct != null ? correct
+                : (item.isAnswered() && item.isAnsweredCorrect());
 
         for (final String option : options) {
             MaterialButton btn = new MaterialButton(requireContext());
@@ -140,184 +388,90 @@ public class TujajureFragment extends Fragment {
                     LinearLayout.LayoutParams.WRAP_CONTENT);
             lp.topMargin = dp(8);
             btn.setLayoutParams(lp);
-            btn.setEnabled(!solved && !inFlight);
-            btn.setOnClickListener(v -> chooseOption(option, btn));
-            binding.optionContainer.addView(btn);
+
+            boolean isChoice = option.equals(currentChoice);
+            boolean isAnswer = currentAnswer != null && currentAnswer.trim().equalsIgnoreCase(option.trim());
+            if (answered) {
+                btn.setEnabled(false);
+                if (answeredCorrect && isAnswer) {
+                    tint(btn, true);
+                } else if (!answeredCorrect && isChoice) {
+                    tint(btn, false);
+                } else if (!answeredCorrect && isAnswer) {
+                    tint(btn, true);
+                }
+            } else {
+                btn.setEnabled(!inFlight);
+                btn.setOnClickListener(v -> pick(option));
+            }
+            binding.optContainer.addView(btn);
             optionButtons.add(btn);
-        }
-
-        binding.btnReveal.setEnabled(!solved && !inFlight);
-        binding.btnNext.setVisibility(View.GONE);
-        binding.btnReveal.setVisibility(solved ? View.GONE : View.VISIBLE);
-
-        if (solved) {
-            binding.resultCard.setVisibility(View.VISIBLE);
-            binding.tvResultTitle.setText("Yari imaze gukemuka");
-            binding.tvResultBody.setText("Wari waravuze iki kajajuro.");
-            binding.btnNext.setVisibility(View.VISIBLE);
-        }
-    }
-
-    private void chooseOption(final String option, final MaterialButton tapped) {
-        if (solved || inFlight) {
-            return;
-        }
-        inFlight = true;
-        setEnabledAll(false);
-
-        repository.submitAnswer(jokeId, option,
-                new RinjoraJokeRepository.Callback<JokeAnswerResponseDto>() {
-                    @Override
-                    public void onSuccess(JokeAnswerResponseDto result) {
-                        if (binding == null) return;
-                        inFlight = false;
-                        solved = result.isCorrect();
-                        if (solved) {
-                            tint(tapped, true);
-                        } else {
-                            tint(tapped, false);
-                            highlightCorrect(result.getAnswer());
-                        }
-                        showGrade(result);
-                        binding.btnNext.setVisibility(View.VISIBLE);
-                        binding.btnReveal.setVisibility(View.GONE);
-                    }
-
-                    @Override
-                    public void onAuthError() {
-                        if (binding == null) return;
-                        inFlight = false;
-                        goToAuth();
-                    }
-
-                    @Override
-                    public void onError(String message) {
-                        if (binding == null) return;
-                        inFlight = false;
-                        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
-                        setEnabledAll(true);
-                    }
-                });
-    }
-
-    private void revealAnswer() {
-        if (solved || inFlight) {
-            return;
-        }
-        inFlight = true;
-        repository.reveal(jokeId, new RinjoraJokeRepository.Callback<RevealDto>() {
-            @Override
-            public void onSuccess(RevealDto reveal) {
-                if (binding == null) return;
-                inFlight = false;
-                String punchline = reveal.getAnswer() == null ? "" : reveal.getAnswer();
-                binding.resultCard.setVisibility(View.VISIBLE);
-                binding.tvResultTitle.setText("Inyishu (ubwiza bwo kwiga)");
-                binding.tvResultBody.setText("Inyishu ni:\n\n\u201C" + punchline
-                        + "\u201D\n\nNta manota muri ubu buryo.");
-                binding.btnNext.setVisibility(View.VISIBLE);
-                binding.btnReveal.setVisibility(View.GONE);
-                setEnabledAll(false);
-            }
-
-            @Override
-            public void onAuthError() {
-                if (binding == null) return;
-                inFlight = false;
-                goToAuth();
-            }
-
-            @Override
-            public void onError(String message) {
-                if (binding == null) return;
-                inFlight = false;
-                Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
-                setEnabledAll(true);
-            }
-        });
-    }
-
-    private void nextRound() {
-        inFlight = true;
-        binding.resultCard.setVisibility(View.GONE);
-        binding.btnNext.setVisibility(View.GONE);
-        repository.getNext(new RinjoraJokeRepository.Callback<RinjoraJokeRepository.JokeBundle>() {
-            @Override
-            public void onSuccess(RinjoraJokeRepository.JokeBundle bundle) {
-                if (binding == null) return;
-                inFlight = false;
-                apply(bundle.snapshot.getJokeId(), bundle.snapshot.getSetup(),
-                        bundle.options, bundle.snapshot.isSolved());
-            }
-
-            @Override
-            public void onAuthError() {
-                if (binding == null) return;
-                inFlight = false;
-                goToAuth();
-            }
-
-            @Override
-            public void onError(String message) {
-                if (binding == null) return;
-                inFlight = false;
-                binding.tvSetup.setText(message);
-                binding.optionContainer.removeAllViews();
-                optionButtons.clear();
-                binding.btnNext.setVisibility(View.GONE);
-            }
-        });
-    }
-
-    private void showGrade(JokeAnswerResponseDto result) {
-        binding.resultCard.setVisibility(View.VISIBLE);
-        if (result.isCorrect()) {
-            binding.tvResultTitle.setText(KirundiUi.goodMessage());
-            StringBuilder body = new StringBuilder();
-            String msg = result.getMessage();
-            if (msg != null && !msg.isEmpty()) {
-                body.append(msg);
-            } else if (result.isRewarded()) {
-                body.append("Wironkeye ").append(result.getPoints()).append(" points.");
-            }
-            if (result.isRewarded() && !result.isCapped()) {
-                body.append("\n\n+").append(result.getPoints()).append(" amanota y'izina.");
-            } else if (result.isRewarded()) {
-                body.append("\n\nVyagereranije iki kino gihe.");
-            }
-            if (result.getNewAchievements() != null && !result.getNewAchievements().isEmpty()) {
-                body.append("\n\nUfise intsinzi !");
-            }
-            binding.tvResultBody.setText(body.toString());
-        } else {
-            binding.tvResultTitle.setText("Ntivyabaye");
-            binding.tvResultBody.setText(result.getMessage() != null
-                    ? result.getMessage() : "Subira ciwe — ribere aho ry'inyarubanda (icyatsi).");
-        }
-    }
-
-    private void highlightCorrect(String correctPunchline) {
-        if (correctPunchline == null || correctPunchline.isEmpty()) {
-            return;
-        }
-        for (MaterialButton b : optionButtons) {
-            if (correctPunchline.trim().equalsIgnoreCase(b.getText().toString().trim())) {
-                tint(b, true);
-                break;
-            }
         }
     }
 
     private void tint(MaterialButton btn, boolean correct) {
-        int bgColor = ContextCompat.getColor(requireContext(),
-                correct ? R.color.proto_green : R.color.proto_red);
-        btn.setBackgroundColor(bgColor);
+        btn.setBackgroundColor(ContextCompat.getColor(requireContext(),
+                correct ? R.color.proto_green : R.color.proto_red));
         btn.setTextColor(ContextCompat.getColor(requireContext(), R.color.proto_ivory));
     }
 
-    private void setEnabledAll(boolean enabled) {
+    private void showEnd(String perf) {
+        binding.gameContainer.setVisibility(View.GONE);
+        binding.startContainer.setVisibility(View.GONE);
+        binding.endContainer.setVisibility(View.VISIBLE);
+        int n = itemCount > 0 ? itemCount : 1;
+        binding.tvEndScore.setText(String.format(Locale.getDefault(), "%d / %d", score, n));
+        binding.tvEndLab.setText(KirundiUi.J_SCORE_LAB);
+        binding.tvEndPerf.setText(performanceMessage(perf));
+        if (score >= 5) {
+            binding.confetti.play();
+        }
+    }
+
+    private void replay() {
+        settled.clear();
+        ended = false;
+        startGame();
+    }
+
+    private void confirmQuit() {
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(KirundiUi.QUIT)
+                .setMessage(KirundiUi.QUIT_ASK)
+                .setPositiveButton(KirundiUi.LVL_YES, (d, w) -> showStart())
+                .setNegativeButton(KirundiUi.LVL_NO, null)
+                .show();
+    }
+
+    private void share() {
+        Intent i = new Intent(Intent.ACTION_SEND);
+        i.setType("text/plain");
+        int n = itemCount > 0 ? itemCount : 1;
+        i.putExtra(Intent.EXTRA_TEXT, KirundiUi.shareText(score, n));
+        startActivity(Intent.createChooser(i, null));
+    }
+
+    private String performanceMessage(String perf) {
+        if ("top".equals(perf)) return KirundiUi.PERF_TOP;
+        if ("mid".equals(perf)) return KirundiUi.PERF_MID;
+        if ("low".equals(perf)) return KirundiUi.PERF_LOW;
+        return KirundiUi.performance(score, itemCount);
+    }
+
+    private void setProgress(int pct) {
+        binding.progressTrack.post(() -> {
+            if (binding == null) return;
+            ViewGroup.LayoutParams lp = binding.progressFill.getLayoutParams();
+            lp.width = (int) (binding.progressTrack.getWidth() * Math.min(100, Math.max(0, pct)) / 100f);
+            binding.progressFill.setLayoutParams(lp);
+        });
+    }
+
+    private void setBusy(boolean busy) {
+        binding.btnNext.setEnabled(!busy);
+        binding.btnQuit.setEnabled(!busy);
         for (MaterialButton b : optionButtons) {
-            b.setEnabled(enabled);
+            b.setEnabled(!busy);
         }
     }
 
@@ -328,6 +482,12 @@ public class TujajureFragment extends Fragment {
         d.setColor(ContextCompat.getColor(requireContext(), R.color.proto_ivory_soft));
         d.setStroke(dp(1), ContextCompat.getColor(requireContext(), R.color.proto_sand));
         return d;
+    }
+
+    private void onSoftError(String message) {
+        Toast.makeText(requireContext(),
+                message == null || message.isEmpty() ? "Umukino ntukigeze." : message,
+                Toast.LENGTH_SHORT).show();
     }
 
     private void goToAuth() {

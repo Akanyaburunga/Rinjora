@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/proto_ivory"
-    tools:context=".game.TujajureFragment">
+    tools:context=".game.QuizFragment">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -22,7 +22,6 @@
                 android:id="@+id/tv_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/tuja_title"
                 android:textSize="26sp"
                 android:textStyle="bold"
                 android:textColor="@color/proto_ink" />
@@ -32,11 +31,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="@string/tuja_subtitle"
                 android:textSize="14sp"
                 android:textColor="@color/proto_ink_soft" />
 
-            <!-- ================= Start ================= -->
+            <!-- ================= Start (tab entry) ================= -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/start_container"
                 android:layout_width="match_parent"
@@ -76,7 +74,7 @@
                         android:layout_marginTop="16dp"
                         android:textSize="16sp"
                         android:textStyle="bold"
-                        app:backgroundTint="@color/proto_terra" />
+                        app:backgroundTint="@color/proto_green" />
 
                 </LinearLayout>
 
@@ -90,7 +88,7 @@
                 android:orientation="vertical"
                 android:visibility="gone">
 
-                <!-- topbar -->
+                <!-- topbar: score pill · progress · streak pill -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -145,7 +143,7 @@
 
                 </LinearLayout>
 
-                <!-- eyebrow -->
+                <!-- eyebrow: mode · count · level -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -159,7 +157,7 @@
                         android:layout_height="wrap_content"
                         android:textSize="14sp"
                         android:textStyle="bold"
-                        android:textColor="@color/proto_red" />
+                        android:textColor="@color/proto_green" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -194,23 +192,22 @@
                         android:paddingBottom="4dp"
                         android:textSize="12sp"
                         android:textStyle="bold"
-                        android:textColor="@color/proto_choco"
-                        android:visibility="gone" />
+                        android:textColor="@color/proto_choco" />
 
                 </LinearLayout>
 
-                <!-- joke setup card -->
+                <!-- riddle / proverb card -->
                 <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/setup_card"
+                    android:id="@+id/riddle_card"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     app:cardCornerRadius="20dp"
                     app:cardElevation="0dp"
-                    app:cardBackgroundColor="@color/proto_red_soft">
+                    app:cardBackgroundColor="@color/proto_green_soft">
 
                     <TextView
-                        android:id="@+id/tv_setup"
+                        android:id="@+id/tv_riddle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:padding="20dp"
@@ -221,22 +218,23 @@
 
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- think prompt -->
-                <TextView
-                    android:id="@+id/tv_think"
+                <!-- free-text answer -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tl_input"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:textSize="13sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/proto_choco" />
+                    android:layout_marginTop="12dp">
 
-                <LinearLayout
-                    android:id="@+id/opt_container"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:orientation="vertical" />
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_answer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text"
+                        android:imeOptions="actionDone"
+                        android:maxLines="2" />
+
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <!-- feedback -->
                 <com.google.android.material.card.MaterialCardView
@@ -246,7 +244,7 @@
                     android:layout_marginTop="12dp"
                     app:cardCornerRadius="16dp"
                     app:cardElevation="0dp"
-                    app:cardBackgroundColor="@color/proto_red_soft"
+                    app:cardBackgroundColor="@color/proto_green_soft"
                     android:visibility="gone">
 
                     <LinearLayout
@@ -264,6 +262,16 @@
                             android:textColor="@color/proto_ink" />
 
                         <TextView
+                            android:id="@+id/tv_fstreak"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/proto_gold_dark"
+                            android:visibility="gone" />
+
+                        <TextView
                             android:id="@+id/tv_fans"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -276,12 +284,61 @@
 
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- next + quit -->
+                <!-- primary actions: check / give up -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_check"
+                        style="@style/Widget.Material3.Button"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        app:backgroundTint="@color/proto_green" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_give"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        app:backgroundTint="@color/proto_red"
+                        android:textColor="@color/proto_ivory"
+                        android:visibility="gone" />
+
+                </LinearLayout>
+
+                <!-- ghost actions: skip / back / next -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_skip"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textSize="14sp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_back"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textSize="14sp"
+                        android:visibility="gone" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_next"
@@ -295,16 +352,17 @@
                         android:textColor="@color/proto_ink"
                         android:visibility="gone" />
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_quit"
-                        style="@style/Widget.Material3.Button.TextButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:textSize="14sp"
-                        android:textColor="@color/proto_red" />
-
                 </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_quit"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_gravity="center_horizontal"
+                    android:textSize="14sp"
+                    android:textColor="@color/proto_red" />
 
             </LinearLayout>
 

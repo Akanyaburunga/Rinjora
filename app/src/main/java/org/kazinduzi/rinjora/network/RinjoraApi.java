@@ -14,6 +14,7 @@ import retrofit2.http.QueryMap;
 import org.kazinduzi.rinjora.network.dto.AchievementLibraryDto;
 import org.kazinduzi.rinjora.network.dto.AnswerResponseDto;
 import org.kazinduzi.rinjora.network.dto.CategoryDto;
+import org.kazinduzi.rinjora.network.dto.ContributionResponseDto;
 import org.kazinduzi.rinjora.network.dto.DailyRiddleDto;
 import org.kazinduzi.rinjora.network.dto.DailyStatusDto;
 import org.kazinduzi.rinjora.network.dto.DuelDto;
@@ -33,6 +34,11 @@ import org.kazinduzi.rinjora.network.dto.LoginResponseDto;
 import org.kazinduzi.rinjora.network.dto.ProverbDto;
 import org.kazinduzi.rinjora.network.dto.RevealDto;
 import org.kazinduzi.rinjora.network.dto.RiddleDto;
+import org.kazinduzi.rinjora.network.dto.RoundAnswerDto;
+import org.kazinduzi.rinjora.network.dto.RoundCompleteDto;
+import org.kazinduzi.rinjora.network.dto.RoundHistoryDto;
+import org.kazinduzi.rinjora.network.dto.RoundItemDto;
+import org.kazinduzi.rinjora.network.dto.RoundStartDto;
 import org.kazinduzi.rinjora.network.dto.ShareDto;
 import org.kazinduzi.rinjora.network.dto.SubmissionDto;
 import org.kazinduzi.rinjora.network.dto.SummaryDto;
@@ -127,6 +133,54 @@ public interface RinjoraApi {
 
     @POST("proverbs/{id}/reveal")
     Call<ApiEnvelope<RevealDto>> revealProverb(@Path("id") long id);
+
+    // ------------------------------------------------------------------
+    // Game rounds (parity plan §5) — the round-of-N experience shared by
+    // Sokwe (mode=sokwe), Heraheza (mode=hera) and Tujajure (mode=tuja).
+    // Round state is server-owned; the client is a stateless viewer.
+    // ------------------------------------------------------------------
+
+    @POST("games/{mode}/rounds")
+    Call<ApiEnvelope<RoundStartDto>> startRound(@Path("mode") String mode,
+                                                @Body Map<String, Object> body);
+
+    @GET("games/{mode}/rounds/{round}")
+    Call<ApiEnvelope<RoundStartDto>> resumeRound(@Path("mode") String mode,
+                                                 @Path("round") long round);
+
+    @GET("games/{mode}/rounds/{round}/items/{position}")
+    Call<ApiEnvelope<RoundItemDto>> item(@Path("mode") String mode,
+                                         @Path("round") long round,
+                                         @Path("position") int position);
+
+    // Flat grade responses (NOT the ApiEnvelope), per parity plan §5.
+    @POST("games/{mode}/rounds/{round}/items/{position}/answer")
+    Call<RoundAnswerDto> answerItem(@Path("mode") String mode,
+                                    @Path("round") long round,
+                                    @Path("position") int position,
+                                    @Body Map<String, Object> body);
+
+    @POST("games/{mode}/rounds/{round}/items/{position}/skip")
+    Call<RoundAnswerDto> skipItem(@Path("mode") String mode,
+                                  @Path("round") long round,
+                                  @Path("position") int position);
+
+    @POST("games/{mode}/rounds/{round}/complete")
+    Call<ApiEnvelope<RoundCompleteDto>> completeRound(@Path("mode") String mode,
+                                                      @Path("round") long round);
+
+    // ------------------------------------------------------------------
+    // History & contributions (parity plan §4.6, §4.8)
+    // ------------------------------------------------------------------
+
+    @GET("games/history")
+    Call<ApiEnvelope<RoundHistoryDto>> roundHistory();
+
+    @DELETE("games/history")
+    Call<ApiEnvelope<Void>> resetRoundHistory();
+
+    @POST("contributions")
+    Call<ApiEnvelope<ContributionResponseDto>> contribute(@Body Map<String, Object> body);
 
     // ------------------------------------------------------------------
     // Jokes / Tujajure (parity plan §3)

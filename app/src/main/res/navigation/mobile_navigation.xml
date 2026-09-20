@@ -7,15 +7,27 @@
 
     <fragment
         android:id="@+id/navigation_sokwe"
-        android:name="org.kazinduzi.rinjora.game.SokweFragment"
+        android:name="org.kazinduzi.rinjora.game.QuizFragment"
         android:label="Sokwe"
-        tools:layout="@layout/fragment_sokwe" />
+        tools:layout="@layout/fragment_quiz">
+
+        <argument
+            android:name="mode"
+            android:defaultValue="sokwe" />
+
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_heraheza"
-        android:name="org.kazinduzi.rinjora.game.HerahezaFragment"
+        android:name="org.kazinduzi.rinjora.game.QuizFragment"
         android:label="Heraheza"
-        tools:layout="@layout/fragment_heraheza" />
+        tools:layout="@layout/fragment_quiz">
+
+        <argument
+            android:name="mode"
+            android:defaultValue="hera" />
+
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_tujajure"
