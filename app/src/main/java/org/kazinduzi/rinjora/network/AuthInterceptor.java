@@ -34,6 +34,14 @@ public class AuthInterceptor implements Interceptor {
                     .header("Authorization", "Bearer " + token)
                     .build();
         }
-        return chain.proceed(request);
+        okhttp3.Response response = chain.proceed(request);
+        // A 401 means the Bearer token is definitively invalid (expired/revoked).
+        // Discard it centrally so the next app entry lands on the login form instead
+        // of RinjoraAuthViewModel#checkAuthStatus bouncing an unexpired-but-dead
+        // token straight back into RinjoraHomeActivity in an endless loop.
+        if (response.code() == 401) {
+            AuthTokenStore.get(context).clear();
+        }
+        return response;
     }
 }
