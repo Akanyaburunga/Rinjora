@@ -63,6 +63,8 @@ public class JeweFragment extends Fragment {
         boolean loggedIn = AuthTokenStore.get(requireContext()).hasValidToken();
         if (loggedIn) {
             binding.tvName.setVisibility(View.VISIBLE);
+            binding.tvGuestPrompt.setText("Urafitse aka konto. Amanota yawe aba ku konto yawe.");
+            binding.btnSync.setVisibility(View.GONE);
             fetchMe();
             fetchHistory();
         } else {
@@ -106,8 +108,6 @@ public class JeweFragment extends Fragment {
                 binding.tvSolved.setText(String.valueOf(h.getGames()));
                 binding.tvAttempts.setText(String.valueOf(h.getTotal()));
                 binding.tvAccuracy.setText(String.valueOf(h.getBest()));
-                binding.tvGuestPrompt.setText("Urafitse aka konto. Amanota yawe aba ku konto yawe.");
-                binding.btnSync.setVisibility(View.GONE);
             }
 
             @Override
