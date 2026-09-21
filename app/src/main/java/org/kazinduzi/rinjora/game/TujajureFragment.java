@@ -16,7 +16,6 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,7 +53,6 @@ public class TujajureFragment extends Fragment {
     private RoundItemDto item;
     private int currentPosition;
     private boolean inFlight;
-    private boolean ended;
 
     /** Positions settled this session: position → answered correctly. */
     private final Map<Integer, Boolean> settled = new HashMap<>();
@@ -76,6 +74,8 @@ public class TujajureFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         repository = new RinjoraRoundRepository(requireContext());
 
+        binding.tvTitle.setText(KirundiUi.N_TUJA);
+        binding.tvSubtitle.setText(KirundiUi.D_TUJA);
         binding.tvStartName.setText(KirundiUi.N_TUJA);
         binding.tvStartDesc.setText(KirundiUi.D_TUJA);
         binding.btnStart.setText(KirundiUi.START_TUJA);
@@ -91,7 +91,8 @@ public class TujajureFragment extends Fragment {
 
         binding.btnStart.setOnClickListener(v -> startGame());
         binding.btnNext.setOnClickListener(v -> next());
-        binding.btnQuit.setOnClickListener(v -> confirmQuit());
+        // Prototype: quit → straight home, no confirmation dialog.
+        binding.btnQuit.setOnClickListener(v -> showStart());
         binding.btnReplay.setOnClickListener(v -> replay());
         binding.btnShare.setOnClickListener(v -> share());
         binding.btnHome.setOnClickListener(v -> showStart());
@@ -120,7 +121,6 @@ public class TujajureFragment extends Fragment {
             return;
         }
         settled.clear();
-        ended = false;
         inFlight = true;
         setBusy(true);
         repository.start("tuja", null, new RinjoraRoundRepository.Callback<RoundStartDto>() {
@@ -277,8 +277,7 @@ public class TujajureFragment extends Fragment {
                 if (result.getRound() != null) {
                     applyRound(result.getRound());
                 }
-                ended = true;
-                showEnd(result.getPerformance());
+                showEnd();
             }
 
             @Override
@@ -317,7 +316,6 @@ public class TujajureFragment extends Fragment {
 
     private void showStart() {
         inFlight = false;
-        ended = false;
         settled.clear();
         roundId = null;
         item = null;
@@ -346,6 +344,8 @@ public class TujajureFragment extends Fragment {
 
         options = item.getOptions();
         renderOptions();
+        // Prototype: the think prompt only shows while the joke is open.
+        binding.tvThink.setVisibility(answered ? View.GONE : View.VISIBLE);
 
         if (answered) {
             boolean correct = settledCorrect != null ? settledCorrect : item.isAnsweredCorrect();
@@ -415,14 +415,16 @@ public class TujajureFragment extends Fragment {
         btn.setTextColor(ContextCompat.getColor(requireContext(), R.color.proto_ivory));
     }
 
-    private void showEnd(String perf) {
+    private void showEnd() {
         binding.gameContainer.setVisibility(View.GONE);
         binding.startContainer.setVisibility(View.GONE);
         binding.endContainer.setVisibility(View.VISIBLE);
         int n = itemCount > 0 ? itemCount : 1;
         binding.tvEndScore.setText(String.format(Locale.getDefault(), "%d / %d", score, n));
         binding.tvEndLab.setText(KirundiUi.J_SCORE_LAB);
-        binding.tvEndPerf.setText(performanceMessage(perf));
+        // Prototype: performance is purely client-side by score (>=8 top, >=5 mid).
+        binding.tvEndPerf.setText(KirundiUi.performance(score, itemCount));
+        setProgress(100);
         if (score >= 5) {
             binding.confetti.play();
         }
@@ -430,17 +432,7 @@ public class TujajureFragment extends Fragment {
 
     private void replay() {
         settled.clear();
-        ended = false;
         startGame();
-    }
-
-    private void confirmQuit() {
-        new MaterialAlertDialogBuilder(requireContext())
-                .setTitle(KirundiUi.QUIT)
-                .setMessage(KirundiUi.QUIT_ASK)
-                .setPositiveButton(KirundiUi.LVL_YES, (d, w) -> showStart())
-                .setNegativeButton(KirundiUi.LVL_NO, null)
-                .show();
     }
 
     private void share() {
@@ -449,13 +441,6 @@ public class TujajureFragment extends Fragment {
         int n = itemCount > 0 ? itemCount : 1;
         i.putExtra(Intent.EXTRA_TEXT, KirundiUi.shareText(score, n));
         startActivity(Intent.createChooser(i, null));
-    }
-
-    private String performanceMessage(String perf) {
-        if ("top".equals(perf)) return KirundiUi.PERF_TOP;
-        if ("mid".equals(perf)) return KirundiUi.PERF_MID;
-        if ("low".equals(perf)) return KirundiUi.PERF_LOW;
-        return KirundiUi.performance(score, itemCount);
     }
 
     private void setProgress(int pct) {

@@ -1,9 +1,7 @@
 package org.kazinduzi.rinjora.game;
 
 import android.animation.ObjectAnimator;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,20 +42,23 @@ import java.util.Map;
 public class QuizFragment extends Fragment {
 
     private static final String ARG_MODE = "mode";
-    private static final String PREFS = "rinjora_levels";
 
-    /** Session grade for a position already answered flexibly in-memory. */
+    /** Session grade for a position already settled in this round. Mirrors the
+     *  prototype's {@code answers[i]} record: correct flag, feedback message, streak
+     *  flair, reveal text and the player's given answer. */
     private static final class Grade {
         final boolean correct;
         final String msg;
         final String flair;
         final String reveal;
+        final String given;
 
-        Grade(boolean correct, String msg, String flair, String reveal) {
+        Grade(boolean correct, String msg, String flair, String reveal, String given) {
             this.correct = correct;
             this.msg = msg;
             this.flair = flair;
             this.reveal = reveal;
+            this.given = given;
         }
     }
 
@@ -71,7 +72,10 @@ public class QuizFragment extends Fragment {
     private int level = 1;
     private boolean inFlight;
     private boolean inTrying;
-    private boolean ended;
+    /** True when this round continues a finished one (Replay / level-up, prototype {@code cont}). */
+    private boolean continuing;
+    /** The raw text just submitted (prototype's {@code a.given}), shown back disabled. */
+    private String lastSubmitted = "";
 
     /** Positions solved/conceded during this session (never persisted). */
     private final Map<Integer, Grade> solved = new HashMap<>();
@@ -79,6 +83,7 @@ public class QuizFragment extends Fragment {
     /** Minimal live view over the round: id / itemCount / score / streak / level flags. */
     private static final class RoundDtoState {
         long id;
+        String mode;
         int itemCount;
         int score;
         int currentStreak;
@@ -103,7 +108,6 @@ public class QuizFragment extends Fragment {
             mode = m;
         }
         repository = new RinjoraRoundRepository(requireContext());
-        level = storedLevel();
 
         configureMode();
         wireHitTexts();
@@ -113,26 +117,21 @@ public class QuizFragment extends Fragment {
 
     private void configureMode() {
         boolean hera = "hera".equals(mode);
-        int title;
-        int subtitle;
         int accent;
         int cardSoft;
         int labColor;
         if (hera) {
-            title = R.string.hera_title;
-            subtitle = R.string.hera_subtitle;
             accent = R.color.proto_gold;
             cardSoft = R.color.proto_gold_soft;
             labColor = R.color.proto_gold_dark;
         } else {
-            title = R.string.sokwe_title;
-            subtitle = R.string.sokwe_subtitle;
             accent = R.color.proto_green;
             cardSoft = R.color.proto_green_soft;
             labColor = R.color.proto_terra;
         }
-        binding.tvTitle.setText(title);
-        binding.tvSubtitle.setText(subtitle);
+        // Page header mirrors the prototype's home-card naming (T.nSokwe / T.dSokwe …).
+        binding.tvTitle.setText(hera ? KirundiUi.N_HERA : KirundiUi.N_SOKWE);
+        binding.tvSubtitle.setText(hera ? KirundiUi.D_HERA : KirundiUi.D_SOKWE);
         binding.btnStart.setBackgroundTintList(
                 android.content.res.ColorStateList.valueOf(ContextCompat.getColor(requireContext(), accent)));
         binding.riddleCard.setCardBackgroundColor(
@@ -161,7 +160,10 @@ public class QuizFragment extends Fragment {
     }
 
     private void wireButtons() {
-        binding.btnStart.setOnClickListener(v -> startGame());
+        binding.btnStart.setOnClickListener(v -> {
+            continuing = false;
+            startGame();
+        });
         binding.btnCheck.setOnClickListener(v -> check());
         binding.etAnswer.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_DONE && !binding.etAnswer.isEnabled()) {
@@ -177,7 +179,8 @@ public class QuizFragment extends Fragment {
         binding.btnSkip.setOnClickListener(v -> skip());
         binding.btnNext.setOnClickListener(v -> next());
         binding.btnBack.setOnClickListener(v -> goBack());
-        binding.btnQuit.setOnClickListener(v -> confirmQuit());
+        // Prototype: btn-quit → accueil, no confirmation dialog.
+        binding.btnQuit.setOnClickListener(v -> showStart());
         binding.btnReplay.setOnClickListener(v -> replay());
         binding.btnShare.setOnClickListener(v -> share());
         binding.btnHome.setOnClickListener(v -> showStart());
@@ -203,8 +206,11 @@ public class QuizFragment extends Fragment {
             goToAuth();
             return;
         }
+        // Prototype: a fresh launch from the tab resets the level; only the level-up
+        // continuation (or Replay = cont) carries the current level over.
+        if (!continuing) level = 1;
+        continuing = false;
         solved.clear();
-        ended = false;
         inFlight = true;
         setBusy(true);
         repository.start(mode, level, new RinjoraRoundRepository.Callback<RoundStartDto>() {
@@ -254,6 +260,7 @@ public class QuizFragment extends Fragment {
             skip();
             return;
         }
+        lastSubmitted = text;
         inFlight = true;
         setBusy(true);
         repository.answer(mode, round.id, currentPosition, text, gradeCallback());
@@ -263,6 +270,7 @@ public class QuizFragment extends Fragment {
         if (inFlight || round == null || item == null || solved.containsKey(currentPosition)) {
             return;
         }
+        lastSubmitted = "";
         inFlight = true;
         setBusy(true);
         repository.skip(mode, round.id, currentPosition, gradeCallback());
@@ -304,14 +312,15 @@ public class QuizFragment extends Fragment {
         boolean conceded = result.isConceded();
         if (correct) {
             String flair = round.currentStreak >= 2 ? KirundiUi.STREAK_MSG : "";
+            String given = lastSubmitted != null ? lastSubmitted : "";
             solved.put(currentPosition, new Grade(true, KirundiUi.goodMessage(), flair,
-                    revealFor(item, result.getAnswer())));
+                    revealFor(item, result.getAnswer()), given));
             inTrying = false;
             applyItem();
             binding.confetti.play();
         } else if (conceded) {
             solved.put(currentPosition, new Grade(false, KirundiUi.CONCEDE_MSG, "",
-                    revealFor(item, result.getAnswer())));
+                    revealFor(item, result.getAnswer()), ""));
             inTrying = false;
             applyItem();
         } else {
@@ -416,12 +425,10 @@ public class QuizFragment extends Fragment {
                 if (result.getRound() != null) {
                     round = from(result.getRound());
                 }
-                ended = true;
-                String perf = result.getPerformance();
                 if (round.levelAvailable && round.score >= 8) {
-                    showLevelUp(perf);
+                    showLevelUp();
                 } else {
-                    showEnd(perf);
+                    showEnd();
                 }
             }
 
@@ -442,54 +449,40 @@ public class QuizFragment extends Fragment {
         });
     }
 
-    private void showLevelUp(final String perf) {
+    private void showLevelUp() {
         new MaterialAlertDialogBuilder(requireContext())
                 .setTitle(KirundiUi.LVL_CHEER)
                 .setMessage(KirundiUi.LVL_Q)
                 .setPositiveButton(KirundiUi.LVL_YES, (d, w) -> {
                     level = round.nextLevel;
-                    saveLevel();
+                    continuing = true;
                     startGame();
                 })
-                .setNegativeButton(KirundiUi.LVL_NO, (d, w) -> showEnd(perf))
+                .setNegativeButton(KirundiUi.LVL_NO, (d, w) -> showEnd())
                 .setCancelable(false)
                 .show();
     }
 
     private void replay() {
         solved.clear();
-        ended = false;
+        continuing = true;
         startGame();
     }
 
-    private void showEnd(String perf) {
+    private void showEnd() {
         binding.gameContainer.setVisibility(View.GONE);
         binding.startContainer.setVisibility(View.GONE);
         binding.endContainer.setVisibility(View.VISIBLE);
         int n = round.itemCount > 0 ? round.itemCount : 1;
         binding.tvEndScore.setText(String.format(Locale.getDefault(), "%d / %d", round.score, n));
-        String label = "tuja".equals(mode) ? KirundiUi.J_SCORE_LAB : KirundiUi.SCORE_LAB;
-        binding.tvEndLab.setText(label);
-        binding.tvEndPerf.setText(performanceMessage(perf));
+        binding.tvEndLab.setText(round.mode != null && round.mode.equals("tuja")
+                ? KirundiUi.J_SCORE_LAB : KirundiUi.SCORE_LAB);
+        // Prototype: performance is purely client-side by score (>=8 top, >=5 mid).
+        binding.tvEndPerf.setText(KirundiUi.performance(round.score, round.itemCount));
+        setProgress(100);
         if (round.score >= 5) {
             binding.confetti.play();
         }
-    }
-
-    private String performanceMessage(String perf) {
-        if ("top".equals(perf)) return KirundiUi.PERF_TOP;
-        if ("mid".equals(perf)) return KirundiUi.PERF_MID;
-        if ("low".equals(perf)) return KirundiUi.PERF_LOW;
-        return KirundiUi.performance(round.score, round.itemCount);
-    }
-
-    private void confirmQuit() {
-        new MaterialAlertDialogBuilder(requireContext())
-                .setTitle(KirundiUi.QUIT)
-                .setMessage(KirundiUi.QUIT_ASK)
-                .setPositiveButton(KirundiUi.LVL_YES, (d, w) -> showStart())
-                .setNegativeButton(KirundiUi.LVL_NO, null)
-                .show();
     }
 
     private void share() {
@@ -512,7 +505,7 @@ public class QuizFragment extends Fragment {
 
     private void showStart() {
         inFlight = false;
-        ended = false;
+        continuing = false;
         solved.clear();
         round = null;
         item = null;
@@ -589,14 +582,20 @@ public class QuizFragment extends Fragment {
         binding.btnGive.setVisibility(inTrying ? View.VISIBLE : View.GONE);
 
         // ghost buttons
-        binding.btnNext.setVisibility(fresh ? View.GONE : View.VISIBLE);
+        binding.btnNext.setVisibility(answered ? View.VISIBLE : View.GONE);
         binding.btnSkip.setVisibility(inTrying || answered ? View.GONE : View.VISIBLE);
         binding.btnBack.setVisibility(pos > 1 ? View.VISIBLE : View.GONE);
 
-        // input
+        // input: disabled with the player's given answer when correct, blank when
+        // conceded; cleared and refocused while typing (prototype tries()/conceder()).
         binding.etAnswer.setEnabled(!answered);
         if (answered) {
-            binding.etAnswer.setText("");
+            binding.etAnswer.setText(correct ? (g != null ? g.given : "") : "");
+        } else {
+            if (!binding.etAnswer.getText().toString().equals("")) {
+                binding.etAnswer.setText("");
+            }
+            binding.etAnswer.requestFocus();
         }
     }
 
@@ -644,6 +643,7 @@ public class QuizFragment extends Fragment {
     private RoundDtoState from(RoundDto dto) {
         RoundDtoState s = new RoundDtoState();
         s.id = dto.getId();
+        s.mode = dto.getMode();
         s.itemCount = dto.getItemCount();
         s.score = dto.getScore();
         s.currentStreak = dto.getCurrentStreak();
@@ -660,16 +660,6 @@ public class QuizFragment extends Fragment {
         Toast.makeText(requireContext(),
                 message == null || message.isEmpty() ? "Umukino ntukigeze." : message,
                 Toast.LENGTH_SHORT).show();
-    }
-
-    private int storedLevel() {
-        SharedPreferences prefs = requireContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE);
-        return Math.max(1, prefs.getInt("level_" + mode, 1));
-    }
-
-    private void saveLevel() {
-        requireContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-                .edit().putInt("level_" + mode, level).apply();
     }
 
     private void goToAuth() {

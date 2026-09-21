@@ -43,7 +43,6 @@ public final class KirundiUi {
     public static final String GIVE = "Ndaguhaye ! 🤲";
     public static final String NEXT = "Bandanya";
     public static final String QUIT = "Subira ku ntango";
-    public static final String QUIT_ASK = "Ufise ikigikorwa kirarimo. Ushaka kukiheza nyabaki ?";
     public static final String ANSWER_INTRO = "Inyishu yari";
     public static final String HERA_INTRO = "Umugani wose ni";
     public static final String LEVEL = "Urugero";
