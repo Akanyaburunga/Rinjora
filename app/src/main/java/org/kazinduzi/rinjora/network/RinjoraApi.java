@@ -38,6 +38,7 @@ import org.kazinduzi.rinjora.network.dto.RoundAnswerDto;
 import org.kazinduzi.rinjora.network.dto.RoundCompleteDto;
 import org.kazinduzi.rinjora.network.dto.RoundHistoryDto;
 import org.kazinduzi.rinjora.network.dto.RoundItemDto;
+import org.kazinduzi.rinjora.network.dto.RoundItemEnvelopeDto;
 import org.kazinduzi.rinjora.network.dto.RoundStartDto;
 import org.kazinduzi.rinjora.network.dto.ShareDto;
 import org.kazinduzi.rinjora.network.dto.SubmissionDto;
@@ -149,9 +150,9 @@ public interface RinjoraApi {
                                                  @Path("round") long round);
 
     @GET("games/{mode}/rounds/{round}/items/{position}")
-    Call<ApiEnvelope<RoundItemDto>> item(@Path("mode") String mode,
-                                         @Path("round") long round,
-                                         @Path("position") int position);
+    Call<ApiEnvelope<RoundItemEnvelopeDto>> item(@Path("mode") String mode,
+                                                 @Path("round") long round,
+                                                 @Path("position") int position);
 
     // Flat grade responses (NOT the ApiEnvelope), per parity plan §5.
     @POST("games/{mode}/rounds/{round}/items/{position}/answer")

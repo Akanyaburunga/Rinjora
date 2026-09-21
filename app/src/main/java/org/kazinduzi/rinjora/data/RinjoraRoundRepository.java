@@ -20,6 +20,7 @@ import org.kazinduzi.rinjora.network.RinjoraApiClient;
 import org.kazinduzi.rinjora.network.dto.RoundAnswerDto;
 import org.kazinduzi.rinjora.network.dto.RoundCompleteDto;
 import org.kazinduzi.rinjora.network.dto.RoundItemDto;
+import org.kazinduzi.rinjora.network.dto.RoundItemEnvelopeDto;
 import org.kazinduzi.rinjora.network.dto.RoundStartDto;
 
 /**
@@ -100,23 +101,27 @@ public class RinjoraRoundRepository {
         });
     }
 
-    /** GET /games/{mode}/rounds/{round}/items/{position} — view a position (back-nav / resume). */
+    /** GET /games/{mode}/rounds/{round}/items/{position} — view a position (Back nav / resume). */
     public void item(String mode, long roundId, int position, final Callback<RoundItemDto> callback) {
-        api.item(mode, roundId, position).enqueue(new retrofit2.Callback<ApiEnvelope<RoundItemDto>>() {
+        api.item(mode, roundId, position).enqueue(new retrofit2.Callback<ApiEnvelope<RoundItemEnvelopeDto>>() {
             @Override
-            public void onResponse(@NonNull Call<ApiEnvelope<RoundItemDto>> call,
-                                   @NonNull Response<ApiEnvelope<RoundItemDto>> response) {
-                ApiEnvelope<RoundItemDto> envelope = response.body();
+            public void onResponse(@NonNull Call<ApiEnvelope<RoundItemEnvelopeDto>> call,
+                                   @NonNull Response<ApiEnvelope<RoundItemEnvelopeDto>> response) {
+                ApiEnvelope<RoundItemEnvelopeDto> envelope = response.body();
                 if (response.isSuccessful() && envelope != null && envelope.isSuccess()
-                        && envelope.getData() != null) {
-                    dispatch(callback, envelope.getData());
+                        && envelope.getData() != null && envelope.getData().getItem() != null) {
+                    dispatch(callback, envelope.getData().getItem());
+                } else if (response.code() == 401) {
+                    if (callback != null) callback.onAuthError();
+                } else if (envelope != null && envelope.getMessage() != null && !envelope.getMessage().isEmpty()) {
+                    fail(callback, envelope.getMessage());
                 } else {
-                    handleEnvelopeFailure(response, envelope, callback);
+                    fail(callback, extractError(response));
                 }
             }
 
             @Override
-            public void onFailure(@NonNull Call<ApiEnvelope<RoundItemDto>> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<ApiEnvelope<RoundItemEnvelopeDto>> call, @NonNull Throwable t) {
                 Log.e(TAG, "item failed", t);
                 fail(callback, msg(t));
             }
