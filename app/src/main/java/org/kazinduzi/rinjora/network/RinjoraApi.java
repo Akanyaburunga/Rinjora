@@ -31,6 +31,7 @@ import org.kazinduzi.rinjora.network.dto.LeaderboardEnvelope;
 import org.kazinduzi.rinjora.network.dto.ProverbHistoryEntryDto;
 import org.kazinduzi.rinjora.network.dto.ProverbHistoryStatsDto;
 import org.kazinduzi.rinjora.network.dto.LoginResponseDto;
+import org.kazinduzi.rinjora.network.dto.MeDto;
 import org.kazinduzi.rinjora.network.dto.ProverbDto;
 import org.kazinduzi.rinjora.network.dto.RevealDto;
 import org.kazinduzi.rinjora.network.dto.RiddleDto;
@@ -74,6 +75,10 @@ public interface RinjoraApi {
 
     @GET("me/summary")
     Call<ApiEnvelope<SummaryDto>> summary();
+
+    // Live round-backed profile (parity plan §5): name + reputation/level/streak.
+    @GET("me")
+    Call<ApiEnvelope<MeDto>> me();
 
     // ------------------------------------------------------------------
     // Riddles (plan §2, §3)

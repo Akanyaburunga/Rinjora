@@ -41,9 +41,9 @@
     <string name="jewe_guest">Ukinna nka umushitsi. Ico ukora kibwa kuri ico kiraya.</string>
     <string name="jewe_reputation">Amanota y\'izina</string>
     <string name="jewe_level">Urugero</string>
-    <string name="jewe_solved">Ibisokozo wabitoye</string>
-    <string name="jewe_attempts">Incuro wagerageje</string>
+    <string name="jewe_solved">Imikino</string>
+    <string name="jewe_attempts">Amanota yose</string>
     <string name="jewe_streak">Urukurikirane</string>
-    <string name="jewe_accuracy">Ubunyambevu</string>
+    <string name="jewe_accuracy">Ivyiza</string>
     <string name="jewe_sync">Sunkuza</string>
 </resources>

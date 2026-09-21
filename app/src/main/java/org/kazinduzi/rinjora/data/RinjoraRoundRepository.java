@@ -19,6 +19,7 @@ import org.kazinduzi.rinjora.network.RinjoraApi;
 import org.kazinduzi.rinjora.network.RinjoraApiClient;
 import org.kazinduzi.rinjora.network.dto.RoundAnswerDto;
 import org.kazinduzi.rinjora.network.dto.RoundCompleteDto;
+import org.kazinduzi.rinjora.network.dto.RoundHistoryDto;
 import org.kazinduzi.rinjora.network.dto.RoundItemDto;
 import org.kazinduzi.rinjora.network.dto.RoundItemEnvelopeDto;
 import org.kazinduzi.rinjora.network.dto.RoundStartDto;
@@ -147,6 +148,29 @@ public class RinjoraRoundRepository {
     /** POST .../items/{position}/skip — concede/skip; claims the reveal. Flat grade back. */
     public void skip(String mode, long roundId, int position, final Callback<RoundAnswerDto> callback) {
         answerCall(api.skipItem(mode, roundId, position), callback);
+    }
+
+    /** GET /games/history — the logged-in user's round totals (Jewe / History screen). */
+    public void history(final Callback<RoundHistoryDto> callback) {
+        api.roundHistory().enqueue(new retrofit2.Callback<ApiEnvelope<RoundHistoryDto>>() {
+            @Override
+            public void onResponse(@NonNull Call<ApiEnvelope<RoundHistoryDto>> call,
+                                   @NonNull Response<ApiEnvelope<RoundHistoryDto>> response) {
+                ApiEnvelope<RoundHistoryDto> envelope = response.body();
+                if (response.isSuccessful() && envelope != null && envelope.isSuccess()
+                        && envelope.getData() != null) {
+                    dispatch(callback, envelope.getData());
+                } else {
+                    handleEnvelopeFailure(response, envelope, callback);
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ApiEnvelope<RoundHistoryDto>> call, @NonNull Throwable t) {
+                Log.e(TAG, "history failed", t);
+                fail(callback, msg(t));
+            }
+        });
     }
 
     /** POST .../complete — finish the round; {@code performance} = top/mid/low. */

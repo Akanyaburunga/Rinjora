@@ -10,26 +10,27 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import org.kazinduzi.rinjora.R;
 import org.kazinduzi.rinjora.databinding.FragmentJeweBinding;
 import org.kazinduzi.rinjora.data.GuestProgressRepository;
-import org.kazinduzi.rinjora.data.RinjoraSummaryRepository;
+import org.kazinduzi.rinjora.data.RinjoraMeRepository;
+import org.kazinduzi.rinjora.data.RinjoraRoundRepository;
 import org.kazinduzi.rinjora.entities.GuestPlayer;
-import org.kazinduzi.rinjora.entities.RinjoraSummarySnapshot;
 import org.kazinduzi.rinjora.network.AuthTokenStore;
-
-import java.util.Locale;
+import org.kazinduzi.rinjora.network.dto.MeDto;
+import org.kazinduzi.rinjora.network.dto.RoundHistoryDto;
 
 /**
- * Jewe — "me". The profile tab: shows the server summary ({@code GET /me/summary})
- * with reputation, level, solved riddles, streak, attempts and accuracy, falling
- * back to local guest progress, plus an option to sync guest progress once signed in.
+ * Jewe — "me". The profile tab. Shows the server-owned round stats of the
+ * currently logged-in user ({@code GET /api/me} for name/reputation/level/streak,
+ * {@code GET /api/games/history} for games/best/total). Guests keep the local
+ * guest-progress view with an optional sync button once signed in.
  */
 public class JeweFragment extends Fragment {
 
     private FragmentJeweBinding binding;
     private GuestProgressRepository guestRepository;
-    private RinjoraSummaryRepository summaryRepository;
+    private RinjoraMeRepository meRepository;
+    private RinjoraRoundRepository roundRepository;
 
     @Nullable
     @Override
@@ -43,7 +44,8 @@ public class JeweFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         guestRepository = new GuestProgressRepository(requireContext());
-        summaryRepository = new RinjoraSummaryRepository(requireContext());
+        meRepository = new RinjoraMeRepository(requireContext());
+        roundRepository = new RinjoraRoundRepository(requireContext());
 
         binding.btnSync.setOnClickListener(v -> syncPending());
     }
@@ -59,53 +61,65 @@ public class JeweFragment extends Fragment {
 
     private void render() {
         boolean loggedIn = AuthTokenStore.get(requireContext()).hasValidToken();
-
         if (loggedIn) {
-            RinjoraSummarySnapshot summary = summaryRepository.getCached();
-            if (summary != null) {
-                renderSummary(summary);
-            } else {
-                renderGuest();
-            }
-            summaryRepository.fetch(new RinjoraSummaryRepository.Callback() {
-                @Override
-                public void onSuccess(RinjoraSummarySnapshot snapshot) {
-                    if (binding != null) {
-                        renderSummary(snapshot);
-                    }
-                }
-
-                @Override
-                public void onAuthError() {
-                    // stay on whatever we have
-                }
-
-                @Override
-                public void onError(String message) {
-                    // offline: keep cached / guest view
-                }
-            });
+            binding.tvName.setVisibility(View.VISIBLE);
+            fetchMe();
+            fetchHistory();
         } else {
             renderGuest();
         }
     }
 
-    private void renderSummary(RinjoraSummarySnapshot s) {
-        String name = s.getName();
-        binding.tvName.setVisibility(View.VISIBLE);
-        binding.tvName.setText(name != null && !name.isEmpty() ? name : "Jewe");
-        binding.tvReputation.setText(String.valueOf(s.getReputation()));
-        binding.tvLevel.setText(String.valueOf(s.getLevel()));
-        binding.tvSolved.setText(String.valueOf(s.getRiddlesSolved()));
-        binding.tvStreak.setText(String.valueOf(s.getCurrentStreak()));
-        binding.tvAttempts.setText(String.valueOf(s.getTotalAttempts()));
-        binding.tvAccuracy.setText(String.format(Locale.getDefault(), "%.0f%%", s.getAccuracy() * 100.0));
+    private void fetchMe() {
+        meRepository.fetch(new RinjoraMeRepository.Callback() {
+            @Override
+            public void onSuccess(MeDto me) {
+                if (binding == null) return;
+                binding.tvName.setText(me.getName() != null && !me.getName().isEmpty()
+                        ? me.getName() : "Jewe");
+                int reputation = me.getPoints() != null ? me.getPoints().getReputation() : 0;
+                int level = (me.getPoints() != null && me.getPoints().getLevel() != null)
+                        ? me.getPoints().getLevel().getLevel() : 0;
+                int streak = me.getStreak() != null ? me.getStreak().getCurrent() : 0;
+                binding.tvReputation.setText(String.valueOf(reputation));
+                binding.tvLevel.setText(String.valueOf(level));
+                binding.tvStreak.setText(String.valueOf(streak));
+            }
 
-        long pending = guestRepository.countPending();
-        binding.tvGuestPrompt.setText(pending > 0
-                ? pending + " ryandikishijwe riratunze sunkuza."
-                : "Urafitse aka konto. Amanota yawe aba ku konto yawe.");
-        binding.btnSync.setVisibility(pending > 0 ? View.VISIBLE : View.GONE);
+            @Override
+            public void onAuthError() {
+                // token handling elsewhere; keep last numbers
+            }
+
+            @Override
+            public void onError(String message) {
+                // offline: keep last numbers
+            }
+        });
+    }
+
+    private void fetchHistory() {
+        roundRepository.history(new RinjoraRoundRepository.Callback<RoundHistoryDto>() {
+            @Override
+            public void onSuccess(RoundHistoryDto h) {
+                if (binding == null) return;
+                binding.tvSolved.setText(String.valueOf(h.getGames()));
+                binding.tvAttempts.setText(String.valueOf(h.getTotal()));
+                binding.tvAccuracy.setText(String.valueOf(h.getBest()));
+                binding.tvGuestPrompt.setText("Urafitse aka konto. Amanota yawe aba ku konto yawe.");
+                binding.btnSync.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onAuthError() {
+                // keep last numbers
+            }
+
+            @Override
+            public void onError(String message) {
+                // offline: keep last numbers
+            }
+        });
     }
 
     private void renderGuest() {
