@@ -29,8 +29,8 @@ public final class KirundiUi {
             + "Cashizwe mu ngiro na Akanyaburunga na Gisabo Tours";
 
     // ----- Quiz labels -----
-    public static final String START_SOKWE = "Tangura ukino !";
-    public static final String START_HERA = "Tangura ukino !";
+    public static final String START_SOKWE = "Tangura urukino !";
+    public static final String START_HERA = "Tangura urukino !";
     public static final String START_TUJA = "Tangura !";
     public static final String LAB_SOKWE = "Sokwe !";
     public static final String LAB_HERA = "Heraheza !";
