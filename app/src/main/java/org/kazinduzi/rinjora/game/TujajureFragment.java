@@ -201,7 +201,11 @@ public class TujajureFragment extends Fragment {
         }
         currentChoice = chosen;
         currentAnswer = result.getAnswer();
+        if (currentAnswer == null || currentAnswer.isEmpty()) {
+            currentAnswer = result.getRevealedAnswer();
+        }
         boolean correct = result.isCorrect();
+        boolean blank = currentAnswer == null || currentAnswer.isEmpty();
         settled.put(currentPosition, correct);
         renderOptions();
         if (correct) {
@@ -220,6 +224,38 @@ public class TujajureFragment extends Fragment {
         binding.tvFans.setVisibility(reveal == null ? View.GONE : View.VISIBLE);
         binding.fbCard.setVisibility(View.VISIBLE);
         binding.btnNext.setVisibility(View.VISIBLE);
+        if (blank) {
+            refreshReveal();
+        }
+    }
+
+    /** Backfills the reveal when the grade response omitted the answer: re-fetch the
+     *  per-position item state (G-1) and re-render. Silent on failure. */
+    private void refreshReveal() {
+        if (roundId == null || item == null) {
+            return;
+        }
+        repository.item("tuja", roundId, currentPosition, new RinjoraRoundRepository.Callback<RoundItemDto>() {
+            @Override
+            public void onSuccess(RoundItemDto it) {
+                if (binding == null) return;
+                item = it;
+                if (currentAnswer == null || currentAnswer.isEmpty()) {
+                    currentAnswer = it.getRevealedAnswer();
+                }
+                applyItem();
+            }
+
+            @Override
+            public void onAuthError() {
+                if (binding != null) goToAuth();
+            }
+
+            @Override
+            public void onError(String message) {
+                // Not fatal: the reveal is already rendered (blank answer).
+            }
+        });
     }
 
     private void next() {

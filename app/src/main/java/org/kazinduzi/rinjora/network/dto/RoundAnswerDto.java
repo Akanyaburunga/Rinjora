@@ -23,6 +23,9 @@ public class RoundAnswerDto {
     @SerializedName("answer")
     private String answer;
 
+    @SerializedName("revealed_answer")
+    private String revealedAnswer;
+
     @SerializedName("message")
     private String message;
 
@@ -44,6 +47,7 @@ public class RoundAnswerDto {
     public boolean isCorrect() { return correct; }
     public boolean isConceded() { return conceded; }
     public String getAnswer() { return answer; }
+    public String getRevealedAnswer() { return revealedAnswer; }
     public String getMessage() { return message; }
     public boolean isRewarded() { return rewarded; }
     public int getPoints() { return points; }

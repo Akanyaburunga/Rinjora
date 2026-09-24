@@ -45,20 +45,23 @@ public class QuizFragment extends Fragment {
 
     /** Session grade for a position already settled in this round. Mirrors the
      *  prototype's {@code answers[i]} record: correct flag, feedback message, streak
-     *  flair, reveal text and the player's given answer. */
+     *  flair, reveal text and the player's given answer. {@code answer} is the raw
+     *  answer payload from the grade (may be empty if the backend omitted it). */
     private static final class Grade {
         final boolean correct;
         final String msg;
         final String flair;
         final String reveal;
         final String given;
+        final String answer;
 
-        Grade(boolean correct, String msg, String flair, String reveal, String given) {
+        Grade(boolean correct, String msg, String flair, String reveal, String given, String answer) {
             this.correct = correct;
             this.msg = msg;
             this.flair = flair;
             this.reveal = reveal;
             this.given = given;
+            this.answer = answer;
         }
     }
 
@@ -312,19 +315,27 @@ public class QuizFragment extends Fragment {
         }
         boolean correct = result.isCorrect();
         boolean conceded = result.isConceded();
+        // The grade's answer payload — prefer it, else its revealed_answer.
+        String ans = result.getAnswer();
+        if (ans == null || ans.trim().isEmpty()) {
+            ans = result.getRevealedAnswer();
+        }
+        boolean blank = ans == null || ans.trim().isEmpty();
         if (correct) {
             String flair = round.currentStreak >= 2 ? KirundiUi.STREAK_MSG : "";
             String given = lastSubmitted != null ? lastSubmitted : "";
             solved.put(currentPosition, new Grade(true, KirundiUi.goodMessage(), flair,
-                    revealFor(item, result.getAnswer()), given));
+                    revealFor(item, ans), given, ans == null ? "" : ans));
             inTrying = false;
             applyItem();
             binding.confetti.play();
+            if (blank) refreshReveal();
         } else if (conceded) {
             solved.put(currentPosition, new Grade(false, KirundiUi.CONCEDE_MSG, "",
-                    revealFor(item, result.getAnswer()), ""));
+                    revealFor(item, ans), "", ans == null ? "" : ans));
             inTrying = false;
             applyItem();
+            if (blank) refreshReveal();
         } else {
             // Wrong attempt: impa "trying" state, keep the position, user retypes.
             solved.remove(currentPosition);
@@ -332,6 +343,34 @@ public class QuizFragment extends Fragment {
             applyItem();
             shake(binding.riddleCard);
         }
+    }
+
+    /** Backfills the reveal when the grade response omitted the answer: re-fetch the
+     *  per-position item state (G-1), which carries {@code revealed_answer} once the
+     *  item is answered, and re-render. Silent — the reveal simply stays blank if the
+     *  fetch fails. */
+    private void refreshReveal() {
+        if (round == null || item == null) {
+            return;
+        }
+        repository.item(mode, round.id, currentPosition, new RinjoraRoundRepository.Callback<RoundItemDto>() {
+            @Override
+            public void onSuccess(RoundItemDto it) {
+                if (binding == null) return;
+                item = it;
+                applyItem();
+            }
+
+            @Override
+            public void onAuthError() {
+                if (binding != null) goToAuth();
+            }
+
+            @Override
+            public void onError(String message) {
+                // Not fatal: the reveal is already rendered (blank answer).
+            }
+        });
     }
 
     private void goBack() {
@@ -543,6 +582,11 @@ public class QuizFragment extends Fragment {
             msg = g.msg;
             flair = g.flair;
             reveal = g.reveal;
+            // The grade may have omitted the answer payload; a refreshed item
+            // (GET …/items/{position}) carries revealed_answer once answered.
+            if ((g.answer == null || g.answer.trim().isEmpty()) && item.getRevealedAnswer() != null) {
+                reveal = revealFor(item, item.getRevealedAnswer());
+            }
         } else if (item.isAnswered()) {
             fresh = false;
             answered = true;
