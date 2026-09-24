@@ -89,6 +89,7 @@ public class QuizFragment extends Fragment {
         int currentStreak;
         int level;
         int nextLevel;
+        int index;
         boolean levelAvailable;
     }
 
@@ -225,7 +226,8 @@ public class QuizFragment extends Fragment {
                 }
                 round = from(start.getRound());
                 item = start.getItem();
-                currentPosition = Math.max(1, item.getPosition());
+                // Positions are 0-based: echo item.position verbatim (plan §"Position contract").
+                currentPosition = item.getPosition();
                 showGame();
                 applyItem();
             }
@@ -333,7 +335,7 @@ public class QuizFragment extends Fragment {
     }
 
     private void goBack() {
-        if (inFlight || round == null || currentPosition <= 1) {
+        if (inFlight || round == null || currentPosition <= 0) {
             return;
         }
         final int prev = currentPosition - 1;
@@ -346,7 +348,7 @@ public class QuizFragment extends Fragment {
                 inFlight = false;
                 setBusy(false);
                 item = it;
-                currentPosition = Math.max(1, it.getPosition());
+                currentPosition = it.getPosition();
                 inTrying = false;
                 applyItem();
             }
@@ -376,11 +378,14 @@ public class QuizFragment extends Fragment {
         if (!solved.containsKey(currentPosition) && !item.isAnswered()) {
             return;
         }
-        if (currentPosition >= round.itemCount) {
+        // Finished when the server round.index (0-based next pending) reaches itemCount,
+        // or the local position is already the last (0-based) item.
+        boolean finished = round.index >= round.itemCount || currentPosition + 1 >= round.itemCount;
+        if (finished) {
             complete();
             return;
         }
-        final int ahead = currentPosition + 1;
+        final int ahead = Math.max(round.index, currentPosition + 1);
         inFlight = true;
         setBusy(true);
         repository.item(mode, round.id, ahead, new RinjoraRoundRepository.Callback<RoundItemDto>() {
@@ -390,7 +395,7 @@ public class QuizFragment extends Fragment {
                 inFlight = false;
                 setBusy(false);
                 item = it;
-                currentPosition = Math.max(1, it.getPosition());
+                currentPosition = it.getPosition();
                 inTrying = false;
                 applyItem();
             }
@@ -559,10 +564,10 @@ public class QuizFragment extends Fragment {
         binding.pillScore.setText("\u2B50 " + round.score);
         binding.pillFire.setVisibility(round.currentStreak > 0 ? View.VISIBLE : View.GONE);
         binding.pillFire.setText("\uD83D\uDD25 " + round.currentStreak);
-        setProgress((int) ((pos - 1) * 100f / Math.max(1, n)));
+        setProgress((int) (round.index * 100f / Math.max(1, n)));
 
         // eyebrow
-        binding.tvCount.setText(KirundiUi.motNombre(pos) + " / " + KirundiUi.motNombre(n));
+        binding.tvCount.setText(KirundiUi.motNombre(pos + 1) + " / " + KirundiUi.motNombre(n));
         binding.tvLevel.setText(KirundiUi.LEVEL + " " + round.level);
 
         binding.tvRiddle.setText(item.getText());
@@ -584,7 +589,7 @@ public class QuizFragment extends Fragment {
         // ghost buttons
         binding.btnNext.setVisibility(answered ? View.VISIBLE : View.GONE);
         binding.btnSkip.setVisibility(inTrying || answered ? View.GONE : View.VISIBLE);
-        binding.btnBack.setVisibility(pos > 1 ? View.VISIBLE : View.GONE);
+        binding.btnBack.setVisibility(pos > 0 ? View.VISIBLE : View.GONE);
 
         // input: disabled with the player's given answer when correct, blank when
         // conceded; cleared and refocused while typing (prototype tries()/conceder()).
@@ -650,6 +655,7 @@ public class QuizFragment extends Fragment {
         s.level = dto.getLevel() > 0 ? dto.getLevel() : level;
         s.nextLevel = dto.getNextLevel() > 0 ? dto.getNextLevel() : level + 1;
         s.levelAvailable = dto.isLevelAvailable();
+        s.index = dto.getIndex();
         if (s.level != level) {
             level = s.level;
         }

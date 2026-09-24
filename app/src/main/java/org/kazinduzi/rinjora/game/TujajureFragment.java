@@ -48,6 +48,7 @@ public class TujajureFragment extends Fragment {
 
     private Long roundId;
     private int itemCount;
+    private int roundIndex;
     private int score;
     private int currentStreak;
     private RoundItemDto item;
@@ -135,7 +136,8 @@ public class TujajureFragment extends Fragment {
                 }
                 applyRound(start.getRound());
                 item = start.getItem();
-                currentPosition = Math.max(1, item.getPosition());
+                // Positions are 0-based: echo item.position verbatim (plan §"Position contract").
+                currentPosition = item.getPosition();
                 currentAnswer = null;
                 currentChoice = null;
                 showGame();
@@ -227,11 +229,14 @@ public class TujajureFragment extends Fragment {
         if (!settled.containsKey(currentPosition) && !item.isAnswered()) {
             return;
         }
-        if (currentPosition >= itemCount) {
+        // Finished when the server round.index (0-based next pending) reaches itemCount,
+        // or the local position is already the last (0-based) item.
+        boolean finished = roundIndex >= itemCount || currentPosition + 1 >= itemCount;
+        if (finished) {
             complete();
             return;
         }
-        final int ahead = currentPosition + 1;
+        final int ahead = Math.max(roundIndex, currentPosition + 1);
         inFlight = true;
         setBusy(true);
         repository.item("tuja", roundId, ahead, new RinjoraRoundRepository.Callback<RoundItemDto>() {
@@ -241,7 +246,7 @@ public class TujajureFragment extends Fragment {
                 inFlight = false;
                 setBusy(false);
                 item = it;
-                currentPosition = Math.max(1, it.getPosition());
+                currentPosition = it.getPosition();
                 currentAnswer = it.getRevealedAnswer();
                 currentChoice = null;
                 applyItem();
@@ -304,6 +309,7 @@ public class TujajureFragment extends Fragment {
     private void applyRound(RoundDto dto) {
         roundId = dto.getId();
         itemCount = dto.getItemCount();
+        roundIndex = dto.getIndex();
         score = dto.getScore();
         currentStreak = dto.getCurrentStreak();
     }
@@ -320,6 +326,7 @@ public class TujajureFragment extends Fragment {
         roundId = null;
         item = null;
         currentPosition = 0;
+        roundIndex = 0;
         binding.gameContainer.setVisibility(View.GONE);
         binding.endContainer.setVisibility(View.GONE);
         binding.startContainer.setVisibility(View.VISIBLE);
@@ -337,8 +344,8 @@ public class TujajureFragment extends Fragment {
         binding.pillScore.setText("\u2B50 " + score);
         binding.pillFire.setVisibility(currentStreak > 0 ? View.VISIBLE : View.GONE);
         binding.pillFire.setText("\uD83D\uDD25 " + currentStreak);
-        setProgress((int) ((pos - 1) * 100f / Math.max(1, itemCount)));
-        binding.tvCount.setText(KirundiUi.motNombre(pos) + " / " + KirundiUi.motNombre(itemCount));
+        setProgress((int) (roundIndex * 100f / Math.max(1, itemCount)));
+        binding.tvCount.setText(KirundiUi.motNombre(pos + 1) + " / " + KirundiUi.motNombre(itemCount));
 
         binding.tvSetup.setText(item.getText());
 
