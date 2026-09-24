@@ -3,6 +3,7 @@ package org.kazinduzi.rinjora.game;
 import android.content.Intent;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +17,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,6 +27,7 @@ import java.util.Map;
 
 import org.kazinduzi.rinjora.R;
 import org.kazinduzi.rinjora.databinding.FragmentTujajureBinding;
+import org.kazinduzi.rinjora.data.RinjoraAuthRepository;
 import org.kazinduzi.rinjora.data.RinjoraRoundRepository;
 import org.kazinduzi.rinjora.network.AuthTokenStore;
 import org.kazinduzi.rinjora.network.dto.RoundAnswerDto;
@@ -34,6 +37,7 @@ import org.kazinduzi.rinjora.network.dto.RoundItemDto;
 import org.kazinduzi.rinjora.network.dto.RoundStartDto;
 import org.kazinduzi.rinjora.rinjora.RinjoraAuthActivity;
 import org.kazinduzi.rinjora.util.KirundiUi;
+import org.kazinduzi.rinjora.util.PendingGameMode;
 
 /**
  * Tujajure — the fun tab (parity plan §4.4). Jokes are flat by design: no tiers, no
@@ -43,8 +47,15 @@ import org.kazinduzi.rinjora.util.KirundiUi;
  */
 public class TujajureFragment extends Fragment {
 
+    private static final String TAG = "TujajureFragment";
+
     private FragmentTujajureBinding binding;
     private RinjoraRoundRepository repository;
+    private RinjoraAuthRepository authRepository;
+
+    /** Last-known guest cap (plan §5), shown on the start screen. */
+    private int guestRemaining = -1;
+    private int guestLimit = 0;
 
     private Long roundId;
     private int itemCount;
@@ -74,6 +85,7 @@ public class TujajureFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         repository = new RinjoraRoundRepository(requireContext());
+        authRepository = new RinjoraAuthRepository(requireContext());
 
         binding.tvTitle.setText(KirundiUi.N_TUJA);
         binding.tvSubtitle.setText(KirundiUi.D_TUJA);
@@ -107,8 +119,17 @@ public class TujajureFragment extends Fragment {
         if (binding == null) {
             return;
         }
-        if (!AuthTokenStore.get(requireContext()).hasValidToken()) {
-            goToAuth();
+        AuthTokenStore store = AuthTokenStore.get(requireContext());
+        if (!store.hasValidToken()) {
+            // Never a login wall (plan §6 auth guard): silently mint a guest session.
+            authRepository.ensureGuest(noAuth());
+            return;
+        }
+        String pending = PendingGameMode.peekMode(requireContext());
+        if (pending != null && pending.equals("tuja") && !store.isGuest()) {
+            // Fresh account after a cap conversion: resume the round that was blocked.
+            PendingGameMode.clear(requireContext());
+            startGame();
         }
     }
 
@@ -117,10 +138,33 @@ public class TujajureFragment extends Fragment {
     // ------------------------------------------------------------------
 
     private void startGame() {
-        if (!AuthTokenStore.get(requireContext()).hasValidToken()) {
-            goToAuth();
+        if (inFlight) {
             return;
         }
+        if (!AuthTokenStore.get(requireContext()).hasValidToken()) {
+            // Guests never hit the login wall (plan §5/§6): provision, then start.
+            setBusy(true);
+            authRepository.ensureGuest(new RinjoraAuthRepository.AuthCallback() {
+                @Override
+                public void onSuccess() {
+                    if (binding == null) return;
+                    setBusy(false);
+                    beginStart();
+                }
+
+                @Override
+                public void onError(String message) {
+                    if (binding == null) return;
+                    setBusy(false);
+                    onSoftError(message);
+                }
+            });
+            return;
+        }
+        beginStart();
+    }
+
+    private void beginStart() {
         settled.clear();
         inFlight = true;
         setBusy(true);
@@ -140,6 +184,10 @@ public class TujajureFragment extends Fragment {
                 currentPosition = item.getPosition();
                 currentAnswer = null;
                 currentChoice = null;
+                if (start.getGuest() != null) {
+                    guestRemaining = start.getGuest().getRemaining();
+                    guestLimit = start.getGuest().getLimit();
+                }
                 showGame();
                 applyItem();
             }
@@ -148,7 +196,7 @@ public class TujajureFragment extends Fragment {
             public void onAuthError() {
                 if (binding == null) return;
                 inFlight = false;
-                goToAuth();
+                handleAuthLoss();
             }
 
             @Override
@@ -157,6 +205,14 @@ public class TujajureFragment extends Fragment {
                 inFlight = false;
                 setBusy(false);
                 onSoftError(message);
+            }
+
+            @Override
+            public void onRequiresRegistration(String message) {
+                if (binding == null) return;
+                inFlight = false;
+                setBusy(false);
+                showCapPrompt(message);
             }
         });
     }
@@ -182,7 +238,7 @@ public class TujajureFragment extends Fragment {
                         if (binding == null) return;
                         inFlight = false;
                         setBusy(false);
-                        goToAuth();
+                        handleAuthLoss();
                     }
 
                     @Override
@@ -191,6 +247,14 @@ public class TujajureFragment extends Fragment {
                         inFlight = false;
                         setBusy(false);
                         onSoftError(message);
+                    }
+
+                    @Override
+                    public void onRequiresRegistration(String message) {
+                        if (binding == null) return;
+                        inFlight = false;
+                        setBusy(false);
+                        showCapPrompt(message);
                     }
                 });
     }
@@ -248,12 +312,17 @@ public class TujajureFragment extends Fragment {
 
             @Override
             public void onAuthError() {
-                if (binding != null) goToAuth();
+                if (binding != null) handleAuthLoss();
             }
 
             @Override
             public void onError(String message) {
                 // Not fatal: the reveal is already rendered (blank answer).
+            }
+
+            @Override
+            public void onRequiresRegistration(String message) {
+                if (binding != null) showCapPrompt(message);
             }
         });
     }
@@ -293,7 +362,7 @@ public class TujajureFragment extends Fragment {
                 if (binding == null) return;
                 inFlight = false;
                 setBusy(false);
-                goToAuth();
+                handleAuthLoss();
             }
 
             @Override
@@ -302,6 +371,14 @@ public class TujajureFragment extends Fragment {
                 inFlight = false;
                 setBusy(false);
                 onSoftError(message);
+            }
+
+            @Override
+            public void onRequiresRegistration(String message) {
+                if (binding == null) return;
+                inFlight = false;
+                setBusy(false);
+                showCapPrompt(message);
             }
         });
     }
@@ -325,7 +402,7 @@ public class TujajureFragment extends Fragment {
             public void onAuthError() {
                 if (binding == null) return;
                 inFlight = false;
-                goToAuth();
+                handleAuthLoss();
             }
 
             @Override
@@ -334,6 +411,14 @@ public class TujajureFragment extends Fragment {
                 inFlight = false;
                 setBusy(false);
                 onSoftError(message);
+            }
+
+            @Override
+            public void onRequiresRegistration(String message) {
+                if (binding == null) return;
+                inFlight = false;
+                setBusy(false);
+                showCapPrompt(message);
             }
         });
     }
@@ -366,6 +451,7 @@ public class TujajureFragment extends Fragment {
         binding.gameContainer.setVisibility(View.GONE);
         binding.endContainer.setVisibility(View.GONE);
         binding.startContainer.setVisibility(View.VISIBLE);
+        refreshGuestRemaining();
     }
 
     private void applyItem() {
@@ -513,15 +599,77 @@ public class TujajureFragment extends Fragment {
     }
 
     private void onSoftError(String message) {
+        Log.e(TAG, message == null || message.isEmpty() ? "Umukino ntukigeze." : message);
         Toast.makeText(requireContext(),
                 message == null || message.isEmpty() ? "Umukino ntukigeze." : message,
                 Toast.LENGTH_SHORT).show();
     }
 
-    private void goToAuth() {
-        Intent intent = new Intent(requireContext(), RinjoraAuthActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
+    private RinjoraAuthRepository.AuthCallback noAuth() {
+        return new RinjoraAuthRepository.AuthCallback() {
+            @Override
+            public void onSuccess() {
+            }
+
+            @Override
+            public void onError(String message) {
+                onSoftError(message);
+            }
+        };
+    }
+
+    /** Session lost / expired: clear the game UI and silently restore a guest session. */
+    private void handleAuthLoss() {
+        showStart();
+        authRepository.ensureGuest(noAuth());
+    }
+
+    /**
+     * The per-mode guest cap (403 {@code requires_registration}, plan §5): offer
+     * account creation. On "Later" the pending intent is dropped and the user stays
+     * on the start screen; on "Kora aka konto" the auth host opens on the register
+     * form with {@code guest_uid} attached, and after login the pending mode relaunches.
+     */
+    private void showCapPrompt(String message) {
+        if (binding == null) return;
+        AuthTokenStore store = AuthTokenStore.get(requireContext());
+        guestRemaining = 0;
+        refreshGuestRemaining();
+        if (store.isGuest()) {
+            PendingGameMode.set(requireContext(), "tuja", 1);
+        }
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(KirundiUi.G_CAP_TITLE)
+                .setMessage(message == null || message.isEmpty() ? KirundiUi.G_CAP_MSG : message)
+                .setPositiveButton(KirundiUi.G_CAP_GO, (d, w) -> {
+                    Intent intent = new Intent(requireContext(), RinjoraAuthActivity.class);
+                    intent.putExtra(RinjoraAuthActivity.EXTRA_CREATE_ACCOUNT, true);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                })
+                .setNeutralButton(KirundiUi.G_CAP_LOGIN, (d, w) -> {
+                    Intent intent = new Intent(requireContext(), RinjoraAuthActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                })
+                .setNegativeButton(KirundiUi.G_CAP_LATER, (d, w) -> {
+                    PendingGameMode.clear(requireContext());
+                    showStart();
+                })
+                .setCancelable(false)
+                .show();
+    }
+
+    /** Shows the last-known guest cap line on the start card when relevant. */
+    private void refreshGuestRemaining() {
+        if (binding == null || binding.tvGuestRemaining == null) return;
+        AuthTokenStore store = AuthTokenStore.get(requireContext());
+        if (!store.hasValidToken() || !store.isGuest() || guestRemaining < 0) {
+            binding.tvGuestRemaining.setVisibility(View.GONE);
+        } else {
+            binding.tvGuestRemaining.setText(KirundiUi.guestRemaining(guestRemaining, guestLimit));
+            binding.tvGuestRemaining.setVisibility(View.VISIBLE);
+        }
     }
 
     private int dp(int v) {

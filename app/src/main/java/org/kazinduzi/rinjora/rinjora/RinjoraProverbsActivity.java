@@ -20,6 +20,7 @@ import org.kazinduzi.rinjora.databinding.ItemRinjoraProverbBinding;
 import org.kazinduzi.rinjora.data.RinjoraProverbRepository;
 import org.kazinduzi.rinjora.network.AuthTokenStore;
 import org.kazinduzi.rinjora.network.dto.ProverbDto;
+import org.kazinduzi.rinjora.util.GuestCapPrompter;
 
 /**
  * Heraheza proverb home (parity plan §2.1): lists proverbs from
@@ -85,6 +86,13 @@ public class RinjoraProverbsActivity extends AppCompatActivity {
                 binding.swipeRefresh.setRefreshing(false);
                 binding.tvEmpty.setText("Couldn’t load proverbs: " + message);
                 binding.tvEmpty.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onRequiresRegistration(String message) {
+                binding.progressBar.setVisibility(View.GONE);
+                binding.swipeRefresh.setRefreshing(false);
+                GuestCapPrompter.prompt(RinjoraProverbsActivity.this, message);
             }
         });
     }

@@ -42,6 +42,13 @@ public class RinjoraRoundRepository {
         void onAuthError();
 
         void onError(String message);
+
+        /**
+         * The backend refused the action because the guest reached the per-mode cap:
+         * the response was {@code 403 requires_registration} (plan §5). The caller
+         * should show the create-account prompt and, on success, retry the action.
+         */
+        void onRequiresRegistration(String message);
     }
 
     private final Context context;
@@ -112,12 +119,8 @@ public class RinjoraRoundRepository {
                 if (response.isSuccessful() && envelope != null && envelope.isSuccess()
                         && envelope.getData() != null && envelope.getData().getItem() != null) {
                     dispatch(callback, envelope.getData().getItem());
-                } else if (response.code() == 401) {
-                    if (callback != null) callback.onAuthError();
-                } else if (envelope != null && envelope.getMessage() != null && !envelope.getMessage().isEmpty()) {
-                    fail(callback, envelope.getMessage());
                 } else {
-                    fail(callback, extractError(response));
+                    handleEnvelopeFailure(response, envelope, callback);
                 }
             }
 
@@ -211,7 +214,12 @@ public class RinjoraRoundRepository {
                 } else if (response.code() == 401) {
                     if (callback != null) callback.onAuthError();
                 } else {
-                    fail(callback, extractError(response));
+                    String raw = readErrorBody(response);
+                    if (response.code() == 403 && raw != null && raw.contains("requires_registration")) {
+                        if (callback != null) callback.onRequiresRegistration(messageFromBody(raw, null));
+                    } else {
+                        fail(callback, extractError(response, raw));
+                    }
                 }
             }
 
@@ -223,18 +231,23 @@ public class RinjoraRoundRepository {
         });
     }
 
-    private <T> void handleEnvelopeFailure(Response<ApiEnvelope<T>> response,
-                                           ApiEnvelope<T> envelope,
-                                           Callback<T> callback) {
+    private <R, T> void handleEnvelopeFailure(Response<ApiEnvelope<R>> response,
+                                              ApiEnvelope<R> envelope,
+                                              Callback<T> callback) {
         if (response.code() == 401) {
             if (callback != null) callback.onAuthError();
+            return;
+        }
+        String raw = readErrorBody(response);
+        if (response.code() == 403 && raw != null && raw.contains("requires_registration")) {
+            if (callback != null) callback.onRequiresRegistration(messageFromBody(raw, envelope));
             return;
         }
         if (envelope != null && envelope.getMessage() != null && !envelope.getMessage().isEmpty()) {
             fail(callback, envelope.getMessage());
             return;
         }
-        fail(callback, extractError(response));
+        fail(callback, extractError(response, raw));
     }
 
     private <T> void dispatch(Callback<T> callback, T result) {
@@ -242,19 +255,50 @@ public class RinjoraRoundRepository {
     }
 
     private <T> void fail(Callback<T> callback, String message) {
+        Log.w(TAG, "round failure: " + message, new Throwable("round failure stack"));
         if (callback != null) callback.onError(message);
     }
 
-    private String extractError(Response<?> response) {
+    /** One-shot read of the error body; null when there is none. */
+    private String readErrorBody(Response<?> response) {
         ResponseBody body = response.errorBody();
-        if (body != null) {
+        if (body == null) {
+            return null;
+        }
+        try {
+            return body.string();
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    /** Derives the cap prompt message from a {@code requires_registration} error body. */
+    private String messageFromBody(String raw, ApiEnvelope<?> envelope) {
+        if (envelope != null && envelope.getMessage() != null && !envelope.getMessage().isEmpty()) {
+            return envelope.getMessage();
+        }
+        try {
+            com.google.gson.JsonObject obj = com.google.gson.JsonParser.parseString(raw).getAsJsonObject();
+            if (obj.has("message")) {
+                return obj.get("message").getAsString();
+            }
+        } catch (RuntimeException ignored) {
+            // fall through to the default
+        }
+        return "Kora aka konto hanyuma usubire gukina.";
+    }
+
+    private String extractError(Response<?> response, String raw) {
+        if (raw == null) {
+            raw = readErrorBody(response);
+        }
+        if (raw != null) {
             try {
-                String raw = body.string();
                 com.google.gson.JsonObject obj = com.google.gson.JsonParser.parseString(raw).getAsJsonObject();
                 if (obj.has("message")) {
                     return obj.get("message").getAsString();
                 }
-            } catch (IOException | RuntimeException ignored) {
+            } catch (RuntimeException ignored) {
                 // fall through
             }
         }

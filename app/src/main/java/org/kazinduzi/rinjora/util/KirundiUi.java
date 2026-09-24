@@ -104,6 +104,24 @@ public final class KirundiUi {
     public static final String N_PLAYED = "incuro";
     public static final String C_COPIED = "Vyakopowe ! 📋";
 
+    // ----- Guest mode (plan §5/§6: play first, account later) -----
+    public static final String G_CAP_TITLE = "Kora aka konto ! 🚀";
+    public static final String G_CAP_MSG = "Ugeze ku mugero w'urukino nka umushitsi. "
+            + "Kora aka konto hanyuma uheze ugende gusubira gukina."
+            + "\n\nAmanota y'uwukina nka umushitsi ntakurizwa ariko ntategwa.";
+    public static final String G_CAP_GO = "Kora aka konto";
+    public static final String G_CAP_LOGIN = "Winjira";
+    public static final String G_CAP_LATER = "Ejo";
+    public static final String G_REMAINING_PREFIX = "Hasigaye nka umushitsi: ";
+
+    /** e.g. "Hasigaye nka umushitsi: 3 muri 5". */
+    public static String guestRemaining(int remaining, int limit) {
+        if (limit > 0) {
+            return G_REMAINING_PREFIX + remaining + " muri " + limit;
+        }
+        return G_REMAINING_PREFIX + remaining;
+    }
+
     // ----- Contribution -----
     public static final String C_TITLE = "Intererano yawe hano";
     public static final String C_SUB = "Uzi igisokozo, umwibutsa canke akajajuro tutari "

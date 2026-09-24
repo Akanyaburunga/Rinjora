@@ -1,6 +1,7 @@
 package org.kazinduzi.rinjora.data;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -15,6 +16,7 @@ import org.kazinduzi.rinjora.network.ApiEnvelope;
 import org.kazinduzi.rinjora.network.AuthTokenStore;
 import org.kazinduzi.rinjora.network.RinjoraApi;
 import org.kazinduzi.rinjora.network.RinjoraApiClient;
+import org.kazinduzi.rinjora.network.dto.GuestSessionDto;
 import org.kazinduzi.rinjora.network.dto.LoginResponseDto;
 import org.kazinduzi.rinjora.network.dto.UserDto;
 
@@ -59,6 +61,8 @@ public class RinjoraAuthRepository {
         void onError(String message);
     }
 
+    private static final String TAG = "RinjoraAuthRepository";
+
     private final Context context;
     private final RinjoraApi api;
 
@@ -75,6 +79,12 @@ public class RinjoraAuthRepository {
         body.put("email", email);
         body.put("password", password);
         body.put("password_confirmation", passwordConfirmation);
+        // Cap conversion: a guest who registers attaches their stored uid so the
+        // server moves their rounds/attempts onto the account (plan §5 "Guest mode").
+        AuthTokenStore store = AuthTokenStore.get(context);
+        if (store.isGuest()) {
+            body.put("guest_uid", store.getOrCreateGuestUid(context));
+        }
 
         api.register(body).enqueue(new Callback<ApiEnvelope<Void>>() {
             @Override
@@ -94,6 +104,7 @@ public class RinjoraAuthRepository {
 
             @Override
             public void onFailure(@NonNull Call<ApiEnvelope<Void>> call, @NonNull Throwable t) {
+                Log.e(TAG, "auth request failed", t);
                 callback.onError(t.getMessage() == null ? "Network error" : t.getMessage());
             }
         });
@@ -132,6 +143,7 @@ public class RinjoraAuthRepository {
 
             @Override
             public void onFailure(@NonNull Call<ApiEnvelope<Void>> call, @NonNull Throwable t) {
+                Log.e(TAG, "auth request failed", t);
                 callback.onError(t.getMessage() == null ? "Network error" : t.getMessage());
             }
         });
@@ -160,6 +172,7 @@ public class RinjoraAuthRepository {
 
             @Override
             public void onFailure(@NonNull Call<ApiEnvelope<Void>> call, @NonNull Throwable t) {
+                Log.e(TAG, "auth request failed", t);
                 callback.onError(t.getMessage() == null ? "Network error" : t.getMessage());
             }
         });
@@ -189,6 +202,9 @@ public class RinjoraAuthRepository {
                     Long expiresAt = parseExpiry(data.getExpiresAt());
                     store.saveToken(data.getToken(), expiresAt);
                     store.saveEmail(email);
+                    // A real login ends any guest session; the GuestApp token is
+                    // overwritten by the account token (plan §5 conversion).
+                    store.setGuest(false);
                     if (data.getUser() != null) {
                         store.saveUserId(data.getUser().getId());
                     }
@@ -201,9 +217,67 @@ public class RinjoraAuthRepository {
             @Override
             public void onFailure(@NonNull Call<ApiEnvelope<LoginResponseDto>> call,
                                   @NonNull Throwable t) {
+                Log.e(TAG, "auth request failed", t);
                 callback.onError(t.getMessage() == null ? "Network error" : t.getMessage());
             }
         });
+    }
+
+    /**
+     * Creates (or refreshes) a guest session (plan §5): {@code POST /api/auth/guest}
+     * with the stable {@code guest_uid}. The same uid always resolves to the same
+     * player server-side, and any prior {@code GuestApp} token is revoked.
+     */
+    public void guest(@NonNull String guestUid, final AuthCallback callback) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("guest_uid", guestUid);
+
+        AuthTokenStore store = AuthTokenStore.get(context);
+        store.saveGuestUid(guestUid);
+
+        api.guest(body).enqueue(new Callback<ApiEnvelope<GuestSessionDto>>() {
+            @Override
+            public void onResponse(@NonNull Call<ApiEnvelope<GuestSessionDto>> call,
+                                   @NonNull Response<ApiEnvelope<GuestSessionDto>> response) {
+                ApiEnvelope<GuestSessionDto> envelope = response.body();
+                if (response.isSuccessful() && envelope != null && envelope.isSuccess()
+                        && envelope.getData() != null) {
+                    GuestSessionDto data = envelope.getData();
+                    if (data.getToken() == null || data.getToken().isEmpty()) {
+                        callback.onError("No token returned");
+                        return;
+                    }
+                    store.saveGuestToken(data.getToken(), parseExpiry(data.getExpiresAt()));
+                    if (data.getUser() != null) {
+                        store.saveUserId(data.getUser().getId());
+                    }
+                    callback.onSuccess();
+                } else {
+                    callback.onError(extractError(response, envelope));
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ApiEnvelope<GuestSessionDto>> call, @NonNull Throwable t) {
+                Log.e(TAG, "auth request failed", t);
+                callback.onError(t.getMessage() == null ? "Network error" : t.getMessage());
+            }
+        });
+    }
+
+    /**
+     * Guarantees a usable session before gameplay (plan §6 auth guard): a stored
+     * valid token (guest or account) passes through untouched; otherwise it mints a
+     * guest session from the stored/derived {@code guest_uid} instead of showing a
+     * login wall.
+     */
+    public void ensureGuest(final AuthCallback callback) {
+        AuthTokenStore store = AuthTokenStore.get(context);
+        if (store.hasValidToken()) {
+            callback.onSuccess();
+            return;
+        }
+        guest(store.getOrCreateGuestUid(context), callback);
     }
 
     public void currentUser(final UserCallback callback) {
@@ -222,6 +296,7 @@ public class RinjoraAuthRepository {
 
             @Override
             public void onFailure(@NonNull Call<ApiEnvelope<UserDto>> call, @NonNull Throwable t) {
+                Log.e(TAG, "auth request failed", t);
                 callback.onError(t.getMessage() == null ? "Network error" : t.getMessage());
             }
         });
@@ -242,6 +317,7 @@ public class RinjoraAuthRepository {
 
             @Override
             public void onFailure(@NonNull Call<ApiEnvelope<Void>> call, @NonNull Throwable t) {
+                Log.e(TAG, "logout failed (best-effort clear)", t);
                 AuthTokenStore.get(context).clear();
                 callback.onSuccess();
             }

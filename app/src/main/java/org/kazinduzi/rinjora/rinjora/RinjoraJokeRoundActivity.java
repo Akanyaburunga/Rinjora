@@ -22,6 +22,7 @@ import org.kazinduzi.rinjora.entities.RinjoraJokeSnapshot;
 import org.kazinduzi.rinjora.network.AuthTokenStore;
 import org.kazinduzi.rinjora.network.dto.JokeAnswerResponseDto;
 import org.kazinduzi.rinjora.network.dto.RevealDto;
+import org.kazinduzi.rinjora.util.GuestCapPrompter;
 
 /**
  * Tujajure joke round (parity plan §3): shows the setup and the 4 server-order options,
@@ -101,6 +102,13 @@ public class RinjoraJokeRoundActivity extends AppCompatActivity {
                 } else {
                     Toast.makeText(RinjoraJokeRoundActivity.this, message, Toast.LENGTH_SHORT).show();
                 }
+            }
+
+            @Override
+            public void onRequiresRegistration(String message) {
+                inFlight = false;
+                binding.progressBar.setVisibility(View.GONE);
+                GuestCapPrompter.prompt(RinjoraJokeRoundActivity.this, message);
             }
         });
     }
@@ -184,6 +192,14 @@ public class RinjoraJokeRoundActivity extends AppCompatActivity {
                         Toast.makeText(RinjoraJokeRoundActivity.this, message, Toast.LENGTH_SHORT).show();
                         setEnabledAll(true);
                     }
+
+                    @Override
+                    public void onRequiresRegistration(String message) {
+                        inFlight = false;
+                        binding.progressBar.setVisibility(View.GONE);
+                        setEnabledAll(true);
+                        GuestCapPrompter.prompt(RinjoraJokeRoundActivity.this, message);
+                    }
                 });
     }
 
@@ -218,6 +234,14 @@ public class RinjoraJokeRoundActivity extends AppCompatActivity {
                 Toast.makeText(RinjoraJokeRoundActivity.this, message, Toast.LENGTH_SHORT).show();
                 setEnabledAll(true);
             }
+
+            @Override
+            public void onRequiresRegistration(String message) {
+                inFlight = false;
+                binding.progressBar.setVisibility(View.GONE);
+                setEnabledAll(true);
+                GuestCapPrompter.prompt(RinjoraJokeRoundActivity.this, message);
+            }
         });
     }
 
@@ -251,6 +275,13 @@ public class RinjoraJokeRoundActivity extends AppCompatActivity {
                 binding.optionContainer.removeAllViews();
                 optionButtons.clear();
                 binding.btnNext.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onRequiresRegistration(String message) {
+                inFlight = false;
+                binding.progressBar.setVisibility(View.GONE);
+                GuestCapPrompter.prompt(RinjoraJokeRoundActivity.this, message);
             }
         });
     }

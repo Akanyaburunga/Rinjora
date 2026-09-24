@@ -14,7 +14,7 @@ import org.kazinduzi.rinjora.network.dto.SubmissionDto;
 
 /**
  * Rinjora "Contribute a riddle" form (plan Phase J, §8.1): submits a new
- * Kinyarwanda riddle to {@code POST /submissions/riddles} for admin review.
+ * Kirundi riddle to {@code POST /submissions/riddles} for admin review.
  * A {@code 422} (e.g. the answer already exists) is surfaced as an error toast.
  */
 public class RinjoraContributeActivity extends BaseActivity {

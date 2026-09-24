@@ -43,6 +43,9 @@ public class RinjoraRiddleRepository {
         void onAuthError();
 
         void onError(String message);
+
+        /** The backend refused the action: the guest reached the per-mode cap (403 requires_registration). */
+        void onRequiresRegistration(String message);
     }
 
     /** Cached riddle / loaded riddle bundle passed to the play UI. */
@@ -85,7 +88,7 @@ public class RinjoraRiddleRepository {
                 } else if (response.code() == 401) {
                     if (callback != null) callback.onAuthError();
                 } else {
-                    if (callback != null) callback.onError(extractError(response, envelope));
+                    handleEnvelopeFailure(response, envelope, callback);
                 }
             }
 
@@ -118,7 +121,7 @@ public class RinjoraRiddleRepository {
                 } else if (response.code() == 401) {
                     if (callback != null) callback.onAuthError();
                 } else {
-                    if (callback != null) callback.onError(extractError(response, envelope));
+                    handleEnvelopeFailure(response, envelope, callback);
                 }
             }
 
@@ -161,7 +164,7 @@ public class RinjoraRiddleRepository {
                 } else if (response.code() == 401) {
                     if (callback != null) callback.onAuthError();
                 } else {
-                    if (callback != null) callback.onError(extractError(response, envelope));
+                    handleEnvelopeFailure(response, envelope, callback);
                 }
             }
 
@@ -191,7 +194,7 @@ public class RinjoraRiddleRepository {
                 } else if (response.code() == 401) {
                     if (callback != null) callback.onAuthError();
                 } else {
-                    if (callback != null) callback.onError(extractError(response, envelope));
+                    handleEnvelopeFailure(response, envelope, callback);
                 }
             }
 
@@ -219,7 +222,7 @@ public class RinjoraRiddleRepository {
                 } else if (response.code() == 401) {
                     if (callback != null) callback.onAuthError();
                 } else {
-                    if (callback != null) callback.onError(extractError(response, envelope));
+                    handleEnvelopeFailure(response, envelope, callback);
                 }
             }
 
@@ -245,7 +248,7 @@ public class RinjoraRiddleRepository {
                 } else if (response.code() == 401) {
                     if (callback != null) callback.onAuthError();
                 } else {
-                    if (callback != null) callback.onError(extractError(response, envelope));
+                    handleEnvelopeFailure(response, envelope, callback);
                 }
             }
 
@@ -271,7 +274,7 @@ public class RinjoraRiddleRepository {
                         } else if (response.code() == 401) {
                             if (callback != null) callback.onAuthError();
                         } else {
-                            if (callback != null) callback.onError(extractError(response, envelope));
+                            handleEnvelopeFailure(response, envelope, callback);
                         }
                     }
 
@@ -320,22 +323,63 @@ public class RinjoraRiddleRepository {
         return t.getMessage() == null ? "Network error" : t.getMessage();
     }
 
-    private String extractError(Response<?> response, ApiEnvelope<?> envelope) {
-        if (envelope != null && envelope.getMessage() != null && !envelope.getMessage().isEmpty()) {
-            return envelope.getMessage();
+    private <R, T> void handleEnvelopeFailure(Response<ApiEnvelope<R>> response,
+                                              ApiEnvelope<R> envelope,
+                                              Callback<T> callback) {
+        if (response.code() == 401) {
+            if (callback != null) callback.onAuthError();
+            return;
         }
-        ResponseBody body = response.errorBody();
-        if (body != null) {
+        String raw = readErrorBody(response);
+        if (response.code() == 403 && raw != null && raw.contains("requires_registration")) {
+            if (callback != null) callback.onRequiresRegistration(messageFromBody(raw, envelope));
+            return;
+        }
+        String message = null;
+        if (envelope != null && envelope.getMessage() != null && !envelope.getMessage().isEmpty()) {
+            message = envelope.getMessage();
+        } else if (raw != null) {
             try {
-                String raw = body.string();
                 com.google.gson.JsonObject obj = com.google.gson.JsonParser.parseString(raw).getAsJsonObject();
                 if (obj.has("message")) {
-                    return obj.get("message").getAsString();
+                    message = obj.get("message").getAsString();
                 }
-            } catch (IOException | RuntimeException ignored) {
+            } catch (RuntimeException ignored) {
                 // fall through
             }
         }
-        return "Request failed (HTTP " + response.code() + ")";
+        if (message == null) {
+            message = "Request failed (HTTP " + response.code() + ")";
+        }
+        if (callback != null) callback.onError(message);
+    }
+
+    /** One-shot read of the error body; null when there is none. */
+    private String readErrorBody(Response<?> response) {
+        ResponseBody body = response.errorBody();
+        if (body == null) {
+            return null;
+        }
+        try {
+            return body.string();
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    /** Derives the cap prompt message from a {@code requires_registration} error body. */
+    private String messageFromBody(String raw, ApiEnvelope<?> envelope) {
+        if (envelope != null && envelope.getMessage() != null && !envelope.getMessage().isEmpty()) {
+            return envelope.getMessage();
+        }
+        try {
+            com.google.gson.JsonObject obj = com.google.gson.JsonParser.parseString(raw).getAsJsonObject();
+            if (obj.has("message")) {
+                return obj.get("message").getAsString();
+            }
+        } catch (RuntimeException ignored) {
+            // fall through
+        }
+        return "Kora aka konto hanyuma usubire gukina.";
     }
 }

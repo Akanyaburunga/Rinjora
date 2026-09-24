@@ -139,6 +139,12 @@ public class JeweFragment extends Fragment {
             public void onError(String message) {
                 // offline: keep last numbers
             }
+
+            @Override
+            public void onRequiresRegistration(String message) {
+                // Not a fatal gate (the cap is enforced at round start); just keep
+                // the local guest numbers visible.
+            }
         });
     }
 

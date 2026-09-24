@@ -25,6 +25,8 @@ public final class AuthTokenStore {
     private static final String KEY_USER_ID = "user_id";
     private static final String KEY_EMAIL = "email";
     private static final String KEY_EMAIL_VERIFICATION_REQUIRED = "email_verification_required";
+    private static final String KEY_GUEST_UID = "guest_uid";
+    private static final String KEY_IS_GUEST = "is_guest";
 
     private final SharedPreferences prefs;
 
@@ -67,6 +69,22 @@ public final class AuthTokenStore {
                 .apply();
     }
 
+    /** Saves a fresh bearer token and flags the session as a guest (plan §5 "Guest mode"). */
+    public void saveGuestToken(String token, Long expiresAtEpochMs) {
+        saveToken(token, expiresAtEpochMs);
+        setGuest(true);
+    }
+
+    /** True when the current session is a guest (GUEST token, no account). */
+    public boolean isGuest() {
+        return prefs.getBoolean(KEY_IS_GUEST, false);
+    }
+
+    /** Marks the session as guest or account (login conversion flips it to false). */
+    public void setGuest(boolean guest) {
+        prefs.edit().putBoolean(KEY_IS_GUEST, guest).apply();
+    }
+
     public String getToken() {
         return prefs.getString(KEY_TOKEN, null);
     }
@@ -106,6 +124,39 @@ public final class AuthTokenStore {
                 : androidId);
         saveDeviceName(deviceName);
         return deviceName;
+    }
+
+    public String getGuestUid() {
+        return prefs.getString(KEY_GUEST_UID, null);
+    }
+
+    public void saveGuestUid(String guestUid) {
+        prefs.edit().putString(KEY_GUEST_UID, guestUid).apply();
+    }
+
+    /**
+     * Stable per-install guest id (plan §5 "Guest mode"). Reused across 401/guest
+     * re-sessions so the server returns the same player with a fresh token; derived
+     * from {@code ANDROID_ID} so reinstalls keep the same identity when the OS id
+     * survives. {@code 9774d56d682e549c} is the emulator's constant bogus id.
+     */
+    public String getOrCreateGuestUid(Context context) {
+        String existing = prefs.getString(KEY_GUEST_UID, null);
+        if (existing != null) {
+            return existing;
+        }
+        String androidId = android.provider.Settings.Secure.getString(
+                context.getContentResolver(),
+                android.provider.Settings.Secure.ANDROID_ID);
+        String guestUid;
+        if (androidId != null && !androidId.isEmpty()
+                && !"9774d56d682e549c".equals(androidId)) {
+            guestUid = "Guest_" + androidId;
+        } else {
+            guestUid = "Guest_" + java.util.UUID.randomUUID().toString();
+        }
+        saveGuestUid(guestUid);
+        return guestUid;
     }
 
     public void saveUserId(long userId) {

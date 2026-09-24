@@ -14,6 +14,7 @@ import org.kazinduzi.rinjora.data.RinjoraProverbRepository;
 import org.kazinduzi.rinjora.network.AuthTokenStore;
 import org.kazinduzi.rinjora.network.dto.AnswerResponseDto;
 import org.kazinduzi.rinjora.network.dto.RevealDto;
+import org.kazinduzi.rinjora.util.GuestCapPrompter;
 
 /**
  * Heraheza single-proverb play screen (parity plan §2.4): shows the beginning of
@@ -106,6 +107,12 @@ public class RinjoraProverbDetailActivity extends AppCompatActivity {
                             Toast.makeText(RinjoraProverbDetailActivity.this, message, Toast.LENGTH_SHORT).show();
                         }
                     }
+
+                    @Override
+                    public void onRequiresRegistration(String message) {
+                        binding.progressBar.setVisibility(View.GONE);
+                        GuestCapPrompter.prompt(RinjoraProverbDetailActivity.this, message);
+                    }
                 });
     }
 
@@ -145,6 +152,12 @@ public class RinjoraProverbDetailActivity extends AppCompatActivity {
                         binding.answerView.setBusy(false);
                         Toast.makeText(RinjoraProverbDetailActivity.this, message, Toast.LENGTH_SHORT).show();
                     }
+
+                    @Override
+                    public void onRequiresRegistration(String message) {
+                        binding.answerView.setBusy(false);
+                        GuestCapPrompter.prompt(RinjoraProverbDetailActivity.this, message);
+                    }
                 });
     }
 
@@ -167,6 +180,12 @@ public class RinjoraProverbDetailActivity extends AppCompatActivity {
             public void onError(String message) {
                 binding.progressBar.setVisibility(View.GONE);
                 Toast.makeText(RinjoraProverbDetailActivity.this, message, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onRequiresRegistration(String message) {
+                binding.progressBar.setVisibility(View.GONE);
+                GuestCapPrompter.prompt(RinjoraProverbDetailActivity.this, message);
             }
         });
     }

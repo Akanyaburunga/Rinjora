@@ -46,7 +46,7 @@
             android:layout_marginTop="6dp"
             android:textSize="13sp"
             android:textColor="@color/proto_ink_soft"
-            android:text="Write a Kinyarwanda riddle for the community. Submissions are reviewed by an admin before going live." />
+            android:text="Write a Kirundi riddle for the community. Submissions are reviewed by an admin before going live." />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/question_wrap"

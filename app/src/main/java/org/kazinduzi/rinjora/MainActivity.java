@@ -8,6 +8,8 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import org.kazinduzi.rinjora.databinding.ActivityMainBinding;
+import org.kazinduzi.rinjora.network.AuthTokenStore;
+import org.kazinduzi.rinjora.util.PendingGameMode;
 
 /**
  * Launcher shell for the Rinjora game. Guests can play without an account; progress
@@ -35,5 +37,22 @@ public class MainActivity extends BaseActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.navView, navController);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (binding == null) {
+            return;
+        }
+        // After a guest→account conversion the registering fragment stored which mode
+        // was blocked by the cap; land on that tab so the round auto-restarts (plan §5).
+        String pending = PendingGameMode.peekMode(this);
+        if (pending != null && !AuthTokenStore.get(this).isGuest()) {
+            int id = "hera".equals(pending) ? R.id.navigation_heraheza
+                    : "tuja".equals(pending) ? R.id.navigation_tujajure
+                    : R.id.navigation_sokwe;
+            binding.navView.setSelectedItemId(id);
+        }
     }
 }

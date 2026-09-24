@@ -20,6 +20,7 @@ import org.kazinduzi.rinjora.network.dto.DailyStatusDto;
 import org.kazinduzi.rinjora.network.dto.DuelDto;
 import org.kazinduzi.rinjora.network.dto.DuelSolveResponseDto;
 import org.kazinduzi.rinjora.network.dto.FreezeResponseDto;
+import org.kazinduzi.rinjora.network.dto.GuestSessionDto;
 import org.kazinduzi.rinjora.network.dto.HintDto;
 import org.kazinduzi.rinjora.network.dto.HistoryEntryDto;
 import org.kazinduzi.rinjora.network.dto.HistoryStatsDto;
@@ -71,6 +72,10 @@ public interface RinjoraApi {
 
     @POST("auth/logout")
     Call<ApiEnvelope<Void>> logout(@Body Map<String, Object> body);
+
+    /** Guest session (plan §5): {@code {guest_uid}} → fresh guest bearer token. */
+    @POST("auth/guest")
+    Call<ApiEnvelope<GuestSessionDto>> guest(@Body Map<String, Object> body);
 
     @GET("auth/user")
     Call<ApiEnvelope<UserDto>> currentUser();

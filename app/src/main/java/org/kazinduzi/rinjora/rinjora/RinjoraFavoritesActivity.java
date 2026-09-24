@@ -22,6 +22,7 @@ import org.kazinduzi.rinjora.data.RinjoraRiddleRepository;
 import org.kazinduzi.rinjora.network.AuthTokenStore;
 import org.kazinduzi.rinjora.R;
 import org.kazinduzi.rinjora.network.dto.RiddleDto;
+import org.kazinduzi.rinjora.util.GuestCapPrompter;
 
 /**
  * Rinjora favorites screen (plan §6.1): lists {@code GET /me/favorites}, lets the
@@ -133,6 +134,11 @@ public class RinjoraFavoritesActivity extends BaseActivity {
             @Override
             public void onError(String message) {
                 Toast.makeText(RinjoraFavoritesActivity.this, message, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onRequiresRegistration(String message) {
+                GuestCapPrompter.prompt(RinjoraFavoritesActivity.this, message);
             }
         });
     }

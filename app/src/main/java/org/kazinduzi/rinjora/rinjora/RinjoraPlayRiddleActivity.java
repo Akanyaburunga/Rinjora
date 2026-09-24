@@ -17,6 +17,7 @@ import org.kazinduzi.rinjora.network.dto.AnswerResponseDto;
 import org.kazinduzi.rinjora.network.dto.HintDto;
 import org.kazinduzi.rinjora.network.dto.RevealDto;
 import org.kazinduzi.rinjora.network.dto.ShareDto;
+import org.kazinduzi.rinjora.util.GuestCapPrompter;
 
 /**
  * Rinjora single-riddle play screen (plan Phase D §2.2/§2.8/§2.9): shows the
@@ -105,6 +106,12 @@ public class RinjoraPlayRiddleActivity extends AppCompatActivity {
                 binding.btnFavorite.setEnabled(true);
                 Toast.makeText(RinjoraPlayRiddleActivity.this, message, Toast.LENGTH_SHORT).show();
             }
+
+            @Override
+            public void onRequiresRegistration(String message) {
+                binding.btnFavorite.setEnabled(true);
+                GuestCapPrompter.prompt(RinjoraPlayRiddleActivity.this, message);
+            }
         });
     }
 
@@ -136,6 +143,12 @@ public class RinjoraPlayRiddleActivity extends AppCompatActivity {
             public void onError(String message) {
                 binding.progressBar.setVisibility(View.GONE);
                 Toast.makeText(RinjoraPlayRiddleActivity.this, message, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onRequiresRegistration(String message) {
+                binding.progressBar.setVisibility(View.GONE);
+                GuestCapPrompter.prompt(RinjoraPlayRiddleActivity.this, message);
             }
         });
     }
@@ -183,6 +196,12 @@ public class RinjoraPlayRiddleActivity extends AppCompatActivity {
                 } else {
                     Toast.makeText(RinjoraPlayRiddleActivity.this, message, Toast.LENGTH_SHORT).show();
                 }
+            }
+
+            @Override
+            public void onRequiresRegistration(String message) {
+                binding.progressBar.setVisibility(View.GONE);
+                GuestCapPrompter.prompt(RinjoraPlayRiddleActivity.this, message);
             }
         });
     }
@@ -258,6 +277,13 @@ public class RinjoraPlayRiddleActivity extends AppCompatActivity {
                 binding.btnHint.setEnabled(true);
                 Toast.makeText(RinjoraPlayRiddleActivity.this, message, Toast.LENGTH_SHORT).show();
             }
+
+            @Override
+            public void onRequiresRegistration(String message) {
+                binding.progressBar.setVisibility(View.GONE);
+                binding.btnHint.setEnabled(true);
+                GuestCapPrompter.prompt(RinjoraPlayRiddleActivity.this, message);
+            }
         });
     }
 
@@ -286,6 +312,12 @@ public class RinjoraPlayRiddleActivity extends AppCompatActivity {
                         binding.answerView.setBusy(false);
                         Toast.makeText(RinjoraPlayRiddleActivity.this, message, Toast.LENGTH_SHORT).show();
                     }
+
+                    @Override
+                    public void onRequiresRegistration(String message) {
+                        binding.answerView.setBusy(false);
+                        GuestCapPrompter.prompt(RinjoraPlayRiddleActivity.this, message);
+                    }
                 });
     }
 
@@ -308,6 +340,12 @@ public class RinjoraPlayRiddleActivity extends AppCompatActivity {
             public void onError(String message) {
                 binding.progressBar.setVisibility(View.GONE);
                 Toast.makeText(RinjoraPlayRiddleActivity.this, message, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onRequiresRegistration(String message) {
+                binding.progressBar.setVisibility(View.GONE);
+                GuestCapPrompter.prompt(RinjoraPlayRiddleActivity.this, message);
             }
         });
     }
