@@ -1,5 +1,6 @@
 package org.kazinduzi.rinjora.game;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +19,13 @@ import org.kazinduzi.rinjora.entities.GuestPlayer;
 import org.kazinduzi.rinjora.network.AuthTokenStore;
 import org.kazinduzi.rinjora.network.dto.MeDto;
 import org.kazinduzi.rinjora.network.dto.RoundHistoryDto;
+import org.kazinduzi.rinjora.rinjora.RinjoraAchievementsActivity;
+import org.kazinduzi.rinjora.rinjora.RinjoraContributeActivity;
+import org.kazinduzi.rinjora.rinjora.RinjoraDailyActivity;
+import org.kazinduzi.rinjora.rinjora.RinjoraDuelsActivity;
+import org.kazinduzi.rinjora.rinjora.RinjoraFavoritesActivity;
+import org.kazinduzi.rinjora.rinjora.RinjoraLeaderboardActivity;
+import org.kazinduzi.rinjora.rinjora.RinjoraSubmissionsActivity;
 
 /**
  * Jewe — "me". The profile tab. Shows the server-owned round stats of the
@@ -48,6 +56,18 @@ public class JeweFragment extends Fragment {
         roundRepository = new RinjoraRoundRepository(requireContext());
 
         binding.btnSync.setOnClickListener(v -> syncPending());
+
+        binding.rowDaily.setOnClickListener(v -> open(RinjoraDailyActivity.class));
+        binding.rowLeaderboard.setOnClickListener(v -> open(RinjoraLeaderboardActivity.class));
+        binding.rowFavorites.setOnClickListener(v -> open(RinjoraFavoritesActivity.class));
+        binding.rowAchievements.setOnClickListener(v -> open(RinjoraAchievementsActivity.class));
+        binding.rowDuels.setOnClickListener(v -> open(RinjoraDuelsActivity.class));
+        binding.rowContribute.setOnClickListener(v -> open(RinjoraContributeActivity.class));
+        binding.rowSubmissions.setOnClickListener(v -> open(RinjoraSubmissionsActivity.class));
+    }
+
+    private void open(Class<?> target) {
+        startActivity(new Intent(requireContext(), target));
     }
 
     @Override

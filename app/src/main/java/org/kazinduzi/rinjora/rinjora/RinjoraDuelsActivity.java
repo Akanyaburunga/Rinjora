@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
+import org.kazinduzi.rinjora.BaseActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -31,7 +31,7 @@ import org.kazinduzi.rinjora.network.dto.DuelUserDto;
  * "Waiting" for an outgoing pending, Open to play an accepted duel, a winner
  * banner when completed, and an inactive row for declined/expired.
  */
-public class RinjoraDuelsActivity extends AppCompatActivity {
+public class RinjoraDuelsActivity extends BaseActivity {
 
     private ActivityRinjoraDuelsBinding binding;
     private RinjoraDuelRepository repository;
@@ -45,6 +45,9 @@ public class RinjoraDuelsActivity extends AppCompatActivity {
         binding = ActivityRinjoraDuelsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        setSupportActionBar(binding.toolbar);
+        binding.toolbar.setNavigationOnClickListener(v -> finish());
+
         if (!AuthTokenStore.get(this).hasValidToken()) {
             goToAuth();
             return;
@@ -57,7 +60,7 @@ public class RinjoraDuelsActivity extends AppCompatActivity {
         binding.recyclerDuels.setAdapter(adapter);
         binding.btnRefresh.setOnClickListener(v -> load());
         binding.swipeRefresh.setOnRefreshListener(this::load);
-        binding.swipeRefresh.setColorSchemeResources(R.color.brand_primary, R.color.brand_secondary);
+        binding.swipeRefresh.setColorSchemeResources(R.color.proto_green, R.color.proto_gold);
         binding.btnNew.setOnClickListener(v ->
                 startActivity(new Intent(this, RinjoraDuelCreateActivity.class)));
 
@@ -228,7 +231,7 @@ public class RinjoraDuelsActivity extends AppCompatActivity {
                     String winner = winnerLabel(duel);
                     holder.binding.tvWaiting.setText(winner);
                     holder.binding.tvWaiting.setTextColor(ContextCompat.getColor(
-                            RinjoraDuelsActivity.this, R.color.brand_primary));
+                            RinjoraDuelsActivity.this, R.color.proto_green));
                     break;
                 default: // declined, expired
                     holder.binding.tvWaiting.setVisibility(View.VISIBLE);
@@ -254,13 +257,13 @@ public class RinjoraDuelsActivity extends AppCompatActivity {
         private int statusColor(String status) {
             switch (status) {
                 case "accepted":
-                    return ContextCompat.getColor(RinjoraDuelsActivity.this, R.color.brand_primary);
+                    return ContextCompat.getColor(RinjoraDuelsActivity.this, R.color.proto_green);
                 case "completed":
-                    return ContextCompat.getColor(RinjoraDuelsActivity.this, R.color.brand_success);
+                    return ContextCompat.getColor(RinjoraDuelsActivity.this, R.color.proto_green);
                 case "pending":
-                    return ContextCompat.getColor(RinjoraDuelsActivity.this, R.color.brand_secondary);
+                    return ContextCompat.getColor(RinjoraDuelsActivity.this, R.color.proto_gold);
                 default:
-                    return ContextCompat.getColor(RinjoraDuelsActivity.this, R.color.text_muted);
+                    return ContextCompat.getColor(RinjoraDuelsActivity.this, R.color.proto_ink_soft);
             }
         }
 

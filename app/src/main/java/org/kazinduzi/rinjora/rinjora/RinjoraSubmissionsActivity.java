@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
+import org.kazinduzi.rinjora.BaseActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -29,7 +29,7 @@ import org.kazinduzi.rinjora.network.dto.SubmissionDto;
  * their review status (pending/approved/rejected) and the rejection reason when
  * applicable, plus a "Contribute" shortcut to the submission form.
  */
-public class RinjoraSubmissionsActivity extends AppCompatActivity {
+public class RinjoraSubmissionsActivity extends BaseActivity {
 
     private ActivityRinjoraSubmissionsBinding binding;
     private RinjoraSubmissionRepository repository;
@@ -43,6 +43,9 @@ public class RinjoraSubmissionsActivity extends AppCompatActivity {
         binding = ActivityRinjoraSubmissionsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        setSupportActionBar(binding.toolbar);
+        binding.toolbar.setNavigationOnClickListener(v -> finish());
+
         if (!AuthTokenStore.get(this).hasValidToken()) {
             goToAuth();
             return;
@@ -55,7 +58,7 @@ public class RinjoraSubmissionsActivity extends AppCompatActivity {
         binding.recyclerSubmissions.setAdapter(adapter);
         binding.btnRefresh.setOnClickListener(v -> load());
         binding.swipeRefresh.setOnRefreshListener(this::load);
-        binding.swipeRefresh.setColorSchemeResources(R.color.brand_primary, R.color.brand_secondary);
+        binding.swipeRefresh.setColorSchemeResources(R.color.proto_green, R.color.proto_gold);
         binding.btnContribute.setOnClickListener(v ->
                 startActivity(new Intent(this, RinjoraContributeActivity.class)));
 
@@ -149,11 +152,11 @@ public class RinjoraSubmissionsActivity extends AppCompatActivity {
         private int statusColor(String status) {
             switch (status) {
                 case "approved":
-                    return ContextCompat.getColor(RinjoraSubmissionsActivity.this, R.color.brand_success);
+                    return ContextCompat.getColor(RinjoraSubmissionsActivity.this, R.color.proto_green);
                 case "rejected":
-                    return ContextCompat.getColor(RinjoraSubmissionsActivity.this, R.color.brand_error);
+                    return ContextCompat.getColor(RinjoraSubmissionsActivity.this, R.color.proto_red);
                 default:
-                    return ContextCompat.getColor(RinjoraSubmissionsActivity.this, R.color.brand_secondary);
+                    return ContextCompat.getColor(RinjoraSubmissionsActivity.this, R.color.proto_gold);
             }
         }
 

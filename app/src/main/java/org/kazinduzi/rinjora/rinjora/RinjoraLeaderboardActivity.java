@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
+import org.kazinduzi.rinjora.BaseActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -33,7 +33,7 @@ import org.kazinduzi.rinjora.network.dto.LeaderboardEntryDto;
  * the {@code me} block, pagination via the load-more button, and offline render
  * from the last cached envelope.
  */
-public class RinjoraLeaderboardActivity extends AppCompatActivity {
+public class RinjoraLeaderboardActivity extends BaseActivity {
 
     private static final String[] FILTERS = {"today", "this_week", "this_month", "this_year", "all_time"};
 
@@ -54,6 +54,9 @@ public class RinjoraLeaderboardActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         repository = new RinjoraLeaderboardRepository(this);
 
+        setSupportActionBar(binding.toolbar);
+        binding.toolbar.setNavigationOnClickListener(v -> finish());
+
         if (!AuthTokenStore.get(this).hasValidToken()) {
             goToAuth();
             return;
@@ -66,7 +69,7 @@ public class RinjoraLeaderboardActivity extends AppCompatActivity {
         binding.btnRefresh.setOnClickListener(v -> load(filter, 1));
         binding.btnLoadMore.setOnClickListener(v -> load(filter, lastPage + 1));
         binding.swipeRefresh.setOnRefreshListener(() -> load(filter, 1));
-        binding.swipeRefresh.setColorSchemeResources(R.color.brand_primary, R.color.brand_secondary);
+        binding.swipeRefresh.setColorSchemeResources(R.color.proto_green, R.color.proto_gold);
 
         buildFilters();
         renderCached();
@@ -86,7 +89,7 @@ public class RinjoraLeaderboardActivity extends AppCompatActivity {
                 filter = (String) v.getTag();
                 for (MaterialButton b : filterButtons) {
                     b.setBackgroundResource(b == v ? R.drawable.bg_chip_active : R.drawable.bg_chip);
-                    b.setTextColor(getColorCompat(b == v ? R.color.brand_on_primary : R.color.text_secondary));
+                    b.setTextColor(getColorCompat(b == v ? R.color.white : R.color.proto_ink_soft));
                 }
                 load(filter, 1);
             });
@@ -96,7 +99,7 @@ public class RinjoraLeaderboardActivity extends AppCompatActivity {
             btn.setLayoutParams(lp);
             boolean active = f.equals(filter);
             btn.setBackgroundResource(active ? R.drawable.bg_chip_active : R.drawable.bg_chip);
-            btn.setTextColor(getColorCompat(active ? R.color.brand_on_primary : R.color.text_secondary));
+            btn.setTextColor(getColorCompat(active ? R.color.white : R.color.proto_ink_soft));
             filterButtons.add(btn);
             binding.filterRow.addView(btn);
         }
@@ -214,11 +217,11 @@ public class RinjoraLeaderboardActivity extends AppCompatActivity {
             boolean isMe = myId > 0 && e.getId() == myId;
             holder.itemView.setBackgroundResource(isMe ? R.drawable.bg_chip_active : 0);
             if (isMe) {
-                holder.binding.tvName.setTextColor(getColorCompat(R.color.brand_on_primary));
-                holder.binding.tvPoints.setTextColor(getColorCompat(R.color.brand_on_primary));
+                holder.binding.tvName.setTextColor(getColorCompat(R.color.white));
+                holder.binding.tvPoints.setTextColor(getColorCompat(R.color.white));
             } else {
-                holder.binding.tvName.setTextColor(getColorCompat(R.color.text_primary));
-                holder.binding.tvPoints.setTextColor(getColorCompat(R.color.text_primary));
+                holder.binding.tvName.setTextColor(getColorCompat(R.color.proto_ink));
+                holder.binding.tvPoints.setTextColor(getColorCompat(R.color.proto_ink));
             }
         }
 

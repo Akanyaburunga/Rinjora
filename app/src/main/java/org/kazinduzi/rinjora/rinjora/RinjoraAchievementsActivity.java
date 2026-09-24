@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
+import org.kazinduzi.rinjora.BaseActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -32,7 +32,7 @@ import org.kazinduzi.rinjora.network.dto.BadgeDto;
  * badge library from {@code GET /me/achievements} with earned state and per-badge
  * progress bars. Earned badges are listed first and highlighted.
  */
-public class RinjoraAchievementsActivity extends AppCompatActivity {
+public class RinjoraAchievementsActivity extends BaseActivity {
 
     private ActivityRinjoraAchievementsBinding binding;
     private RinjoraAchievementsRepository repository;
@@ -46,6 +46,9 @@ public class RinjoraAchievementsActivity extends AppCompatActivity {
         binding = ActivityRinjoraAchievementsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        setSupportActionBar(binding.toolbar);
+        binding.toolbar.setNavigationOnClickListener(v -> finish());
+
         if (!AuthTokenStore.get(this).hasValidToken()) {
             goToAuth();
             return;
@@ -58,7 +61,7 @@ public class RinjoraAchievementsActivity extends AppCompatActivity {
         binding.recyclerAchievements.setAdapter(adapter);
         binding.btnRefresh.setOnClickListener(v -> load());
         binding.swipeRefresh.setOnRefreshListener(this::load);
-        binding.swipeRefresh.setColorSchemeResources(R.color.brand_primary, R.color.brand_secondary);
+        binding.swipeRefresh.setColorSchemeResources(R.color.proto_green, R.color.proto_gold);
 
         load();
     }
@@ -147,7 +150,7 @@ public class RinjoraAchievementsActivity extends AppCompatActivity {
             holder.binding.tvName.setText(badge.getName());
             holder.binding.tvName.setTextColor(ContextCompat.getColor(
                     RinjoraAchievementsActivity.this,
-                    earned ? R.color.text_primary : R.color.text_secondary));
+                    earned ? R.color.proto_ink : R.color.proto_ink_soft));
             holder.binding.tvCategory.setText(presentableCategory(badge.getCategory()));
             holder.binding.tvDescription.setText(badge.getDescription() != null ? badge.getDescription() : "");
 
@@ -155,12 +158,12 @@ public class RinjoraAchievementsActivity extends AppCompatActivity {
                 holder.binding.tvEarned.setText("EARNED");
                 holder.binding.tvEarned.setVisibility(View.VISIBLE);
                 holder.binding.ivMarker.setBackgroundColor(ContextCompat.getColor(
-                        RinjoraAchievementsActivity.this, R.color.brand_success));
+                        RinjoraAchievementsActivity.this, R.color.proto_green));
             } else {
                 holder.binding.tvEarned.setText("");
                 holder.binding.tvEarned.setVisibility(View.INVISIBLE);
                 holder.binding.ivMarker.setBackgroundColor(ContextCompat.getColor(
-                        RinjoraAchievementsActivity.this, R.color.brand_outline));
+                        RinjoraAchievementsActivity.this, R.color.proto_sand));
             }
 
             int goal = badge.getGoal();

@@ -5,8 +5,20 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/brand_background"
+    android:fitsSystemWindows="true"
+    android:background="@color/proto_ivory"
     tools:context=".rinjora.RinjoraLeaderboardActivity">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/brand_primary"
+        android:title="Leaderboard"
+        app:titleTextColor="@color/brand_on_primary"
+        app:titleTextAppearance="@style/TextAppearance.Rinjora.Toolbar"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:navigationIconTint="@color/brand_on_primary" />
 
     <!-- Header -->
     <LinearLayout
@@ -24,7 +36,7 @@
             android:text="Leaderboard"
             android:textSize="22sp"
             android:textStyle="bold"
-            android:textColor="@color/text_primary" />
+            android:textColor="@color/proto_ink" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_refresh"
@@ -62,7 +74,7 @@
         android:layout_marginBottom="8dp"
         app:cardCornerRadius="16dp"
         app:cardElevation="0dp"
-        app:cardBackgroundColor="@color/brand_primary"
+        app:cardBackgroundColor="@color/proto_green"
         android:visibility="gone">
 
         <LinearLayout
@@ -78,7 +90,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="26sp"
                 android:textStyle="bold"
-                android:textColor="@color/brand_on_primary" />
+                android:textColor="@color/white" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -93,14 +105,14 @@
                     android:layout_height="wrap_content"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:textColor="@color/brand_on_primary" />
+                    android:textColor="@color/white" />
 
                 <TextView
                     android:id="@+id/tv_me_detail"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="13sp"
-                    android:textColor="@color/brand_on_primary_muted" />
+                    android:textColor="@color/proto_ivory_soft" />
 
             </LinearLayout>
 
@@ -110,7 +122,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="18sp"
                 android:textStyle="bold"
-                android:textColor="@color/brand_on_primary" />
+                android:textColor="@color/white" />
 
         </LinearLayout>
 
@@ -151,7 +163,7 @@
         android:padding="24dp"
         android:text="No rankings yet."
         android:textSize="14sp"
-        android:textColor="@color/text_muted"
+        android:textColor="@color/proto_ink_soft"
         android:visibility="gone" />
 
     <ProgressBar

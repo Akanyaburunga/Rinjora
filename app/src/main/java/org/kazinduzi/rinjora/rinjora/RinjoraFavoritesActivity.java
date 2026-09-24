@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
+import org.kazinduzi.rinjora.BaseActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -27,7 +27,7 @@ import org.kazinduzi.rinjora.network.dto.RiddleDto;
  * Rinjora favorites screen (plan §6.1): lists {@code GET /me/favorites}, lets the
  * user open a saved riddle for playing, or remove it (heart button → DELETE).
  */
-public class RinjoraFavoritesActivity extends AppCompatActivity {
+public class RinjoraFavoritesActivity extends BaseActivity {
 
     private ActivityRinjoraFavoritesBinding binding;
     private RinjoraFavoritesRepository favoritesRepository;
@@ -42,6 +42,9 @@ public class RinjoraFavoritesActivity extends AppCompatActivity {
         binding = ActivityRinjoraFavoritesBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        setSupportActionBar(binding.toolbar);
+        binding.toolbar.setNavigationOnClickListener(v -> finish());
+
         if (!AuthTokenStore.get(this).hasValidToken()) {
             goToAuth();
             return;
@@ -55,7 +58,7 @@ public class RinjoraFavoritesActivity extends AppCompatActivity {
         binding.recyclerFavorites.setAdapter(adapter);
         binding.btnRefresh.setOnClickListener(v -> load());
         binding.swipeRefresh.setOnRefreshListener(this::load);
-        binding.swipeRefresh.setColorSchemeResources(R.color.brand_primary, R.color.brand_secondary);
+        binding.swipeRefresh.setColorSchemeResources(R.color.proto_green, R.color.proto_gold);
 
         load();
     }

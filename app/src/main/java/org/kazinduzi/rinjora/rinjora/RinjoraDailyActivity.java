@@ -7,12 +7,12 @@ import android.os.Looper;
 import android.view.View;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
+import org.kazinduzi.rinjora.BaseActivity;
+import org.kazinduzi.rinjora.R;
 
 import java.text.DateFormat;
 import java.util.Date;
 
-import org.kazinduzi.rinjora.R;
 import org.kazinduzi.rinjora.data.RinjoraDailyRepository;
 import org.kazinduzi.rinjora.databinding.ActivityRinjoraDailyBinding;
 import org.kazinduzi.rinjora.entities.RinjoraDailySnapshot;
@@ -25,7 +25,7 @@ import org.kazinduzi.rinjora.network.dto.FreezeResponseDto;
  * The actual solving reuses the Phase 5 play screen ({@link RinjoraPlayRiddleActivity});
  * this screen supplies the daily gating and the streak-freeze action.
  */
-public class RinjoraDailyActivity extends AppCompatActivity {
+public class RinjoraDailyActivity extends BaseActivity {
 
     private ActivityRinjoraDailyBinding binding;
     private RinjoraDailyRepository repository;
@@ -47,6 +47,9 @@ public class RinjoraDailyActivity extends AppCompatActivity {
         binding = ActivityRinjoraDailyBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         repository = new RinjoraDailyRepository(this);
+
+        setSupportActionBar(binding.toolbar);
+        binding.toolbar.setNavigationOnClickListener(v -> finish());
 
         if (!AuthTokenStore.get(this).hasValidToken()) {
             goToAuth();

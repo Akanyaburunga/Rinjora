@@ -9,7 +9,7 @@
     android:layout_marginTop="8dp"
     app:cardCornerRadius="16dp"
     app:cardElevation="0dp"
-    app:cardBackgroundColor="@color/brand_surface">
+    app:cardBackgroundColor="@color/proto_sand_soft">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -42,7 +42,7 @@
                     android:layout_height="wrap_content"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:textColor="@color/text_primary" />
+                    android:textColor="@color/proto_ink" />
 
                 <TextView
                     android:id="@+id/tv_category"
@@ -50,7 +50,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:textSize="12sp"
-                    android:textColor="@color/text_secondary" />
+                    android:textColor="@color/proto_ink_soft" />
 
             </LinearLayout>
 
@@ -61,7 +61,7 @@
                 android:layout_marginStart="8dp"
                 android:textSize="12sp"
                 android:textStyle="bold"
-                android:textColor="@color/brand_success" />
+                android:textColor="@color/proto_green" />
 
         </LinearLayout>
 
@@ -71,7 +71,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:textSize="13sp"
-            android:textColor="@color/text_secondary" />
+            android:textColor="@color/proto_ink_soft" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -94,7 +94,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:textSize="12sp"
-                android:textColor="@color/text_secondary" />
+                android:textColor="@color/proto_ink_soft" />
 
         </LinearLayout>
 

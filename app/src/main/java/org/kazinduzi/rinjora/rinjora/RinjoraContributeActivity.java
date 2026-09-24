@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
+import org.kazinduzi.rinjora.BaseActivity;
 
 import org.kazinduzi.rinjora.databinding.ActivityRinjoraContributeBinding;
 import org.kazinduzi.rinjora.data.RinjoraSubmissionRepository;
@@ -17,7 +17,7 @@ import org.kazinduzi.rinjora.network.dto.SubmissionDto;
  * Kinyarwanda riddle to {@code POST /submissions/riddles} for admin review.
  * A {@code 422} (e.g. the answer already exists) is surfaced as an error toast.
  */
-public class RinjoraContributeActivity extends AppCompatActivity {
+public class RinjoraContributeActivity extends BaseActivity {
 
     private ActivityRinjoraContributeBinding binding;
     private RinjoraSubmissionRepository repository;
@@ -27,6 +27,9 @@ public class RinjoraContributeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityRinjoraContributeBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        setSupportActionBar(binding.toolbar);
+        binding.toolbar.setNavigationOnClickListener(v -> finish());
 
         if (!AuthTokenStore.get(this).hasValidToken()) {
             finish();

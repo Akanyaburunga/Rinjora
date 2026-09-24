@@ -1,11 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/brand_background"
+    android:fitsSystemWindows="true"
+    android:background="@color/proto_ivory"
     tools:context=".rinjora.RinjoraAchievementsActivity">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/brand_primary"
+        android:title="Achievements"
+        app:titleTextColor="@color/brand_on_primary"
+        app:titleTextAppearance="@style/TextAppearance.Rinjora.Toolbar"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:navigationIconTint="@color/brand_on_primary" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -27,14 +40,14 @@
                 android:text="Achievements"
                 android:textSize="22sp"
                 android:textStyle="bold"
-                android:textColor="@color/text_primary" />
+                android:textColor="@color/proto_ink" />
 
             <TextView
                 android:id="@+id/tv_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="13sp"
-                android:textColor="@color/text_secondary" />
+                android:textColor="@color/proto_ink_soft" />
 
         </LinearLayout>
 
@@ -71,7 +84,7 @@
         android:padding="24dp"
         android:text="No achievements available yet."
         android:textSize="14sp"
-        android:textColor="@color/text_muted"
+        android:textColor="@color/proto_ink_soft"
         android:visibility="gone" />
 
     <ProgressBar

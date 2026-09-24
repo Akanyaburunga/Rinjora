@@ -1,32 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
-    android:background="@color/brand_background"
+    android:orientation="vertical"
+    android:fitsSystemWindows="true"
+    android:background="@color/proto_ivory"
     tools:context=".rinjora.RinjoraContributeActivity">
 
-    <LinearLayout
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/brand_primary"
+        android:title="Contribute a riddle"
+        app:titleTextColor="@color/brand_on_primary"
+        app:titleTextAppearance="@style/TextAppearance.Rinjora.Toolbar"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:navigationIconTint="@color/brand_on_primary" />
 
-        <TextView
-            android:layout_width="wrap_content"
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Contribute a riddle"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Contribute a riddle"
             android:textSize="22sp"
             android:textStyle="bold"
-            android:textColor="@color/text_primary" />
+            android:textColor="@color/proto_ink" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
             android:textSize="13sp"
-            android:textColor="@color/text_secondary"
+            android:textColor="@color/proto_ink_soft"
             android:text="Write a Kinyarwanda riddle for the community. Submissions are reviewed by an admin before going live." />
 
         <com.google.android.material.textfield.TextInputLayout
@@ -161,6 +180,8 @@
             android:layout_marginTop="16dp"
             android:visibility="gone" />
 
-    </LinearLayout>
+        </LinearLayout>
 
-</ScrollView>
+    </ScrollView>
+
+</LinearLayout>

@@ -1,46 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
-    android:background="@color/brand_background"
+    android:orientation="vertical"
+    android:fitsSystemWindows="true"
+    android:background="@color/proto_ivory"
     tools:context=".rinjora.RinjoraDailyActivity">
 
-    <LinearLayout
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/brand_primary"
+        android:title="Daily riddle"
+        app:titleTextColor="@color/brand_on_primary"
+        app:titleTextAppearance="@style/TextAppearance.Rinjora.Toolbar"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:navigationIconTint="@color/brand_on_primary" />
 
-        <!-- Header -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:orientation="vertical"
+            android:padding="16dp">
 
+            <!-- Header -->
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="Daily riddle"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Daily riddle"
                     android:textSize="22sp"
                     android:textStyle="bold"
-                    android:textColor="@color/text_primary" />
+                    android:textColor="@color/proto_ink" />
 
                 <TextView
                     android:id="@+id/tv_date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="13sp"
-                    android:textColor="@color/text_secondary" />
+                    android:textColor="@color/proto_ink_soft" />
 
             </LinearLayout>
 
@@ -60,7 +78,7 @@
             android:layout_marginTop="16dp"
             app:cardCornerRadius="20dp"
             app:cardElevation="0dp"
-            app:cardBackgroundColor="@color/brand_primary">
+            app:cardBackgroundColor="@color/proto_green">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -82,14 +100,14 @@
                         android:text="0"
                         android:textSize="34sp"
                         android:textStyle="bold"
-                        android:textColor="@color/brand_on_primary" />
+                        android:textColor="@color/white" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="day streak"
                         android:textSize="13sp"
-                        android:textColor="@color/brand_on_primary_muted" />
+                        android:textColor="@color/proto_ivory_soft" />
 
                 </LinearLayout>
 
@@ -105,7 +123,7 @@
                         android:layout_height="wrap_content"
                         android:text="longest 0"
                         android:textSize="13sp"
-                        android:textColor="@color/brand_on_primary_muted" />
+                        android:textColor="@color/proto_ivory_soft" />
 
                     <TextView
                         android:id="@+id/tv_solved_by"
@@ -114,7 +132,7 @@
                         android:layout_marginTop="6dp"
                         android:text=""
                         android:textSize="12sp"
-                        android:textColor="@color/brand_on_primary_muted" />
+                        android:textColor="@color/proto_ivory_soft" />
 
                 </LinearLayout>
 
@@ -130,7 +148,7 @@
             android:layout_marginTop="12dp"
             app:cardCornerRadius="16dp"
             app:cardElevation="0dp"
-            app:cardBackgroundColor="@color/brand_error_container"
+            app:cardBackgroundColor="@color/proto_red_soft"
             android:visibility="gone">
 
             <LinearLayout
@@ -145,7 +163,7 @@
                     android:text="Your streak is at risk!"
                     android:textStyle="bold"
                     android:textSize="15sp"
-                    android:textColor="@color/brand_on_error_container" />
+                    android:textColor="@color/proto_red" />
 
                 <TextView
                     android:layout_width="match_parent"
@@ -153,7 +171,7 @@
                     android:layout_marginTop="4dp"
                     android:text="Solve today's riddle before the day ends to keep it alive."
                     android:textSize="13sp"
-                    android:textColor="@color/brand_on_error_container" />
+                    android:textColor="@color/proto_red" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_freeze"
@@ -162,7 +180,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:text="Spend a streak freeze"
-                    android:textColor="@color/brand_on_error_container" />
+                    android:textColor="@color/proto_red" />
 
             </LinearLayout>
 
@@ -175,7 +193,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:textSize="13sp"
-            android:textColor="@color/brand_secondary"
+            android:textColor="@color/proto_gold"
             android:visibility="gone" />
 
         <!-- Daily question -->
@@ -185,7 +203,7 @@
             android:layout_marginTop="16dp"
             app:cardCornerRadius="16dp"
             app:cardElevation="0dp"
-            app:cardBackgroundColor="@color/brand_surface">
+            app:cardBackgroundColor="@color/proto_sand_soft">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -199,7 +217,7 @@
                     android:text="Today's riddle"
                     android:textStyle="bold"
                     android:textSize="14sp"
-                    android:textColor="@color/brand_primary" />
+                    android:textColor="@color/proto_green" />
 
                 <TextView
                     android:id="@+id/tv_question"
@@ -207,7 +225,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:textSize="17sp"
-                    android:textColor="@color/text_primary" />
+                    android:textColor="@color/proto_ink" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_solve"
@@ -229,6 +247,8 @@
             android:layout_marginTop="16dp"
             android:visibility="gone" />
 
-    </LinearLayout>
+        </LinearLayout>
 
-</ScrollView>
+    </ScrollView>
+
+</LinearLayout>
