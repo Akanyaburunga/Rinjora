@@ -23,6 +23,8 @@ public final class AuthTokenStore {
     private static final String KEY_TOKEN_EXPIRY = "token_expiry_ms";
     private static final String KEY_DEVICE_NAME = "device_name";
     private static final String KEY_USER_ID = "user_id";
+    private static final String KEY_EMAIL = "email";
+    private static final String KEY_EMAIL_VERIFICATION_REQUIRED = "email_verification_required";
 
     private final SharedPreferences prefs;
 
@@ -112,6 +114,30 @@ public final class AuthTokenStore {
 
     public long getUserId() {
         return prefs.getLong(KEY_USER_ID, -1L);
+    }
+
+    /**
+     * Last-known account email. Kept so the Enter Code screen can prefill it when
+     * a 403 "email not verified" throws the user back to verification.
+     */
+    public void saveEmail(String email) {
+        prefs.edit().putString(KEY_EMAIL, email).apply();
+    }
+
+    public String getEmail() {
+        return prefs.getString(KEY_EMAIL, null);
+    }
+
+    /**
+     * True when the last auth failure was a 403 "Your email address is not
+     * verified." — the auth host should open on the Enter Code screen, not login.
+     */
+    public void setEmailVerificationRequired(boolean required) {
+        prefs.edit().putBoolean(KEY_EMAIL_VERIFICATION_REQUIRED, required).apply();
+    }
+
+    public boolean isEmailVerificationRequired() {
+        return prefs.getBoolean(KEY_EMAIL_VERIFICATION_REQUIRED, false);
     }
 
     public void clear() {

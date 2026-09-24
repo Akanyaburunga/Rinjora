@@ -60,6 +60,12 @@ public interface RinjoraApi {
     @POST("auth/register")
     Call<ApiEnvelope<Void>> register(@Body Map<String, Object> body);
 
+    @POST("auth/email/verify")
+    Call<ApiEnvelope<Void>> verifyEmail(@Body Map<String, Object> body);
+
+    @POST("auth/email/resend")
+    Call<ApiEnvelope<Void>> resendVerificationCode(@Body Map<String, Object> body);
+
     @POST("auth/login")
     Call<ApiEnvelope<LoginResponseDto>> login(@Body Map<String, Object> body);
 

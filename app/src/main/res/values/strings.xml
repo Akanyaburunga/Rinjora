@@ -4,6 +4,21 @@
     <string name="title_notifications">Notifications</string>
     <string name="title_profile">Profile</string>
     <string name="title_support">Support</string>
+    <string name="action_back">Back</string>
+
+    <!-- ===== Email verification (docs/mobile-api-email-verification.md) ===== -->
+    <string name="ev_title">Kwemeza Imeyile yawe</string>
+    <string name="ev_sub">Uraza kuronka kode y\'impande 6 kugira wemeze konti yawe. Andika iyo kode hano.</string>
+    <string name="ev_code_label">Kode y\'ukwemeza</string>
+    <string name="ev_verify">Kwemeza</string>
+    <string name="ev_invalid">Igiharuro si ibyo</string>
+    <string name="ev_expired">Kode yahemukiye. Rungika iyindi.</string>
+    <string name="ev_code_short">Kode iriho impande 6.</string>
+    <string name="ev_countdown">Hasigaye:</string>
+    <string name="ev_resend">Sindibona code ? Rungika iyindi.</string>
+    <string name="ev_resent">Kode nshasha yarungitswe. Ihashira mu minota 10.</string>
+    <string name="ev_login_link">Winjire aha</string>
+    <string name="ev_verify_done">Imeyile yawe yatemezwe neza. Urakoze !</string>
 
     <!-- ===== Sokwe (riddles) ===== -->
     <string name="sokwe_title">Sokwe ! 🐇</string>

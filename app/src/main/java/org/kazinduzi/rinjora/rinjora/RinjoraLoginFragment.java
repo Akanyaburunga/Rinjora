@@ -34,6 +34,13 @@ public class RinjoraLoginFragment extends Fragment {
 
         viewModel = new ViewModelProvider(requireActivity()).get(RinjoraAuthViewModel.class);
 
+        // After email verification (or a 403-unverified gate) the email is known;
+        // prefill so the user only re-types the password.
+        String rememberedEmail = viewModel.getPendingEmail().getValue();
+        if (rememberedEmail != null && !rememberedEmail.isEmpty()) {
+            binding.etEmail.setText(rememberedEmail);
+        }
+
         binding.btnLogin.setOnClickListener(v -> {
             String email = binding.etEmail.getText().toString().trim();
             String password = binding.etPassword.getText().toString().trim();

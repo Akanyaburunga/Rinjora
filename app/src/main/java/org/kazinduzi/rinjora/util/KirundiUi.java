@@ -117,6 +117,23 @@ public final class KirundiUi {
     public static final String C_NOTE = "Tuzobisuzuma tubongere muri Rinjora. Urakoze cane ! 🙏";
     public static final String C_EMPTY = "Andika ikintu mbere yo kurungika.";
 
+    // ----- Email verification (docs mobile-api-email-verification.md) -----
+    public static final String EV_TITLE = "Kwemeza Imeyile yawe";
+    public static final String EV_SUB = "Uraza kuronka kode y'impande 6 kugira "
+            + "wemeze konti yawe. Andika iyo kode hano.";
+    public static final String EV_CODE_LABEL = "Kode y'ukwemeza";
+    public static final String EV_VERIFY = "Kwemeza";
+    public static final String EV_INVALID = "Igiharuro si ibyo";
+    public static final String EV_EXPIRED = "Kode yahemukiye. Rungika iyindi.";
+    public static final String EV_CODE_SHORT = "Kode iriho impande 6.";
+    public static final String EV_CODE_MISSING = "Imeyile ntibonetse.";
+    public static final String EV_COUNTDOWN = "Hasigaye:";
+    public static final String EV_RESEND = "Sindibona code ? Rungika iyindi.";
+    public static final String EV_RESENT = "Kode nshasha yarungitswe. Ihashira mu minota 10.";
+    public static final String EV_LOGIN_LINK = "Winjire aha";
+    public static final String EV_VERIFY_DONE = "Imeyile yawe yatemezwe neza. Urakoze !";
+    public static final String EV_ALREADY = "Imeyile yawe yari yaratemezwe. Uramaze kuba mwiza.";
+
     // ----- Types selector -----
     public static final String TYPE_SOKWE = "Igisokozo 🧠";
     public static final String TYPE_HERA = "Umwibutsa 🌾";
