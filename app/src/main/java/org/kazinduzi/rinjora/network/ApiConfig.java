@@ -8,7 +8,7 @@ public class ApiConfig {
     // ------------------------------------------------------------------
     // Legacy logistics backend (MyMartin/Volley) — kept for compatibility
     // ------------------------------------------------------------------
-    private static final String DEV_BASE_URL = "http://192.168.1.80:8000/api";
+    private static final String DEV_BASE_URL = "http://192.168.100.156:8000/api";
     private static final String PROD_BASE_URL = "https://kazinduzi.org/api";
 
     // Automatically select base URL based on build type
@@ -20,8 +20,8 @@ public class ApiConfig {
     // TODO: point at the real Kazinduzi API host once provisioned.
     // Dev commonly uses a Laravel Valet/Herd `.test` domain or a LAN IP
     // with `php artisan serve`. The path suffix is the API root (`.../api`).
-    private static final String KAZINDUZI_DEV_BASE_URL = "http://192.168.1.80:8000/api";
-    private static final String KAZINDUZI_PROD_BASE_URL = "https://api.kazinduzi.bi/api";
+    private static final String KAZINDUZI_DEV_BASE_URL = "http://192.168.100.156:8000/api";
+    private static final String KAZINDUZI_PROD_BASE_URL = "https://kazinduzi.org/api";
 
     /**
      * Base URL for the Rinjora (Kazinduzi) game API, selected by build type.
