@@ -14,3 +14,19 @@
 .cxx
 local.properties
 google-services*.json
+
+# IDE / environment
+/.idea/
+/.vscode/
+.env
+*.env
+
+# Build artifacts / release outputs
+*.apk
+*.aab
+*.ap_
+*.dex
+*.jks
+*.keystore
+*.p12
+/app/release/
