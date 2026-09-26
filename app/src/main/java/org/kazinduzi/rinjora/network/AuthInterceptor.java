@@ -31,8 +31,12 @@ public class AuthInterceptor implements Interceptor {
                 .build();
         String token = AuthTokenStore.get(context).getToken();
         if (token != null && !token.isEmpty()) {
+            // X-Access-Token mirrors the Bearer token verbatim (no prefix). The
+            // production PHP-FPM/cPanel stack drops the Authorization header before
+            // PHP sees it; the server-side bridge re-reads the token from this header.
             request = request.newBuilder()
                     .header("Authorization", "Bearer " + token)
+                    .header("X-Access-Token", token)
                     .build();
         }
         okhttp3.Response response = chain.proceed(request);

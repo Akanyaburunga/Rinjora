@@ -78,6 +78,11 @@ public class QuizFragment extends Fragment {
     private int guestRemaining = -1;
     private int guestLimit = 0;
 
+    /** Guards against parallel re-mints when several calls 401 at once. */
+    private boolean recoveringAuth;
+    /** Recovery budget: at most one mint+retry per user action. */
+    private int authRecoveries;
+
     private RoundDtoState round;
     private RoundItemDto item;
     private int currentPosition;
@@ -209,7 +214,7 @@ public class QuizFragment extends Fragment {
         AuthTokenStore store = AuthTokenStore.get(requireContext());
         if (!store.hasValidToken()) {
             // Never a login wall (plan §6 auth guard): silently mint a guest session.
-            authRepository.ensureGuest(noAuth());
+            authRepository.ensureGuest(silentGuest());
             return;
         }
         String pending = PendingGameMode.peekMode(requireContext());
@@ -228,6 +233,7 @@ public class QuizFragment extends Fragment {
         if (inFlight) {
             return;
         }
+        authRecoveries = 0;
         if (!AuthTokenStore.get(requireContext()).hasValidToken()) {
             // Guests never hit the login wall (plan §5/§6): provision, then start.
             setBusy(true);
@@ -263,6 +269,7 @@ public class QuizFragment extends Fragment {
             @Override
             public void onSuccess(RoundStartDto start) {
                 if (binding == null) return;
+                authRecoveries = 0;
                 inFlight = false;
                 setBusy(false);
                 if (start.getRound() == null || start.getItem() == null) {
@@ -285,7 +292,7 @@ public class QuizFragment extends Fragment {
             public void onAuthError() {
                 if (binding == null) return;
                 inFlight = false;
-                handleAuthLoss();
+                handleAuthLoss(true, QuizFragment.this::beginStart);
             }
 
             @Override
@@ -350,7 +357,7 @@ public class QuizFragment extends Fragment {
                 if (binding == null) return;
                 inFlight = false;
                 setBusy(false);
-                handleAuthLoss();
+                handleAuthLoss(false, QuizFragment.this::check);
             }
 
             @Override
@@ -425,7 +432,7 @@ public class QuizFragment extends Fragment {
 
             @Override
             public void onAuthError() {
-                if (binding != null) handleAuthLoss();
+                if (binding != null) handleAuthLoss(false, QuizFragment.this::refreshReveal);
             }
 
             @Override
@@ -464,7 +471,7 @@ public class QuizFragment extends Fragment {
                 if (binding == null) return;
                 inFlight = false;
                 setBusy(false);
-                handleAuthLoss();
+                handleAuthLoss(false, QuizFragment.this::goBack);
             }
 
             @Override
@@ -519,7 +526,7 @@ public class QuizFragment extends Fragment {
                 if (binding == null) return;
                 inFlight = false;
                 setBusy(false);
-                handleAuthLoss();
+                handleAuthLoss(false, QuizFragment.this::next);
             }
 
             @Override
@@ -563,7 +570,7 @@ public class QuizFragment extends Fragment {
             public void onAuthError() {
                 if (binding == null) return;
                 inFlight = false;
-                handleAuthLoss();
+                handleAuthLoss(false, QuizFragment.this::complete);
             }
 
             @Override
@@ -799,13 +806,18 @@ public class QuizFragment extends Fragment {
     }
 
     private void onSoftError(String message) {
-        Log.e(TAG, message == null || message.isEmpty() ? "Umukino ntukigeze." : message);
-        Toast.makeText(requireContext(),
-                message == null || message.isEmpty() ? "Umukino ntukigeze." : message,
-                Toast.LENGTH_SHORT).show();
+        String text = message == null || message.isEmpty() ? "Umukino ntukigeze." : message;
+        Log.e(TAG, text);
+        // Callbacks can land after the fragment detached; requireContext() would
+        // throw IllegalStateException and crash the app (Crashlytics FATAL seen).
+        if (getContext() == null || !isAdded()) {
+            return;
+        }
+        Toast.makeText(requireContext(), text, Toast.LENGTH_SHORT).show();
     }
 
-    private RinjoraAuthRepository.AuthCallback noAuth() {
+    /** Background provisioning (launch, not user action): never toast on failure. */
+    private RinjoraAuthRepository.AuthCallback silentGuest() {
         return new RinjoraAuthRepository.AuthCallback() {
             @Override
             public void onSuccess() {
@@ -813,15 +825,50 @@ public class QuizFragment extends Fragment {
 
             @Override
             public void onError(String message) {
-                onSoftError(message);
+                Log.w(TAG, "background guest provisioning failed: " + message);
             }
         };
     }
 
-    /** Session lost / expired: clear the game UI and silently restore a guest session. */
-    private void handleAuthLoss() {
-        showStart();
-        authRepository.ensureGuest(noAuth());
+    /** Session lost / expired (plan §6): silently restore a guest session, then retry
+     *  the interrupted action once so a stale stored token can't block gameplay.
+     *  {@code resetToStart} clears the round UI (used for a blocked round start);
+     *  mid-round calls keep the in-memory round and just resume the same operation.
+     *  Only one recovery is attempted per user action: a repeated 401 right after a
+     *  fresh mint means the server is rejecting the token itself, so we surface an
+     *  error instead of mint-looping (which could re-trip the guest throttle). */
+    private void handleAuthLoss(boolean resetToStart, final Runnable retry) {
+        if (recoveringAuth || binding == null) {
+            return;
+        }
+        if (authRecoveries >= 1) {
+            authRecoveries = 0;
+            onSoftError(KirundiUi.G_AUTH_FAIL);
+            return;
+        }
+        if (resetToStart) {
+            showStart();
+        }
+        authRecoveries++;
+        Log.w(TAG, "session lost (401); restoring guest session");
+        recoveringAuth = true;
+        authRepository.ensureGuest(new RinjoraAuthRepository.AuthCallback() {
+            @Override
+            public void onSuccess() {
+                recoveringAuth = false;
+                if (binding == null) return;
+                Log.w(TAG, "guest session restored; retrying interrupted action");
+                if (retry != null) retry.run();
+            }
+
+            @Override
+            public void onError(String message) {
+                recoveringAuth = false;
+                authRecoveries = 0;
+                if (binding == null) return;
+                onSoftError(message);
+            }
+        });
     }
 
     /**
@@ -831,7 +878,7 @@ public class QuizFragment extends Fragment {
      * form with {@code guest_uid} attached, and after login the pending mode relaunches.
      */
     private void showCapPrompt(String message) {
-        if (binding == null) return;
+        if (binding == null || !isAdded()) return;
         AuthTokenStore store = AuthTokenStore.get(requireContext());
         guestRemaining = 0;
         refreshGuestRemaining();

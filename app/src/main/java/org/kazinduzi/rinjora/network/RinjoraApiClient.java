@@ -35,6 +35,7 @@ public final class RinjoraApiClient {
                 .connectTimeout(30, TimeUnit.SECONDS)
                 .readTimeout(30, TimeUnit.SECONDS)
                 .writeTimeout(30, TimeUnit.SECONDS)
+                .retryOnConnectionFailure(true)
                 .build();
 
         retrofit = new Retrofit.Builder()

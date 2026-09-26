@@ -6,7 +6,9 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import retrofit2.Call;
@@ -19,6 +21,7 @@ import org.kazinduzi.rinjora.network.RinjoraApiClient;
 import org.kazinduzi.rinjora.network.dto.GuestSessionDto;
 import org.kazinduzi.rinjora.network.dto.LoginResponseDto;
 import org.kazinduzi.rinjora.network.dto.UserDto;
+import org.kazinduzi.rinjora.util.KirundiUi;
 
 /**
  * Auth operations against the Rinjora (Kazinduzi) backend (plan §1).
@@ -66,6 +69,15 @@ public class RinjoraAuthRepository {
     private final Context context;
     private final RinjoraApi api;
 
+    /**
+     * Single-flight guard: concurrent {@link #ensureGuest} calls (several resumed
+     * fragments, a tap during background provisioning) collapse into one mint so
+     * the throttled {@code /auth/guest} endpoint is never hit in parallel.
+     */
+    private static final Object GUEST_LOCK = new Object();
+    private static boolean guestInFlight;
+    private static final List<AuthCallback> guestWaiters = new ArrayList<>();
+
     public RinjoraAuthRepository(Context context) {
         this.context = context.getApplicationContext();
         this.api = RinjoraApiClient.get(context).api();
@@ -104,6 +116,10 @@ public class RinjoraAuthRepository {
 
             @Override
             public void onFailure(@NonNull Call<ApiEnvelope<Void>> call, @NonNull Throwable t) {
+                if (call.isCanceled()) {
+                    Log.d(TAG, "auth request canceled");
+                    return;
+                }
                 Log.e(TAG, "auth request failed", t);
                 callback.onError(t.getMessage() == null ? "Network error" : t.getMessage());
             }
@@ -143,6 +159,10 @@ public class RinjoraAuthRepository {
 
             @Override
             public void onFailure(@NonNull Call<ApiEnvelope<Void>> call, @NonNull Throwable t) {
+                if (call.isCanceled()) {
+                    Log.d(TAG, "auth request canceled");
+                    return;
+                }
                 Log.e(TAG, "auth request failed", t);
                 callback.onError(t.getMessage() == null ? "Network error" : t.getMessage());
             }
@@ -172,6 +192,10 @@ public class RinjoraAuthRepository {
 
             @Override
             public void onFailure(@NonNull Call<ApiEnvelope<Void>> call, @NonNull Throwable t) {
+                if (call.isCanceled()) {
+                    Log.d(TAG, "auth request canceled");
+                    return;
+                }
                 Log.e(TAG, "auth request failed", t);
                 callback.onError(t.getMessage() == null ? "Network error" : t.getMessage());
             }
@@ -217,6 +241,10 @@ public class RinjoraAuthRepository {
             @Override
             public void onFailure(@NonNull Call<ApiEnvelope<LoginResponseDto>> call,
                                   @NonNull Throwable t) {
+                if (call.isCanceled()) {
+                    Log.d(TAG, "auth request canceled");
+                    return;
+                }
                 Log.e(TAG, "auth request failed", t);
                 callback.onError(t.getMessage() == null ? "Network error" : t.getMessage());
             }
@@ -252,6 +280,8 @@ public class RinjoraAuthRepository {
                         store.saveUserId(data.getUser().getId());
                     }
                     callback.onSuccess();
+                } else if (response.code() == 429) {
+                    callback.onError(KirundiUi.G_THROTTLE);
                 } else {
                     callback.onError(extractError(response, envelope));
                 }
@@ -259,6 +289,10 @@ public class RinjoraAuthRepository {
 
             @Override
             public void onFailure(@NonNull Call<ApiEnvelope<GuestSessionDto>> call, @NonNull Throwable t) {
+                if (call.isCanceled()) {
+                    Log.d(TAG, "auth request canceled");
+                    return;
+                }
                 Log.e(TAG, "auth request failed", t);
                 callback.onError(t.getMessage() == null ? "Network error" : t.getMessage());
             }
@@ -277,7 +311,44 @@ public class RinjoraAuthRepository {
             callback.onSuccess();
             return;
         }
-        guest(store.getOrCreateGuestUid(context), callback);
+        synchronized (GUEST_LOCK) {
+            if (guestInFlight) {
+                guestWaiters.add(callback);
+                return;
+            }
+            guestInFlight = true;
+            // The initiator is notified through the same drain as followers, otherwise
+            // its onSuccess/onError is dropped and the caller hangs forever.
+            guestWaiters.add(callback);
+        }
+        guest(store.getOrCreateGuestUid(context), new AuthCallback() {
+            @Override
+            public void onSuccess() {
+                drainGuest(true, null);
+            }
+
+            @Override
+            public void onError(String message) {
+                drainGuest(false, message);
+            }
+        });
+    }
+
+    /** Notifies every caller that coalesced onto the single in-flight mint. */
+    private void drainGuest(boolean success, String message) {
+        List<AuthCallback> waiters;
+        synchronized (GUEST_LOCK) {
+            guestInFlight = false;
+            waiters = new ArrayList<>(guestWaiters);
+            guestWaiters.clear();
+        }
+        for (AuthCallback waiter : waiters) {
+            if (success) {
+                waiter.onSuccess();
+            } else {
+                waiter.onError(message);
+            }
+        }
     }
 
     public void currentUser(final UserCallback callback) {
@@ -296,6 +367,10 @@ public class RinjoraAuthRepository {
 
             @Override
             public void onFailure(@NonNull Call<ApiEnvelope<UserDto>> call, @NonNull Throwable t) {
+                if (call.isCanceled()) {
+                    Log.d(TAG, "auth request canceled");
+                    return;
+                }
                 Log.e(TAG, "auth request failed", t);
                 callback.onError(t.getMessage() == null ? "Network error" : t.getMessage());
             }

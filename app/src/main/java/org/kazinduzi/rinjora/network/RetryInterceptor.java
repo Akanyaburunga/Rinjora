@@ -34,9 +34,7 @@ public class RetryInterceptor implements Interceptor {
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
-        if (!"GET".equals(request.method()) && !"HEAD".equals(request.method())) {
-            return chain.proceed(request);
-        }
+        boolean isIdempotent = "GET".equals(request.method()) || "HEAD".equals(request.method());
 
         Response response = null;
         IOException lastIo = null;
@@ -51,11 +49,14 @@ public class RetryInterceptor implements Interceptor {
                     throw e;
                 }
                 lastIo = e;
-                sleep(backoffMs(attempt));
-                continue;
+                if (isIdempotent || isSocketClosedException(e)) {
+                    sleep(backoffMs(attempt));
+                    continue;
+                }
+                throw e;
             }
 
-            if (!isRetryable(response) || attempt == maxAttempts) {
+            if (!isIdempotent || !isRetryable(response) || attempt == maxAttempts) {
                 return response;
             }
             sleep(backoffMs(attempt, response));
@@ -64,6 +65,17 @@ public class RetryInterceptor implements Interceptor {
             throw lastIo;
         }
         return response;
+    }
+
+    private boolean isSocketClosedException(IOException e) {
+        if (e instanceof java.net.SocketException) {
+            String msg = e.getMessage();
+            return msg != null && (msg.contains("Socket closed")
+                    || msg.contains("Connection reset")
+                    || msg.contains("Software caused connection abort")
+                    || msg.contains("broken pipe"));
+        }
+        return false;
     }
 
     private boolean isRetryable(Response response) {

@@ -7,7 +7,6 @@ import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
-import okio.Buffer;
 
 /**
  * HTTP response logger that redacts the confidential {@code answer} and
@@ -42,10 +41,9 @@ public final class RedactingLoggingInterceptor implements Interceptor {
             return response;
         }
 
-        // Read the whole body, preserving the original bytes for the app.
-        Buffer buffer = new Buffer();
-        original.source().readAll(buffer);
-        String bodyString = buffer.readUtf8();
+        // Read the body string. original.string() reads all bytes and automatically
+        // closes the underlying network ResponseBody stream, preventing socket leaks.
+        String bodyString = original.string();
 
         android.util.Log.d(TAG, "<-- " + response.code() + " " + response.request().url().toString());
         if (bodyString == null || bodyString.trim().isEmpty()) {

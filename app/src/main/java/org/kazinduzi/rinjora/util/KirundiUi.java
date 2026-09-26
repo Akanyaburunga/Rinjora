@@ -113,6 +113,8 @@ public final class KirundiUi {
     public static final String G_CAP_LOGIN = "Winjira";
     public static final String G_CAP_LATER = "Ejo";
     public static final String G_REMAINING_PREFIX = "Hasigaye nka umushitsi: ";
+    public static final String G_THROTTLE = "Gusaba birenze urugero. Gerageza nyuma y'akanya.";
+    public static final String G_AUTH_FAIL = "Ntibyashoboye. Subira igerageze.";
 
     /** e.g. "Hasigaye nka umushitsi: 3 muri 5". */
     public static String guestRemaining(int remaining, int limit) {
